@@ -5,7 +5,7 @@ namespace LegendsViewer.Frontend;
 
 public static class WebAppStaticServer
 {
-    public const uint WebAppPort = 8081;
+    public const uint WebAppPort = 15422;
     public static readonly string WebAppUrl = $"http://localhost:{WebAppPort}";
 
     public static async Task RunAsync()

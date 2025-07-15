@@ -16,7 +16,7 @@ namespace LegendsViewer.Backend;
 public class Program
 {
     private const string AllowAllOriginsPolicy = "AllowAllOrigins";
-    public const uint BackendPort = 5054;
+    public const uint BackendPort = 15421;
     public static readonly string BackendUrl = $"http://localhost:{BackendPort}";
 
     public static void Main(string[] args)

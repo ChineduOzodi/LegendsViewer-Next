@@ -21,6 +21,9 @@ export const useBookmarkStore = defineStore('bookmark', {
     isLoaded: (state) => {
       return state.bookmarks.some(bookmark => bookmark.state === 'Loaded');
     },
+    currentWorld: (state) => {
+      return state.bookmarks.find(bookmark => bookmark.state === 'Loaded');
+    },
   },
   actions: {
     async loadByFullPath(filePath: string, latestTimestamp: string) {

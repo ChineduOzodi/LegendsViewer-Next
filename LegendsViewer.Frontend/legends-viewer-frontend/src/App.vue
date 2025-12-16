@@ -2,12 +2,17 @@
 import { useBookmarkStore } from './stores/bookmarkStore';
 import { useVersionStore } from './stores/versionStore';
 import { useFavoriteStore } from './stores/favoriteStore';
+import { ref } from 'vue';
+import { useDisplay } from 'vuetify';
 
 const versionStore = useVersionStore()
 versionStore.loadVersion()
 const bookmarkStore = useBookmarkStore()
 bookmarkStore.getAll()
 const favoriteStore = useFavoriteStore();
+const { mobile } = useDisplay();
+
+const drawer = ref(null);
 
 const societyItems = [
   { title: 'Factions and Groups', to: '/entity' },
@@ -64,6 +69,7 @@ const ritualItems = [
   <v-responsive class="border rounded">
     <v-app>
       <v-app-bar>
+        <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
         <div class="logo">
           <v-img src="/ceretelina.png"></v-img>
         </div>
@@ -78,7 +84,7 @@ const ritualItems = [
         </div>
       </v-app-bar>
 
-      <v-navigation-drawer>
+      <v-navigation-drawer v-model="drawer">
         <v-list nav class="nav-list">
           <v-list-item prepend-icon="mdi-file-tree-outline" title="Explore Worlds" to="/"
             :active-class="'v-list-item--active'" />

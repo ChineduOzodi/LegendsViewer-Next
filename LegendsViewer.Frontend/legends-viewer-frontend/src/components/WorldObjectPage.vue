@@ -38,6 +38,49 @@
             </v-card>
         </v-col>
     </v-row>
+    <v-row v-if="store.object">
+        <v-col cols="12">
+             <v-card variant="text" class="mb-4">
+                <v-card-title class="d-flex align-center">
+                    <v-icon icon="mdi-magic-staff" class="mr-2"></v-icon>
+                    Story
+                    <v-spacer></v-spacer>
+                    <v-btn 
+                        v-if="!currentSummary"
+                        prepend-icon="mdi-creation"
+                        variant="text"
+                        :loading="aiStore.isGenerating"
+                        @click="generateAiSummary"
+                    >
+                        Generate Story
+                    </v-btn>
+                     <v-btn 
+                        v-else
+                        icon="mdi-refresh"
+                        variant="text"
+                        size="small"
+                        :loading="aiStore.isGenerating"
+                        @click="generateAiSummary"
+                    >
+                    </v-btn>
+                </v-card-title>
+                <v-card-text v-if="currentSummary" class="text-body-1 font-italic">
+                    <div style="white-space: pre-wrap;">
+                        <template v-for="(part, index) in parseSummary(currentSummary)" :key="index">
+                            <span v-if="part.type === 'icon'" v-html="part.content" class="mr-1"></span>
+                            <router-link v-else-if="part.type === 'link'" :to="'/' + part.link" class="text-decoration-none font-weight-bold text-primary">
+                                {{ part.text }}
+                            </router-link>
+                            <span v-else>{{ part.content }}</span>
+                        </template>
+                    </div>
+                </v-card-text>
+                 <v-alert v-if="aiStore.error" type="error" variant="tonal" closable class="mt-2">
+                    {{ aiStore.error }}
+                </v-alert>
+            </v-card>
+        </v-col>
+    </v-row>
     <v-row>
         <v-col v-if="mapStore?.currentWorldObjectMap" cols="12" xl="4" lg="6" md="12">
             <!-- Location on World Map -->
@@ -117,8 +160,11 @@ import LineChart from '../components/LineChart.vue';
 import ExpandableCard from '../components/ExpandableCard.vue';
 import BarChart from './BarChart.vue';
 import { useFavoriteStore } from '../stores/favoriteStore';
+import { useAiStore, AiSummary } from '../stores/aiStore';
+import { generatePrompt, extractReferences } from '../utils/aiPrompts';
 
 const favoriteStore = useFavoriteStore();
+const aiStore = useAiStore();
 
 const route = useRoute()
 const routeId = computed(() => {
@@ -168,6 +214,66 @@ const props = defineProps({
         required: true,
     },
 });
+
+const currentSummary = computed(() => aiStore.getSummary(props.store.object?.id ?? -1, props.objectType));
+
+const parseSummary = (summaryObj: AiSummary) => {
+    const text = summaryObj.summary;
+    const references = summaryObj.references || {};
+    const parts = [];
+    const regex = /\[(.*?)\]\((.*?)\)/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            parts.push({ type: 'text', content: text.substring(lastIndex, match.index) });
+        }
+        
+        const linkText = match[1];
+        const linkUrl = match[2];
+        
+        // Check if we have an icon for this link
+        if (references[linkUrl]) {
+             parts.push({ type: 'icon', content: references[linkUrl] });
+        }
+        
+        parts.push({ type: 'link', text: linkText, link: linkUrl });
+        
+        lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+        parts.push({ type: 'text', content: text.substring(lastIndex) });
+    }
+    return parts;
+};
+
+const generateAiSummary = async () => {
+    if (!props.store.object) return;
+    
+    const prompt = generatePrompt(
+        props.store.object.name,
+        props.objectType,
+        props.store.objectEvents,
+        props.store.objectEventCollections,
+        props.store.object
+    );
+
+    const references = extractReferences(
+        props.store.objectEvents,
+        props.store.objectEventCollections,
+        props.store.object
+    );
+    
+    await aiStore.generateSummary(
+        props.store.object.id,
+        props.objectType,
+        props.store.object.name,
+        prompt,
+        references
+    );
+}
 
 const load = async (idString: string | string[]) => {
     if (typeof idString === 'string') {

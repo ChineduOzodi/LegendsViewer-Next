@@ -123,13 +123,26 @@ public class HfDied : WorldEvent, IFeatured
                 case "shooter_artifact_id": ShooterArtifact = world.GetArtifact(Convert.ToInt32(property.Value)); break;
             }
         }
-
-        HistoricalFigure?.AddEvent(this);
-        if (HistoricalFigure?.DeathCause == DeathCause.None)
+        if (HistoricalFigure != null)
         {
-            HistoricalFigure.DeathEvent = this;
-            HistoricalFigure.DeathCause = Cause;
+            HistoricalFigure.AddEvent(this);
+            if (HistoricalFigure.DeathCause == DeathCause.None)
+            {
+                HistoricalFigure.DeathEvent = this;
+                HistoricalFigure.DeathCause = Cause;
+            }
+            if (Cause == DeathCause.PutToRest)
+            {
+                HistoricalFigure.Ghost = false;
+            }
+            if (HistoricalFigure.DeathYear == -1)
+            {
+                HistoricalFigure.DeathYear = Year;
+                HistoricalFigure.DeathSeconds72 = Seconds72;
+            }
+            HistoricalFigure.Zombie = false;
         }
+
 
         if (Slayer != null)
         {

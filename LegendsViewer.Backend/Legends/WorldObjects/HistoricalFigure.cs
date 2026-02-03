@@ -107,6 +107,7 @@ public class HistoricalFigure : WorldObject
     public List<State> States { get; set; } = [];
 
     public List<CreatureType> CreatureTypes { get; set; } = [];
+    public List<CreatureType> UndeadTypes { get; set; } = [];
 
     [JsonIgnore]
     public List<HistoricalFigureLink> RelatedHistoricalFigures { get; set; } = [];
@@ -544,6 +545,7 @@ public class HistoricalFigure : WorldObject
     public bool Force { get; set; }
     public bool Zombie { get; set; }
     public bool Ghost { get; set; }
+    public string GhostType { get; set; } = string.Empty;
     public bool Animated { get; set; }
     public string AnimatedType { get; set; } = string.Empty;
     public bool Adventurer { get; set; }
@@ -1082,6 +1084,20 @@ public class HistoricalFigure : WorldObject
         }
 
         string raceString = "";
+
+        if (Ghost)
+        {
+            raceString += $"{GhostType ?? "ghost"} ";
+        }
+        else if (Skeleton)
+        {
+            raceString += "skeleton ";
+        }
+        else if (Zombie)
+        {
+            raceString += "zombie ";
+        }
+
         if (!string.IsNullOrWhiteSpace(PreviousRace))
         {
             raceString += PreviousRace.ToLower() + " turned ";
@@ -1110,13 +1126,18 @@ public class HistoricalFigure : WorldObject
 
     private string GetRaceStringForTimeStamp(int year, int month, int day)
     {
-        if (CreatureTypes.Count == 0)
+        if (CreatureTypes.Count == 0 && UndeadTypes.Count == 0)
         {
             return RaceString;
         }
 
-        List<CreatureType> relevantCreatureTypes = GetRelevantCreatureTypesByTimeStamp(year, month, day);
         string raceString = "";
+
+        foreach (var undeadType in GetRelevantCreatureTypesByTimeStamp(UndeadTypes, year, month, day))
+        {
+            raceString += undeadType.Type + " ";
+        }
+
         if (!string.IsNullOrWhiteSpace(PreviousRace))
         {
             raceString += PreviousRace.ToLower();
@@ -1130,7 +1151,7 @@ public class HistoricalFigure : WorldObject
             raceString += Race.NameSingular.ToLower();
         }
 
-        foreach (var creatureType in relevantCreatureTypes)
+        foreach (var creatureType in GetRelevantCreatureTypesByTimeStamp(CreatureTypes, year, month, day))
         {
             raceString += " " + creatureType.Type;
         }
@@ -1138,10 +1159,10 @@ public class HistoricalFigure : WorldObject
         return raceString;
     }
 
-    private List<CreatureType> GetRelevantCreatureTypesByTimeStamp(int year, int month, int day)
+    private List<CreatureType> GetRelevantCreatureTypesByTimeStamp(List<CreatureType> creatureTypes, int year, int month, int day)
     {
         List<CreatureType> relevantCreatureTypes = [];
-        foreach (var creatureType in CreatureTypes)
+        foreach (var creatureType in creatureTypes)
         {
             if (creatureType.StartYear < year)
             {

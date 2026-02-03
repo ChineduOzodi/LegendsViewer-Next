@@ -1,12 +1,13 @@
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
+using static LegendsViewer.Backend.Legends.WorldObjects.HistoricalFigure;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
 public class HfRevived : WorldEvent
 {
-    private readonly string? _ghost;
+    private readonly string? _ghostType;
     public HistoricalFigure? HistoricalFigure { get; set; }
     public HistoricalFigure? Actor { get; set; }
     public Site? Site { get; set; }
@@ -22,7 +23,7 @@ public class HfRevived : WorldEvent
         {
             switch (property.Name)
             {
-                case "ghost": _ghost = property.Value; break;
+                case "ghost": _ghostType = property.Value; break;
                 case "hfid": HistoricalFigure = world.GetHistoricalFigure(Convert.ToInt32(property.Value)); break;
                 case "site_id": Site = world.GetSite(Convert.ToInt32(property.Value)); break;
                 case "subregion_id": Region = world.GetRegion(Convert.ToInt32(property.Value)); break;
@@ -33,11 +34,26 @@ public class HfRevived : WorldEvent
             }
         }
 
-        HistoricalFigure.AddEvent(this);
+        if(HistoricalFigure != null)
+        {
+            if (_ghostType != null)
+            {
+                HistoricalFigure.Ghost = true;
+                HistoricalFigure.GhostType = _ghostType;
+                HistoricalFigure.UndeadTypes.Add(new CreatureType(_ghostType, this));
+            }
+            else {
+                HistoricalFigure.Zombie = true;
+                HistoricalFigure.UndeadTypes.Add(new CreatureType("zombie", this));
+            }
+            HistoricalFigure.AddEvent(this);
+        }
+
         Site.AddEvent(this);
         Region.AddEvent(this);
         UndergroundRegion.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
         string eventString = GetYearTime();
@@ -63,13 +79,13 @@ public class HfRevived : WorldEvent
             eventString += Actor.ToLink(link, pov, this);
         }
 
-        if (!string.IsNullOrWhiteSpace(_ghost))
+        if (!string.IsNullOrWhiteSpace(_ghostType))
         {
             if (RaisedBefore)
             {
                 eventString += ", this time";
             }
-            eventString += " as a " + _ghost;
+            eventString += " as a " + _ghostType;
         }
 
         if (Site != null)

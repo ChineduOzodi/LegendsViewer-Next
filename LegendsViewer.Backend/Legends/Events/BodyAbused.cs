@@ -138,7 +138,8 @@ public class BodyAbused : WorldEvent
                 body.AddEvent(this);
                 if (AbuseType == AbuseType.Animated)
                 {
-                    body.CreatureTypes.Add(new HistoricalFigure.CreatureType("animated corpse", this));
+                    body.Zombie = true;
+                    body.UndeadTypes.Add(new HistoricalFigure.CreatureType("zombie", this));
                 }
             }
         });

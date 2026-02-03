@@ -951,12 +951,12 @@ public class HistoricalFigure : WorldObject
         {
             Positions = [];
         }
-        var position = Positions.LastOrDefault(p => string.Equals(p.Title, title, StringComparison.OrdinalIgnoreCase) && p.Entity == entity && p.PositionId == positionId);
+        var position = Positions.LastOrDefault(p => p.Entity == entity && p.PositionId == positionId);
         if (position != null)
         {
             position.EndYear = endYear;
         }
-        else
+        else if(!string.IsNullOrEmpty(title) && title != "-1")
         {
             Positions.Add(new HfPosition(entity, null, endYear, positionId, title));
             if (entity != null && entity.IsCiv && positionId == 0)

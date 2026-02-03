@@ -76,7 +76,7 @@ public class AddHfEntityLink : WorldEvent, IFeatured
         if (HistoricalFigure != null)
         {
             HistoricalFigure.AddEvent(this);
-            if (PositionId != -1)
+            if (LinkType == HfEntityLinkType.Position && PositionId != -1)
             {
                 HistoricalFigure.StartPositionAssignment(Entity, Year, PositionId, Position ?? string.Empty);
             }

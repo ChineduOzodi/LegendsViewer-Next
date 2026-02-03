@@ -329,22 +329,40 @@ public class Battle : EventCollection, IHasComplexSubtype
             }
         }
 
-        foreach (HistoricalFigure involvedHf in NotableAttackers.Union(NotableDefenders).Where(hf => hf != null))
+        foreach (HistoricalFigure involvedHfOnAttackingSide in NotableAttackers.Where(hf => hf != null))
         {
-            involvedHf.Battles.Add(this);
-            involvedHf.AddEventCollection(this);
-            BattleFought battleFought = new BattleFought(involvedHf, this, World);
+            involvedHfOnAttackingSide.Battles.Add(this);
+            involvedHfOnAttackingSide.AddEventCollection(this);
+            BattleFought battleFought = new BattleFought(involvedHfOnAttackingSide, this, World, true);
             World?.Events.Add(battleFought);
-            involvedHf.AddEvent(battleFought);
+            involvedHfOnAttackingSide.AddEvent(battleFought);
         }
 
-        foreach (HistoricalFigure involvedSupportMercenary in AttackerSupportMercenaryHfs.Union(DefenderSupportMercenaryHfs).Where(hf => hf != null))
+        foreach (HistoricalFigure involvedHfOnDefendingSide in NotableDefenders.Where(hf => hf != null))
         {
-            involvedSupportMercenary.Battles.Add(this);
-            involvedSupportMercenary.AddEventCollection(this);
-            BattleFought battleFought = new BattleFought(involvedSupportMercenary, this, World, true, true);
+            involvedHfOnDefendingSide.Battles.Add(this);
+            involvedHfOnDefendingSide.AddEventCollection(this);
+            BattleFought battleFought = new BattleFought(involvedHfOnDefendingSide, this, World, false);
             World?.Events.Add(battleFought);
-            involvedSupportMercenary.AddEvent(battleFought);
+            involvedHfOnDefendingSide.AddEvent(battleFought);
+        }
+
+        foreach (HistoricalFigure involvedSupportMercenaryOnAttackingSide in AttackerSupportMercenaryHfs.Where(hf => hf != null))
+        {
+            involvedSupportMercenaryOnAttackingSide.Battles.Add(this);
+            involvedSupportMercenaryOnAttackingSide.AddEventCollection(this);
+            BattleFought battleFought = new BattleFought(involvedSupportMercenaryOnAttackingSide, this, World, true, true, true);
+            World?.Events.Add(battleFought);
+            involvedSupportMercenaryOnAttackingSide.AddEvent(battleFought);
+        }
+
+        foreach (HistoricalFigure involvedSupportMercenaryOnDefendingSide in DefenderSupportMercenaryHfs.Where(hf => hf != null))
+        {
+            involvedSupportMercenaryOnDefendingSide.Battles.Add(this);
+            involvedSupportMercenaryOnDefendingSide.AddEventCollection(this);
+            BattleFought battleFought = new BattleFought(involvedSupportMercenaryOnDefendingSide, this, World, false, true, true);
+            World?.Events.Add(battleFought);
+            involvedSupportMercenaryOnDefendingSide.AddEvent(battleFought);
         }
 
         for (int i = 0; i < attackerSquadRaces.Count; i++)

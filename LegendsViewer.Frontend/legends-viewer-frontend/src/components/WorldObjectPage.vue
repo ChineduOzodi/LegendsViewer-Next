@@ -66,7 +66,7 @@
                             v-model:items-per-page="store.objectEventsPerPage" :headers="eventTableHeaders"
                             :items="store.objectEvents" :items-length="store.objectEventsTotalItems"
                             :loading="store.isLoading" item-value="id"
-                            :items-per-page-options="store.itemsPerPageOptions" @update:options="loadEvents">
+                            :items-per-page-options="store.itemsPerPageOptions" :sort-by="eventSortBy" @update:options="loadEvents">
                             <template v-slot:item.html="{ value }">
                                 <span v-html="value"></span>
                             </template>

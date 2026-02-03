@@ -11,10 +11,12 @@ public class BattleFought : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public HistoricalFigure? HistoricalFigure { get; set; }
     public Battle? Battle { get; }
+    public bool AsAttacker { get; }
     public bool WasHired { get; }
     public bool AsScout { get; }
 
-    public BattleFought(HistoricalFigure hf, Battle battle, World? world, bool wasHired = false, bool asScout = false) : base([], world)
+
+    public BattleFought(HistoricalFigure hf, Battle battle, World? world, bool asAttacker, bool wasHired = false, bool asScout = false) : base([], world)
     {
         Id = world?.Events.Count ?? -1;
         Type = "battle fought";
@@ -23,6 +25,7 @@ public class BattleFought : WorldEvent
 
         HistoricalFigure = hf;
         Battle = battle;
+        AsAttacker = asAttacker;
         WasHired = wasHired;
         AsScout = asScout;
         Site = battle.Site;
@@ -57,7 +60,14 @@ public class BattleFought : WorldEvent
 
         if (Site != null)
         {
-            eventString.Append($" an assault on {Site.ToLink(link, pov, this)}");
+            if (AsAttacker)
+            {
+                eventString.Append($", an assault on {Site.ToLink(link, pov, this)}");
+            }
+            else
+            {
+                eventString.Append($" in defense of {Site.ToLink(link, pov, this)}");
+            }
         }
         else if (Region != null)
         {

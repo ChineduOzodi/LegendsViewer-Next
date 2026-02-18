@@ -24,7 +24,7 @@
 
 ### Prerequisites
 
-- **.NET 8 SDK**: [Download here](https://dotnet.microsoft.com/download/dotnet/8.0)
+- **.NET 10 SDK**: [Download here](https://dotnet.microsoft.com/download/dotnet/10.0)
 - **Node.js**: [Download here](https://nodejs.org/)
 
 ### Backend Setup

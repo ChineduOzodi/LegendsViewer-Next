@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -14,7 +15,7 @@ public class ChangeHfJob : WorldEvent
     public UndergroundRegion? UndergroundRegion;
     public string NewJob { get; set; } = "UNKNOWN JOB";
     public string OldJob { get; set; } = "UNKNOWN JOB";
-    public ChangeHfJob(List<Property> properties, World world)
+    public ChangeHfJob(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -70,3 +71,4 @@ public class ChangeHfJob : WorldEvent
         return eventString.ToString();
     }
 }
+

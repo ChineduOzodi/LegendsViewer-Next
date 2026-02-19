@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class HfLearnsSecret : WorldEvent
     public string? Interaction { get; set; }
     public string? SecretText { get; set; }
 
-    public HfLearnsSecret(List<Property> properties, World world)
+    public HfLearnsSecret(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -68,3 +69,4 @@ public class HfLearnsSecret : WorldEvent
         return eventString;
     }
 }
+

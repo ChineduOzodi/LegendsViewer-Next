@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -19,7 +20,7 @@ public class RegionpopIncorporatedIntoEntity : WorldEvent
     public WorldRegion? PopSourceRegion { get; set; }
     public string? PopFlId { get; set; }
 
-    public RegionpopIncorporatedIntoEntity(List<Property> properties, World world) : base(properties, world)
+    public RegionpopIncorporatedIntoEntity(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -77,3 +78,5 @@ public class RegionpopIncorporatedIntoEntity : WorldEvent
         return eventString;
     }
 }
+
+

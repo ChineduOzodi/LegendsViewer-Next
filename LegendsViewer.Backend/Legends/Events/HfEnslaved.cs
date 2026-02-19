@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -13,7 +14,7 @@ public class HfEnslaved : WorldEvent
     public Entity? PayerEntity { get; set; }
     public Site? MovedToSite { get; set; }
 
-    public HfEnslaved(List<Property> properties, World world) : base(properties, world)
+    public HfEnslaved(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -66,3 +67,4 @@ public class HfEnslaved : WorldEvent
         return eventString;
     }
 }
+

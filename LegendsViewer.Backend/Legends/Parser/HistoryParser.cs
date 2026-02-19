@@ -1,4 +1,5 @@
-﻿using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -8,14 +9,14 @@ namespace LegendsViewer.Backend.Legends.Parser;
 
 public class HistoryParser : IDisposable
 {
-    private readonly World _world;
+    private readonly IWorld _world;
     private readonly StreamReader _history;
     private readonly StringBuilder _log;
 
     private string _currentLine = string.Empty;
     private Entity? _currentCiv;
 
-    public HistoryParser(World world, string historyFile)
+    public HistoryParser(IWorld world, string historyFile)
     {
         _world = world;
         _history = new StreamReader(historyFile, Encoding.GetEncoding("windows-1252"));
@@ -250,3 +251,4 @@ public class HistoryParser : IDisposable
         }
     }
 }
+

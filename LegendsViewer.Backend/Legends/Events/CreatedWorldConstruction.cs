@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class CreatedWorldConstruction : WorldEvent
     public Site? Site2 { get; set; }
     public WorldConstruction? WorldConstruction { get; set; }
     public WorldConstruction? MasterWorldConstruction { get; set; }
-    public CreatedWorldConstruction(List<Property> properties, World world)
+    public CreatedWorldConstruction(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -78,3 +79,4 @@ public class CreatedWorldConstruction : WorldEvent
         return eventString;
     }
 }
+

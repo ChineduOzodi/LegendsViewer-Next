@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -19,7 +20,7 @@ public class ChangeHfBodyState : WorldEvent
     public Location? Coordinates { get; set; }
     private readonly string? _unknownBodyState;
 
-    public ChangeHfBodyState(List<Property> properties, World world)
+    public ChangeHfBodyState(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -86,3 +87,4 @@ public class ChangeHfBodyState : WorldEvent
         return eventString;
     }
 }
+

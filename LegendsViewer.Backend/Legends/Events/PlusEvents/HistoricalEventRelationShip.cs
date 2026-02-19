@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -18,7 +19,7 @@ public class HistoricalEventRelationShip : WorldEvent
     public VagueRelationshipType RelationshipType { get; set; }
     private Site? Site { get; set; }
 
-    public HistoricalEventRelationShip(List<Property> properties, World world) : base(properties, world)
+    public HistoricalEventRelationShip(List<Property> properties, IWorld world) : base(properties, world)
     {
         Type = "historical event relationship";
         Seconds72 = -1;
@@ -48,7 +49,7 @@ public class HistoricalEventRelationShip : WorldEvent
         TargetHf?.AddEvent(this);
     }
 
-    public static void ResolveSupplements(List<Property> properties, World world)
+    public static void ResolveSupplements(List<Property> properties, IWorld world)
     {
         HistoricalEventRelationShip? historicalEventRelationShip = null;
         int occasionType = -1;
@@ -125,3 +126,4 @@ public class HistoricalEventRelationShip : WorldEvent
         return eventString.ToString();
     }
 }
+

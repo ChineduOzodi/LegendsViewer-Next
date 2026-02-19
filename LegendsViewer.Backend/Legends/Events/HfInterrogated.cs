@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -12,7 +13,7 @@ public class HfInterrogated : WorldEvent
     public HistoricalFigure? InterrogatorHf { get; set; }
     public Entity? ArrestingEntity { get; set; }
 
-    public HfInterrogated(List<Property> properties, World world) : base(properties, world)
+    public HfInterrogated(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -58,3 +59,4 @@ public class HfInterrogated : WorldEvent
         return eventString;
     }
 }
+

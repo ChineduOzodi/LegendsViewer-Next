@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -13,7 +14,7 @@ public class DestroyedSite : WorldEvent
     public Entity? Defender { get; set; }
     public bool NoDefeatMention { get; set; }
 
-    public DestroyedSite(List<Property> properties, World world)
+    public DestroyedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -79,3 +80,4 @@ public class DestroyedSite : WorldEvent
         return eventString;
     }
 }
+

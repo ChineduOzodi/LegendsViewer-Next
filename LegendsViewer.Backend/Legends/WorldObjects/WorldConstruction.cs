@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -30,7 +30,7 @@ public class WorldConstruction : WorldObject, IHasCoordinates
     public WorldConstruction? MasterConstruction { get; set; } // legends_plus.xml
     public string? MasterConstructionToLink => MasterConstruction?.ToLink(true);
 
-    public WorldConstruction(List<Property> properties, World world)
+    public WorldConstruction(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("sign-caution");
@@ -103,3 +103,4 @@ public class WorldConstruction : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

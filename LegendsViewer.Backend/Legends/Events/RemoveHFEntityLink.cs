@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -14,7 +15,7 @@ public class RemoveHfEntityLink : WorldEvent
     public string? Position { get; set; }
     public int PositionId { get; set; }
 
-    public RemoveHfEntityLink(List<Property> properties, World world)
+    public RemoveHfEntityLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         LinkType = HfEntityLinkType.Unknown;
@@ -133,3 +134,4 @@ public class RemoveHfEntityLink : WorldEvent
         return eventString;
     }
 }
+

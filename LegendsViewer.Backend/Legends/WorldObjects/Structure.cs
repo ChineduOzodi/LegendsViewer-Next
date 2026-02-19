@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -66,7 +66,7 @@ public class Structure : WorldObject, IHasCoordinates
     public List<Artifact> CopiedArtifacts { get; set; } = [];
     public List<string> CopiedArtifactLinks => CopiedArtifacts.ConvertAll(x => x.ToLink(true, this));
 
-    public Structure(List<Property> properties, World world, Site site)
+    public Structure(List<Property> properties, IWorld world, Site site)
         : base(properties, world)
     {
         Name = "Structure";
@@ -204,7 +204,7 @@ public class Structure : WorldObject, IHasCoordinates
         Subtype = StructureSubType != StructureSubType.Unknown ? StructureSubType.GetDescription() : "";
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         if (InhabitantIDs.Count > 0)
         {
@@ -279,3 +279,5 @@ public class Structure : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+
+

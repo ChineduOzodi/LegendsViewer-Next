@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -18,7 +19,7 @@ public class ArtifactFound : WorldEvent
     public int SitePropertyId { get; set; }
     public SiteProperty? SiteProperty { get; set; }
 
-    public ArtifactFound(List<Property> properties, World world)
+    public ArtifactFound(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -102,3 +103,5 @@ public class ArtifactFound : WorldEvent
         return eventString;
     }
 }
+
+

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -14,7 +15,7 @@ public class EntityIncorporated : WorldEvent
     public HistoricalFigure? Leader { get; set; }
     public bool PartialIncorporation { get; set; }
 
-    public EntityIncorporated(List<Property> properties, World world) : base(properties, world)
+    public EntityIncorporated(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -80,3 +81,5 @@ public class EntityIncorporated : WorldEvent
         return eventString;
     }
 }
+
+

@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -61,7 +61,7 @@ public class WorldRegion : WorldObject, IRegion
 
     private static readonly char[] coordinateSeparator = ['|'];
 
-    public WorldRegion(List<Property> properties, World world)
+    public WorldRegion(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("map-legend");
@@ -182,7 +182,7 @@ public class WorldRegion : WorldObject, IRegion
         return Icon;
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         if (ForceId != -1)
         {
@@ -194,3 +194,4 @@ public class WorldRegion : WorldObject, IRegion
         }
     }
 }
+

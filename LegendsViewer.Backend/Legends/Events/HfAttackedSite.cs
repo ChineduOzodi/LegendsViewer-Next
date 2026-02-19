@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -11,7 +12,7 @@ public class HfAttackedSite : WorldEvent
     public Entity? SiteCiv { get; set; }
     public Site? Site { get; set; }
 
-    public HfAttackedSite(List<Property> properties, World world) : base(properties, world)
+    public HfAttackedSite(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -54,3 +55,4 @@ public class HfAttackedSite : WorldEvent
         return eventString;
     }
 }
+

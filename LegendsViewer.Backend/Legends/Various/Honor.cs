@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
 using System.Text.Json.Serialization;
@@ -30,7 +31,7 @@ public class Honor
     public List<HistoricalFigure> HonoredHfs { get; set; }
     public List<string> HonoredHfLinks => HonoredHfs.ConvertAll(x => x.ToLink(true));
 
-    public Honor(List<Property> properties, World world, Entity entity)
+    public Honor(List<Property> properties, IWorld world, Entity entity)
     {
         HonoredHfs = [];
         Entity = entity;
@@ -193,3 +194,5 @@ public class Honor
         return requirementsString;
     }
 }
+
+

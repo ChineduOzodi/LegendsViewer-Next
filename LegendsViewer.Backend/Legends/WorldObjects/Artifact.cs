@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Contracts;
+using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
@@ -51,7 +51,7 @@ public class Artifact : WorldObject, IHasCoordinates
     public WorldRegion? Region { get; set; }
     public string? RegionLink => Region?.ToLink(true, this);
 
-    public Artifact(List<Property> properties, World world)
+    public Artifact(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("diamond-stone");
@@ -159,7 +159,7 @@ public class Artifact : WorldObject, IHasCoordinates
         return new string(result);
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         if (HolderId > -1)
         {
@@ -200,3 +200,4 @@ public class Artifact : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

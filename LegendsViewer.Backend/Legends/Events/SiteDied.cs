@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class SiteDied : WorldEvent
 
     public bool Abandoned;
 
-    public SiteDied(List<Property> properties, World world)
+    public SiteDied(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -74,3 +75,4 @@ public class SiteDied : WorldEvent
         return eventString;
     }
 }
+

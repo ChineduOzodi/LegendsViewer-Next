@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -17,7 +18,7 @@ public class Trade : WorldEvent
     public int Allotment { get; set; }
     public int AllotmentIndex { get; set; }
 
-    public Trade(List<Property> properties, World world) : base(properties, world)
+    public Trade(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -90,3 +91,5 @@ public class Trade : WorldEvent
         return eventString;
     }
 }
+
+

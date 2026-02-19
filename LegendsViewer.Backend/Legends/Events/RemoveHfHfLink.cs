@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldLinks;
@@ -13,7 +14,7 @@ public class RemoveHfHfLink : WorldEvent
     public HistoricalFigure? HistoricalFigureTarget { get; set; }
     public HistoricalFigureLinkType LinkType { get; set; }
 
-    public RemoveHfHfLink(List<Property> properties, World world)
+    public RemoveHfHfLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -120,3 +121,5 @@ public class RemoveHfHfLink : WorldEvent
         return eventString;
     }
 }
+
+

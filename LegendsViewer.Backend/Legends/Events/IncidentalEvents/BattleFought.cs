@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.EventCollections;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using System.Text;
 
@@ -16,7 +17,7 @@ public class BattleFought : WorldEvent
     public bool AsScout { get; }
 
 
-    public BattleFought(HistoricalFigure hf, Battle battle, World? world, bool asAttacker, bool wasHired = false, bool asScout = false) : base([], world)
+    public BattleFought(HistoricalFigure hf, Battle battle, IWorld? world, bool asAttacker, bool wasHired = false, bool asScout = false) : base([], world)
     {
         Id = world?.Events.Count ?? -1;
         Type = "battle fought";
@@ -82,3 +83,5 @@ public class BattleFought : WorldEvent
         return eventString.ToString();
     }
 }
+
+

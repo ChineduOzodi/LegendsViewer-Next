@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Contracts;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
@@ -23,7 +24,7 @@ public abstract class WorldObject : DwarfObject
     public List<EventCollection> EventCollections { get; set; } = [];
 
     [JsonIgnore]
-    public World? World { get; }
+    public IWorld? World { get; }
 
     public int EventCount => Events.Count;
     public int EventCollectionCount => EventCollections.Count;
@@ -33,12 +34,12 @@ public abstract class WorldObject : DwarfObject
         Id = -1;
     }
 
-    protected WorldObject(World world) : this()
+    protected WorldObject(IWorld world) : this()
     {
         World = world;
     }
 
-    protected WorldObject(List<Property> properties, World world) : this(world)
+    protected WorldObject(List<Property> properties, IWorld world) : this(world)
     {
         foreach (Property property in properties)
         {
@@ -79,3 +80,4 @@ public abstract class WorldObject : DwarfObject
         return false;
     }
 }
+

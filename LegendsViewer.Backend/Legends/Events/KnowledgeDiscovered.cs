@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,7 +11,7 @@ public class KnowledgeDiscovered : WorldEvent
     public bool First { get; set; }
     public HistoricalFigure? HistoricalFigure { get; set; }
 
-    public KnowledgeDiscovered(List<Property> properties, World world) : base(properties, world)
+    public KnowledgeDiscovered(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -56,3 +57,4 @@ public class KnowledgeDiscovered : WorldEvent
         return eventString;
     }
 }
+

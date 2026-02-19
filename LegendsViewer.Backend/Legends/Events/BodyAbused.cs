@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -29,7 +30,7 @@ public class BodyAbused : WorldEvent
     public Location? Coordinates { get; set; }
     public Structure? Structure { get; set; }
 
-    public BodyAbused(List<Property> properties, World world)
+    public BodyAbused(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         int structureId = -1;
@@ -253,3 +254,4 @@ public class BodyAbused : WorldEvent
         return eventString;
     }
 }
+

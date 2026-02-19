@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -14,7 +15,7 @@ public class HfEquipmentPurchase : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public int Quality { get; set; }
 
-    public HfEquipmentPurchase(List<Property> properties, World world) : base(properties, world)
+    public HfEquipmentPurchase(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -93,3 +94,5 @@ public class HfEquipmentPurchase : WorldEvent
         return eventString;
     }
 }
+
+

@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Extensions;
+using LegendsViewer.Backend.Extensions;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
@@ -10,7 +10,7 @@ public class PerformanceCollection : EventCollection, IHasComplexSubtype
 {
     public int Ordinal { get; set; } = -1;
 
-    public PerformanceCollection(List<Property> properties, World world)
+    public PerformanceCollection(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -101,3 +101,4 @@ public class PerformanceCollection : EventCollection, IHasComplexSubtype
         return text;
     }
 }
+

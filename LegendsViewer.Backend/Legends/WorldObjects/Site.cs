@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Text.Json.Serialization;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
@@ -194,7 +194,7 @@ public class Site : WorldObject, IHasCoordinates
         }
     }
 
-    public Site(List<Property> properties, World world)
+    public Site(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -412,3 +412,4 @@ public class Site : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

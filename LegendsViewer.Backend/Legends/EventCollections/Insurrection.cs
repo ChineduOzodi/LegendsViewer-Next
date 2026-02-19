@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +17,7 @@ public class Insurrection : EventCollection
     public List<HistoricalFigure> Deaths => GetSubEvents().OfType<HfDied>().Where(death => death.HistoricalFigure != null).Select(death => death.HistoricalFigure!).ToList();
     public int DeathCount => Deaths.Count;
 
-    public Insurrection(List<Property> properties, World world)
+    public Insurrection(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -84,3 +85,5 @@ public class Insurrection : EventCollection
         return $"the {Name} in {Site}";
     }
 }
+
+

@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -13,7 +14,7 @@ public class InsurrectionStarted : WorldEvent
     public bool ActualStart { get; set; }
     private readonly string? _unknownOutcome;
 
-    public InsurrectionStarted(List<Property> properties, World world) : base(properties, world)
+    public InsurrectionStarted(List<Property> properties, IWorld world) : base(properties, world)
     {
         ActualStart = false;
 
@@ -78,3 +79,4 @@ public class InsurrectionStarted : WorldEvent
         return eventString;
     }
 }
+

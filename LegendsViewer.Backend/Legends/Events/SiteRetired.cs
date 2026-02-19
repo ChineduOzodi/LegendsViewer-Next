@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -11,7 +12,7 @@ public class SiteRetired : WorldEvent
     public Site? Site { get; set; }
     public string? First { get; set; } // TODO
 
-    public SiteRetired(List<Property> properties, World world)
+    public SiteRetired(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -49,3 +50,4 @@ public class SiteRetired : WorldEvent
         return eventString;
     }
 }
+

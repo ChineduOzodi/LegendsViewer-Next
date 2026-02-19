@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -10,7 +11,7 @@ public class Competition : OccasionEvent
     private HistoricalFigure? Winner { get; set; }
     private List<HistoricalFigure> Competitors { get; set; } = [];
 
-    public Competition(List<Property> properties, World world) : base(properties, world)
+    public Competition(List<Property> properties, IWorld world) : base(properties, world)
     {
         OccasionType = OccasionType.Competition;
 
@@ -75,3 +76,4 @@ public class Competition : OccasionEvent
         return eventString;
     }
 }
+

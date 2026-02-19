@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+using LegendsViewer.Backend.Legends.Interfaces;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
@@ -567,7 +568,7 @@ public class HistoricalFigure : WorldObject
         return Name;
     }
 
-    public HistoricalFigure(List<Property> properties, World world)
+    public HistoricalFigure(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -1237,3 +1238,4 @@ public class HistoricalFigure : WorldObject
         return true;
     }
 }
+

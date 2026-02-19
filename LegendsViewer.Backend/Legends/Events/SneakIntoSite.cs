@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -11,7 +12,7 @@ public class SneakIntoSite : WorldEvent
     public Entity? SiteCiv { get; set; }
     public Site? Site { get; set; }
 
-    public SneakIntoSite(List<Property> properties, World world)
+    public SneakIntoSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -49,3 +50,5 @@ public class SneakIntoSite : WorldEvent
         return eventString;
     }
 }
+
+

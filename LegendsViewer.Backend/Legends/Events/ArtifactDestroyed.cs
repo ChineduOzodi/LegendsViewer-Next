@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,7 +11,7 @@ public class ArtifactDestroyed : WorldEvent
     public Site? Site { get; set; }
     public HistoricalFigure? Destroyer { get; set; }
 
-    public ArtifactDestroyed(List<Property> properties, World world)
+    public ArtifactDestroyed(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -44,3 +45,4 @@ public class ArtifactDestroyed : WorldEvent
         return eventString;
     }
 }
+

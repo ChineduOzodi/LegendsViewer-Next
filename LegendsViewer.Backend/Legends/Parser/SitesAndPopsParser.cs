@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+using LegendsViewer.Backend.Legends.Interfaces;
+using System.ComponentModel;
 using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
@@ -10,14 +11,14 @@ namespace LegendsViewer.Backend.Legends.Parser;
 
 public class SitesAndPopulationsParser : IDisposable
 {
-    private readonly World _world;
+    private readonly IWorld _world;
     private readonly StreamReader _sitesAndPops;
 
     private string _currentLine = string.Empty;
     private Site? _site;
     private Entity? _owner;
 
-    public SitesAndPopulationsParser(World world, string sitesAndPopsFile)
+    public SitesAndPopulationsParser(IWorld world, string sitesAndPopsFile)
     {
         _world = world;
         _sitesAndPops = new StreamReader(sitesAndPopsFile, Encoding.GetEncoding("windows-1252"));
@@ -400,3 +401,4 @@ public class SitesAndPopulationsParser : IDisposable
         }
     }
 }
+

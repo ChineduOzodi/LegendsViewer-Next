@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -22,7 +23,7 @@ public class SiteConquered : EventCollection
     public List<HistoricalFigure> Deaths => GetSubEvents().OfType<HfDied>().Where(death => death.HistoricalFigure != null).Select(death => death.HistoricalFigure!).ToList();
     public int DeathCount => Deaths.Count;
 
-    public SiteConquered(List<Property> properties, World world)
+    public SiteConquered(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -136,3 +137,5 @@ public class SiteConquered : EventCollection
         return Icon;
     }
 }
+
+

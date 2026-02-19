@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -15,7 +16,7 @@ public class Gamble : WorldEvent
     public int OldAccount { get; set; }
     public int NewAccount { get; set; }
 
-    public Gamble(List<Property> properties, World world) : base(properties, world)
+    public Gamble(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -96,3 +97,5 @@ public class Gamble : WorldEvent
         return eventString;
     }
 }
+
+

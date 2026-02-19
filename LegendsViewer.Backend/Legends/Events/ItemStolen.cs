@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -24,7 +25,7 @@ public class ItemStolen : WorldEvent
     public int CircumstanceId { get; set; }
     public string? TheftMethod { get; set; }
 
-    public ItemStolen(List<Property> properties, World world)
+    public ItemStolen(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -171,3 +172,4 @@ public class ItemStolen : WorldEvent
         return eventString;
     }
 }
+

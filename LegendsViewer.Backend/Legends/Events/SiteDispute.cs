@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -15,7 +16,7 @@ public class SiteDispute : WorldEvent
 
     private readonly string? _unknownDispute;
 
-    public SiteDispute(List<Property> properties, World world) : base(properties, world)
+    public SiteDispute(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -109,3 +110,4 @@ public class SiteDispute : WorldEvent
         return eventString;
     }
 }
+

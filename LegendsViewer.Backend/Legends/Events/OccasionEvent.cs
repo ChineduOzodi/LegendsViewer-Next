@@ -20,7 +20,7 @@ public class OccasionEvent : WorldEvent
     public EntityOccasionSchedule? Schedule { get; set; }
     public ArtForm? ReferencedArtForm { get; set; }
 
-    public OccasionEvent(List<Property> properties, World world) : base(properties, world)
+    public OccasionEvent(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {

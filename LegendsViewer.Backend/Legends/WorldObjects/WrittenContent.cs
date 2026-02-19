@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Contracts;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -70,7 +71,7 @@ public class WrittenContent : WorldObject
         }
     }
 
-    public WrittenContent(List<Property> properties, World world)
+    public WrittenContent(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("bookshelf");
@@ -256,3 +257,5 @@ public class WrittenContent : WorldObject
         return Icon;
     }
 }
+
+

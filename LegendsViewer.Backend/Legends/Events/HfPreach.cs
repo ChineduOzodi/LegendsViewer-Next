@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -13,7 +14,7 @@ public class HfPreach : WorldEvent
     public Entity? Entity1 { get; set; }
     public Entity? Entity2 { get; set; }
 
-    public HfPreach(List<Property> properties, World world) : base(properties, world)
+    public HfPreach(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -72,3 +73,4 @@ public class HfPreach : WorldEvent
         return eventString;
     }
 }
+

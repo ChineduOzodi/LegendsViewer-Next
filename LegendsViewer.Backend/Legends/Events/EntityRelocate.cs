@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -13,7 +14,7 @@ public class EntityRelocate : WorldEvent
     public int StructureId { get; set; }
     public Structure? Structure { get; set; }
 
-    public EntityRelocate(List<Property> properties, World world)
+    public EntityRelocate(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -65,3 +66,4 @@ public class EntityRelocate : WorldEvent
         return eventString;
     }
 }
+

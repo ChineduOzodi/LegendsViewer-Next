@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -19,7 +20,7 @@ public class HfConfronted : WorldEvent
     private readonly string? _unknownSituation;
     private readonly List<string> _unknownReasons = [];
 
-    public HfConfronted(List<Property> properties, World world)
+    public HfConfronted(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -113,3 +114,4 @@ public class HfConfronted : WorldEvent
         return eventString;
     }
 }
+

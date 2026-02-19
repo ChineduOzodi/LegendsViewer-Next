@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Text.Json.Serialization;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
@@ -498,7 +498,7 @@ public class Entity : WorldObject, IHasCoordinates
         set => _icon = value;
     }
 
-    public Entity(List<Property> properties, World world)
+    public Entity(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -834,3 +834,4 @@ public class Entity : WorldObject, IHasCoordinates
         return _civilizationInfo;
     }
 }
+

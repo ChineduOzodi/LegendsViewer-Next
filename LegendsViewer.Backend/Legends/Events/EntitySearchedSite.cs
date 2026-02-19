@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -10,7 +11,7 @@ public class EntitySearchedSite : WorldEvent
     public Site? Site { get; set; }
     public string? Result { get; set; }
 
-    public EntitySearchedSite(List<Property> properties, World world)
+    public EntitySearchedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -43,3 +44,5 @@ public class EntitySearchedSite : WorldEvent
         return eventString;
     }
 }
+
+

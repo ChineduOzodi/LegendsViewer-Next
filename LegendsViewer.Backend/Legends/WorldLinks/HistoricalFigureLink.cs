@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -15,7 +16,7 @@ public class HistoricalFigureLink
     public HistoricalFigureLinkType Type { get; set; }
     public int Strength { get; set; }
 
-    public HistoricalFigureLink(List<Property> properties, World world)
+    public HistoricalFigureLink(List<Property> properties, IWorld world)
     {
         Strength = 0;
         foreach (Property property in properties)
@@ -53,3 +54,4 @@ public class HistoricalFigureLink
         Strength = strength;
     }
 }
+

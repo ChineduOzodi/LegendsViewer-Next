@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -33,7 +34,7 @@ public class HfConvicted : WorldEvent
     public bool SurveiledContact { get; set; }
     public bool SurveiledTarget { get; set; }
 
-    public HfConvicted(List<Property> properties, World world) : base(properties, world)
+    public HfConvicted(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -191,3 +192,5 @@ public class HfConvicted : WorldEvent
         return eventString;
     }
 }
+
+

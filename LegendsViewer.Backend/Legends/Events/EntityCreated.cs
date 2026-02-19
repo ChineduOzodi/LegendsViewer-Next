@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class EntityCreated : WorldEvent
     public Structure? Structure { get; set; }
     public HistoricalFigure? Creator { get; set; }
 
-    public EntityCreated(List<Property> properties, World world)
+    public EntityCreated(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -71,3 +72,4 @@ public class EntityCreated : WorldEvent
         return eventString;
     }
 }
+

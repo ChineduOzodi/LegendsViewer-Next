@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Utilities;
 
@@ -9,7 +10,7 @@ public class Era : WorldObject
     public int StartYear { get; set; }
     public int EndYear { get; set; }
 
-    public Era(List<Property> properties, World world)
+    public Era(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Id = world.Eras.Count;
@@ -44,3 +45,5 @@ public class Era : WorldObject
         return string.IsNullOrWhiteSpace(Name) ? Subtype : Name;
     }
 }
+
+

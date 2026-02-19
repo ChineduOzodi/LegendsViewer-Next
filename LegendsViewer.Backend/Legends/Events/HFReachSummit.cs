@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -14,7 +15,7 @@ public class HfReachSummit : WorldEvent
     public Site? Site { get; set; }
     public Location? Coordinates;
 
-    public HfReachSummit(List<Property> properties, World world)
+    public HfReachSummit(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -58,3 +59,4 @@ public class HfReachSummit : WorldEvent
         return eventString;
     }
 }
+

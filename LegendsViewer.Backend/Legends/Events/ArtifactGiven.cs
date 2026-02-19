@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +17,7 @@ public class ArtifactGiven : WorldEvent
 
     // http://www.bay12games.com/dwarves/mantisbt/view.php?id=11350
     // 0011350: "artifact given" event sometimes has the same <giver_hist_figure_id> and <receiver_hist_figure_id>
-    public ArtifactGiven(List<Property> properties, World world)
+    public ArtifactGiven(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -103,3 +104,5 @@ public class ArtifactGiven : WorldEvent
         return eventString;
     }
 }
+
+

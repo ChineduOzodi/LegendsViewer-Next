@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +14,7 @@ public class FailedFrameAttempt : WorldEvent
     public HistoricalFigure? PlotterHf { get; set; }
     public string? Crime { get; set; }
 
-    public FailedFrameAttempt(List<Property> properties, World world) : base(properties, world)
+    public FailedFrameAttempt(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -66,3 +67,5 @@ public class FailedFrameAttempt : WorldEvent
         return eventString;
     }
 }
+
+

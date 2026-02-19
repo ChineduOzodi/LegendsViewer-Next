@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class AddHfEntityHonor : WorldEvent
     public Honor? Honor { get; set; }
     public int HonorId { get; set; }
 
-    public AddHfEntityHonor(List<Property> properties, World world) : base(properties, world)
+    public AddHfEntityHonor(List<Property> properties, IWorld world) : base(properties, world)
     {
         HonorId = -1;
         foreach (Property property in properties)
@@ -49,3 +50,4 @@ public class AddHfEntityHonor : WorldEvent
         return eventString;
     }
 }
+

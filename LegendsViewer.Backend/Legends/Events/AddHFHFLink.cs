@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -14,7 +15,7 @@ public class AddHfhfLink : WorldEvent
     public HistoricalFigure? HistoricalFigureTarget { get; set; }
     public HistoricalFigureLinkType LinkType { get; set; }
 
-    public AddHfhfLink(List<Property> properties, World world)
+    public AddHfhfLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         LinkType = HistoricalFigureLinkType.Unknown;
@@ -106,3 +107,4 @@ public class AddHfhfLink : WorldEvent
         return eventString.ToString();
     }
 }
+

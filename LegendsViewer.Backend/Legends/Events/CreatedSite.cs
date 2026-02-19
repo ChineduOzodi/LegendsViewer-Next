@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -13,7 +14,7 @@ public class CreatedSite : WorldEvent
     public Site? Site { get; set; }
     public HistoricalFigure? Builder { get; set; }
 
-    public CreatedSite(List<Property> properties, World world)
+    public CreatedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -81,3 +82,4 @@ public class CreatedSite : WorldEvent
         return eventString;
     }
 }
+

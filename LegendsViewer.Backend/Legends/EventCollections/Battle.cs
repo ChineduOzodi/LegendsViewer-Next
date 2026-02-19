@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Contracts;
+using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
@@ -179,7 +179,7 @@ public class Battle : EventCollection, IHasComplexSubtype
     [JsonIgnore]
     public List<HistoricalFigure> DefenderSupportMercenaryHfs { get; set; } = [];
 
-    public Battle(List<Property> properties, World world)
+    public Battle(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         var attackerSquadRaces = new List<CreatureInfo>();
@@ -555,3 +555,4 @@ public class Battle : EventCollection, IHasComplexSubtype
         return Icon;
     }
 }
+

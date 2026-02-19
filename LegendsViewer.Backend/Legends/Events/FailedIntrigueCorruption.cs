@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -43,7 +44,7 @@ public class FailedIntrigueCorruption : WorldEvent
     public int RelevantIdForMethod { get; set; }
 
     // Similar to hfs formed intrigue relationship
-    public FailedIntrigueCorruption(List<Property> properties, World world) : base(properties, world)
+    public FailedIntrigueCorruption(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -231,3 +232,5 @@ public class FailedIntrigueCorruption : WorldEvent
         return eventString;
     }
 }
+
+

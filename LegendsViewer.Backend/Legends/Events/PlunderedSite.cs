@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +17,7 @@ public class PlunderedSite : WorldEvent
     public bool TookLiveStock { get; set; }
     public bool TookItems { get; set; }
 
-    public PlunderedSite(List<Property> properties, World world)
+    public PlunderedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -133,3 +134,4 @@ public class PlunderedSite : WorldEvent
         return eventString;
     }
 }
+

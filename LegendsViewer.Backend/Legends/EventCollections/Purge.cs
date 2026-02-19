@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -15,7 +16,7 @@ public class Purge : EventCollection
     public List<HistoricalFigure> Deaths => GetSubEvents().OfType<HfDied>().Where(death => death.HistoricalFigure != null).Select(death => death.HistoricalFigure!).ToList();
     public int DeathCount => Deaths.Count;
 
-    public Purge(List<Property> properties, World world)
+    public Purge(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -66,3 +67,5 @@ public class Purge : EventCollection
         return $"the {Name} in {Site}";
     }
 }
+
+

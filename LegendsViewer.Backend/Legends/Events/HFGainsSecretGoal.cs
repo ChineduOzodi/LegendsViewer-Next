@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -11,7 +12,7 @@ public class HfGainsSecretGoal : WorldEvent
     public SecretGoal Goal { get; set; }
     private readonly string? _unknownGoal;
 
-    public HfGainsSecretGoal(List<Property> properties, World world)
+    public HfGainsSecretGoal(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -51,3 +52,4 @@ public class HfGainsSecretGoal : WorldEvent
         return eventString;
     }
 }
+

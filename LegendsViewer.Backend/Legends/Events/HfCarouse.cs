@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +14,7 @@ public class HfCarouse : WorldEvent
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
 
-    public HfCarouse(List<Property> properties, World world)
+    public HfCarouse(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -75,3 +76,5 @@ public class HfCarouse : WorldEvent
         return eventString;
     }
 }
+
+

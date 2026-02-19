@@ -1,4 +1,5 @@
-﻿using System;
+using LegendsViewer.Backend.Legends.Interfaces;
+using System;
 using System.Xml;
 
 namespace LegendsViewer.Backend.Legends.Parser;
@@ -8,7 +9,7 @@ public class XmlPlusParser : XmlParser
     private bool _inMiddleOfSection;
     private List<Property>? _currentItem;
 
-    public XmlPlusParser(World world, string xmlFile) : base(world, xmlFile)
+    public XmlPlusParser(IWorld world, string xmlFile) : base(world, xmlFile)
     {
     }
 

@@ -80,13 +80,13 @@ public class World : IDisposable, IWorld
 
     public List<WorldObject> PlayerRelatedObjects { get; } = [];
 
-    public readonly Dictionary<int, WorldEvent> SpecialEventsById = [];
-    public readonly Dictionary<Location, WorldRegion> WorldGrid = [];
+    public Dictionary<int, WorldEvent> SpecialEventsById { get; } = [];
+    public Dictionary<Location, WorldRegion> WorldGrid { get; } = [];
 
     public List<CreatureInfo> CreatureInfos { get; } = [];
     private readonly Dictionary<string, CreatureInfo> _creatureInfosById = [];
 
-    public readonly Dictionary<string, List<HistoricalFigure>> Breeds = [];
+    public Dictionary<string, List<HistoricalFigure>> Breeds { get; } = [];
 
     public StringBuilder Log { get; } = new StringBuilder();
     public ParsingErrors ParsingErrors { get; } = new ParsingErrors();

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
 
@@ -12,7 +13,7 @@ public class EntityOccasion
     public List<EntityOccasionSchedule> Schedules { get; set; } = [];
     public Entity? Entity { get; set; }
 
-    public EntityOccasion(List<Property> properties, World world, Entity entity)
+    public EntityOccasion(List<Property> properties, IWorld world, Entity entity)
     {
         Name = "UNKNOWN OCCASION";
         Schedules = [];
@@ -37,3 +38,5 @@ public class EntityOccasion
         Entity = entity;
     }
 }
+
+

@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -15,7 +16,7 @@ public class HfDoesInteraction : WorldEvent
     public WorldRegion? Region { get; set; }
     public Site? Site { get; set; }
 
-    public HfDoesInteraction(List<Property> properties, World world)
+    public HfDoesInteraction(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -125,3 +126,4 @@ public class HfDoesInteraction : WorldEvent
         return eventString;
     }
 }
+

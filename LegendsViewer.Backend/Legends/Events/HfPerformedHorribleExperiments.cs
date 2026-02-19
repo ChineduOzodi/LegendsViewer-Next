@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +14,7 @@ public class HfPerformedHorribleExperiments : WorldEvent
     public int StructureId { get; }
     public Structure? Structure { get; set; }
 
-    public HfPerformedHorribleExperiments(List<Property> properties, World world)
+    public HfPerformedHorribleExperiments(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -67,3 +68,5 @@ public class HfPerformedHorribleExperiments : WorldEvent
         return eventString;
     }
 }
+
+

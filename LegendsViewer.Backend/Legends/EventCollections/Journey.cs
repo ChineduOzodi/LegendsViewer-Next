@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -10,7 +11,7 @@ public class Journey : EventCollection
     public int Ordinal { get; set; } = -1;
     public HistoricalFigure? HistoricalFigure { get; set; }
 
-    public Journey(List<Property> properties, World world)
+    public Journey(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -125,3 +126,5 @@ public class Journey : EventCollection
         return text;
     }
 }
+
+

@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Contracts;
+using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
 using LegendsViewer.Backend.Legends.Cytoscape;
 using LegendsViewer.Backend.Legends.Enums;
@@ -237,7 +237,7 @@ public class War : EventCollection, IHasComplexSubtype
         }
     }
 
-    public War(List<Property> properties, World world)
+    public War(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -316,3 +316,4 @@ public class War : EventCollection, IHasComplexSubtype
         return Icon;
     }
 }
+

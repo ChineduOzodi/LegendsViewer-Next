@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Extensions;
+using LegendsViewer.Backend.Extensions;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -21,7 +21,7 @@ public class Occasion : EventCollection, IHasComplexSubtype
     [JsonIgnore]
     public EntityOccasion? EntityOccasion { get; set; }
 
-    public Occasion(List<Property> properties, World world)
+    public Occasion(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -131,3 +131,4 @@ public class Occasion : EventCollection, IHasComplexSubtype
         return text;
     }
 }
+

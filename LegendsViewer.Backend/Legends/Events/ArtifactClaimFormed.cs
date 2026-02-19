@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -15,7 +16,7 @@ public class ArtifactClaimFormed : WorldEvent
     public int PositionProfileId { get; set; }
     public string? Circumstance { get; set; }
 
-    public ArtifactClaimFormed(List<Property> properties, World world)
+    public ArtifactClaimFormed(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -117,3 +118,4 @@ public class ArtifactClaimFormed : WorldEvent
         return eventString;
     }
 }
+

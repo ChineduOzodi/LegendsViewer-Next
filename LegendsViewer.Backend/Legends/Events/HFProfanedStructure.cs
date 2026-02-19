@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -13,7 +14,7 @@ public class HfProfanedStructure : WorldEvent
     public int StructureId { get; set; }
     public Structure? Structure { get; set; }
 
-    public HfProfanedStructure(List<Property> properties, World world)
+    public HfProfanedStructure(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -58,3 +59,4 @@ public class HfProfanedStructure : WorldEvent
         return eventString;
     }
 }
+

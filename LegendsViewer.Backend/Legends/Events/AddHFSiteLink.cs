@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -14,7 +15,7 @@ public class AddHfSiteLink : WorldEvent
     public Site? Site { get; set; }
     public SiteLinkType LinkType { get; set; }
 
-    public AddHfSiteLink(List<Property> properties, World world)
+    public AddHfSiteLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -93,3 +94,4 @@ public class AddHfSiteLink : WorldEvent
         return eventString;
     }
 }
+

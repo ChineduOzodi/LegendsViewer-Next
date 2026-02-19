@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
@@ -24,7 +24,7 @@ public class Raid : EventCollection, IHasComplexSubtype
     [JsonIgnore]
     public EventCollection? ParentEventCol { get; set; }
 
-    public Raid(List<Property> properties, World world)
+    public Raid(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -111,3 +111,4 @@ public class Raid : EventCollection, IHasComplexSubtype
         return Icon;
     }
 }
+

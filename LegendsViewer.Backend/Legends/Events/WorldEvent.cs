@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Utilities;
@@ -32,10 +33,10 @@ public class WorldEvent : DwarfObject, IComparable<WorldEvent>
     }
 
     public string Type { get; set; } = string.Empty;
+    public IWorld? World { get; set; }
     public EventCollection? ParentCollection { get; set; }
-    public World? World { get; set; }
 
-    public WorldEvent(List<Property> properties, World? world)
+    public WorldEvent(List<Property> properties, IWorld? world)
     {
         World = world;
         foreach (Property property in properties)

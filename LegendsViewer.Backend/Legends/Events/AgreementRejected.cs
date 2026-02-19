@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class AgreementRejected : WorldEvent
     public Site? Site { get; set; }
     public AgreementTopic Topic { get; set; }
 
-    public AgreementRejected(List<Property> properties, World world) : base(properties, world)
+    public AgreementRejected(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -75,3 +76,4 @@ public class AgreementRejected : WorldEvent
         return eventString;
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -35,7 +36,7 @@ public class BeastAttack : EventCollection
     // http://www.bay12forums.com/smf/index.php?topic=154617.msg6669851#msg6669851
     public EventCollection? ParentEventCol { get; set; }
 
-    public BeastAttack(List<Property> properties, World world)
+    public BeastAttack(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -107,3 +108,5 @@ public class BeastAttack : EventCollection
         return Icon;
     }
 }
+
+

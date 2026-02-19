@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
 namespace LegendsViewer.Backend.Legends.WorldLinks;
@@ -10,7 +11,7 @@ public enum EntitySiteLinkType // legends_plus.xml
 
 public class EntitySiteLink : DwarfObject // legends_plus.xml
 {
-    public EntitySiteLink(List<Property> properties, World world)
+    public EntitySiteLink(List<Property> properties, IWorld world)
     {
         Type = EntitySiteLinkType.Unknown;
         foreach (Property property in properties)
@@ -34,3 +35,4 @@ public class EntitySiteLink : DwarfObject // legends_plus.xml
     public Site? Site { get; set; }
     public int Strength { get; set; }
 }
+

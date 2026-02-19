@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -12,7 +13,7 @@ public class HfAbducted : WorldEvent
     public Site? Site { get; set; }
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
-    public HfAbducted(List<Property> properties, World world)
+    public HfAbducted(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -54,3 +55,4 @@ public class HfAbducted : WorldEvent
         return eventString;
     }
 }
+

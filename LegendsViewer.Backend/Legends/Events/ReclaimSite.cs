@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -12,7 +13,7 @@ public class ReclaimSite : WorldEvent
     public Site? Site { get; set; }
     public bool Unretired { get; set; }
 
-    public ReclaimSite(List<Property> properties, World world)
+    public ReclaimSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -77,3 +78,4 @@ public class ReclaimSite : WorldEvent
         return eventString;
     }
 }
+

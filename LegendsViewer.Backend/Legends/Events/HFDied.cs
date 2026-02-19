@@ -34,7 +34,7 @@ public class HfDied : WorldEvent, IFeatured
     public string ShooterItemMaterial { get; set; } = string.Empty;
     public Artifact? ShooterArtifact { get; set; }
 
-    public HfDied(List<Property> properties, World world)
+    public HfDied(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         ItemId = -1;

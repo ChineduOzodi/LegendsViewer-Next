@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -12,7 +13,7 @@ public class AgreementMade : WorldEvent
     public Site? Site { get; set; }
     public AgreementTopic Topic { get; set; }
 
-    public AgreementMade(List<Property> properties, World world) : base(properties, world)
+    public AgreementMade(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -78,3 +79,4 @@ public class AgreementMade : WorldEvent
         return eventString;
     }
 }
+

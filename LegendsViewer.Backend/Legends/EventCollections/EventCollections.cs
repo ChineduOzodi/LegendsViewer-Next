@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -79,7 +80,7 @@ public abstract class EventCollection : WorldObject
     [JsonIgnore]
     public List<WorldEvent> AllEvents => GetSubEvents();
 
-    protected EventCollection(List<Property> properties, World world) :base(properties, world)
+    protected EventCollection(List<Property> properties, IWorld world) :base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -191,3 +192,4 @@ public abstract class EventCollection : WorldObject
         return events.OrderBy(collectionEvent => collectionEvent.Id).ToList();
     }
 }
+

@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -20,7 +21,7 @@ public class ChangeHfState : WorldEvent
     public Mood Mood { get; set; }
     public ChangeHfStateReason Reason { get; set; }
 
-    public ChangeHfState(List<Property> properties, World world)
+    public ChangeHfState(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -226,3 +227,4 @@ public class ChangeHfState : WorldEvent
         return eventString.ToString();
     }
 }
+

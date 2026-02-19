@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -26,7 +27,7 @@ public class SiteProperty
     public Site? Site { get; set; }
     public string? SiteLink => Site?.ToLink(true);
 
-    public SiteProperty(List<Property> properties, World world, Site site)
+    public SiteProperty(List<Property> properties, IWorld world, Site site)
     {
         Id = -1;
         OwnerId = -1;
@@ -66,7 +67,7 @@ public class SiteProperty
         return Structure != null ? Structure.ToLink(link, pov) : "a " + Type.GetDescription();
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         Owner = world.GetHistoricalFigure(OwnerId);
         Owner?.SiteProperties.Add(this);
@@ -76,3 +77,6 @@ public class SiteProperty
         }
     }
 }
+
+
+

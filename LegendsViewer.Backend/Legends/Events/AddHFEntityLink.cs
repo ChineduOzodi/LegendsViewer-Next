@@ -18,7 +18,7 @@ public class AddHfEntityLink : WorldEvent, IFeatured
     public string? Position { get; set; }
     public int PositionId { get; set; }
 
-    public AddHfEntityLink(List<Property> properties, World world)
+    public AddHfEntityLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         LinkType = HfEntityLinkType.Unknown;

@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -15,7 +16,7 @@ public class HfRelationShipDenied : WorldEvent
     public string? Reason { get; set; }
     public HistoricalFigure? ReasonHf { get; set; }
 
-    public HfRelationShipDenied(List<Property> properties, World world) : base(properties, world)
+    public HfRelationShipDenied(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -94,3 +95,4 @@ public class HfRelationShipDenied : WorldEvent
         return eventString;
     }
 }
+

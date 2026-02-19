@@ -10,8 +10,8 @@ namespace LegendsViewer.Backend.Legends.Interfaces;
 
 public interface IWorld
 {
-    string Name { get; }
-    string AlternativeName { get; }
+    string Name { get; set; }
+    string AlternativeName { get; set; }
 
     int Width { get; set; }
     int Height { get; set; }
@@ -66,9 +66,27 @@ public interface IWorld
     List<WorldObject> PlayerRelatedObjects { get; }
     Dictionary<CreatureInfo, Color> MainRaces { get; }
     List<CreatureInfo> CreatureInfos { get; }
+    Dictionary<int, WorldEvent> SpecialEventsById { get; }
+    Dictionary<Location, WorldRegion> WorldGrid { get; }
+    Dictionary<string, List<HistoricalFigure>> Breeds { get; }
 
     Task ParseAsync(string xmlFile, string? xmlPlusFile, string? historyFile, string? sitesAndPopulationsFile, string? mapFile);
     CreatureInfo GetCreatureInfo(string id);
+    void AddCreatureInfo(CreatureInfo creatureInfo);
+    void AddPlayerRelatedDwarfObjects(WorldObject dwarfObject);
+
+    void AddHFtoHfLink(HistoricalFigure hf, Property link);
+    void AddHFtoEntityLink(HistoricalFigure hf, Property link);
+    void AddHFtoSiteLink(HistoricalFigure hf, Property link);
+    void AddEntityEntityLink(Entity entity, Property property);
+    void AddReputation(HistoricalFigure hf, Property link);
+
+    void ProcessHFtoHfLinks();
+    void ProcessHFtoEntityLinks();
+    void ProcessHFtoSiteLinks();
+    void ProcessEntityEntityLinks();
+    void ProcessReputations();
+
     Artifact? GetArtifact(int id);
     DanceForm? GetDanceForm(int id);
     Entity? GetEntity(int id);

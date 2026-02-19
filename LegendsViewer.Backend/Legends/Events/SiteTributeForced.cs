@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +13,7 @@ public class SiteTributeForced : WorldEvent
     public Site? Site { get; set; }
     public string? Season { get; set; }
 
-    public SiteTributeForced(List<Property> properties, World world) : base(properties, world)
+    public SiteTributeForced(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -62,3 +63,4 @@ public class SiteTributeForced : WorldEvent
         return eventString;
     }
 }
+

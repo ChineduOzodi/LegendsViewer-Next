@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -9,7 +10,7 @@ public class EntityAllianceFormed : WorldEvent
     public Entity? InitiatingEntity { get; set; }
     public Entity? JoiningEntity { get; set; }
 
-    public EntityAllianceFormed(List<Property> properties, World world) : base(properties, world)
+    public EntityAllianceFormed(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -38,3 +39,5 @@ public class EntityAllianceFormed : WorldEvent
         return eventString;
     }
 }
+
+

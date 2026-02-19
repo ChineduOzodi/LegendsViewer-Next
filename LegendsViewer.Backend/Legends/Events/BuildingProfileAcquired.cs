@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -19,7 +20,7 @@ public class BuildingProfileAcquired : WorldEvent
 
     // http://www.bay12games.com/dwarves/mantisbt/view.php?id=11346
     // 0011346: <acquirer_enid> is always -1 in "building profile acquired" event
-    public BuildingProfileAcquired(List<Property> properties, World world) : base(properties, world)
+    public BuildingProfileAcquired(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -102,3 +103,5 @@ public class BuildingProfileAcquired : WorldEvent
         return eventString;
     }
 }
+
+

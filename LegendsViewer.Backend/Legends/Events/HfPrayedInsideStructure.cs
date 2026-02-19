@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -12,7 +13,7 @@ public class HfPrayedInsideStructure : WorldEvent
     public Structure? Structure { get; set; }
     public string? Action { get; set; }
 
-    public HfPrayedInsideStructure(List<Property> properties, World world)
+    public HfPrayedInsideStructure(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -87,3 +88,5 @@ public class HfPrayedInsideStructure : WorldEvent
         return eventString;
     }
 }
+
+

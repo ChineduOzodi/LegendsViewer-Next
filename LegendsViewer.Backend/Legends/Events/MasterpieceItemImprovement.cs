@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -24,7 +25,7 @@ public class MasterpieceItemImprovement : WorldEvent
     public int ArtId { get; set; }
     public int ArtSubId { get; set; }
 
-    public MasterpieceItemImprovement(List<Property> properties, World world)
+    public MasterpieceItemImprovement(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -102,3 +103,4 @@ public class MasterpieceItemImprovement : WorldEvent
         return eventString;
     }
 }
+

@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +17,7 @@ public class HfRevived : WorldEvent
     public bool RaisedBefore { get; set; }
     public bool Disturbance { get; set; }
 
-    public HfRevived(List<Property> properties, World world)
+    public HfRevived(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -108,3 +109,4 @@ public class HfRevived : WorldEvent
         return eventString;
     }
 }
+

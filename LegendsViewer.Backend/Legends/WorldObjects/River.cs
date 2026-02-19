@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -12,7 +12,7 @@ public class River : WorldObject, IHasCoordinates
     public string? Path { get; set; } // legends_plus.xml
     public List<Location> Coordinates { get; set; } // legends_plus.xml
 
-    public River(List<Property> properties, World world)
+    public River(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("waves");
@@ -74,3 +74,4 @@ public class River : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

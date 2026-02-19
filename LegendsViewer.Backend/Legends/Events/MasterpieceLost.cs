@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -11,7 +12,7 @@ public class MasterpieceLost : WorldEvent
     public string? Method { get; set; } // TODO destroy method
     public MasterpieceItem? CreationEvent { get; set; }
 
-    public MasterpieceLost(List<Property> properties, World world)
+    public MasterpieceLost(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -65,3 +66,4 @@ public class MasterpieceLost : WorldEvent
         return eventString;
     }
 }
+

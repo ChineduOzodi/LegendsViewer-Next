@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -16,7 +16,7 @@ public class MountainPeak : WorldObject, IHasCoordinates
 
     public string TypeAsString => IsVolcano ? "Volcano" : "Mountain";
 
-    public MountainPeak(List<Property> properties, World world)
+    public MountainPeak(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("summit");
@@ -78,3 +78,4 @@ public class MountainPeak : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

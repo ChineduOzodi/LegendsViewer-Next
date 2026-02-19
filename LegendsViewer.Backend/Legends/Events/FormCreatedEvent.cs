@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -20,7 +21,7 @@ public class FormCreatedEvent : WorldEvent
     public FormType FormType { get; set; }
     public ArtForm? ArtForm { get; set; }
 
-    public FormCreatedEvent(List<Property> properties, World world) : base(properties, world)
+    public FormCreatedEvent(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -118,3 +119,4 @@ public class FormCreatedEvent : WorldEvent
         return eventString;
     }
 }
+

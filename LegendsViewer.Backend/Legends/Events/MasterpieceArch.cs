@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +17,7 @@ public class MasterpieceArch : WorldEvent
 
     public string? Process { get; set; }
 
-    public MasterpieceArch(List<Property> properties, World world)
+    public MasterpieceArch(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -63,3 +64,4 @@ public class MasterpieceArch : WorldEvent
         return eventString;
     }
 }
+

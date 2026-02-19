@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using System.Text.Json.Serialization;
 
@@ -19,7 +20,7 @@ public class HonorEntity
     public int Battles { get; set; }
     public int Kills { get; set; }
 
-    public HonorEntity(List<Property> properties, World world)
+    public HonorEntity(List<Property> properties, IWorld world)
     {
         HonorIds = [];
         Honors = [];
@@ -35,7 +36,7 @@ public class HonorEntity
         }
     }
 
-    public void Resolve(World world, HistoricalFigure historicalFigure)
+    public void Resolve(IWorld world, HistoricalFigure historicalFigure)
     {
         Entity = world.GetEntity(EntityId);
         if (Entity != null)
@@ -52,3 +53,6 @@ public class HonorEntity
         }
     }
 }
+
+
+

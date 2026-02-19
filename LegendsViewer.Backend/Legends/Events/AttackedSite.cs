@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -17,7 +18,7 @@ public class AttackedSite : WorldEvent
     public HistoricalFigure? AttackerGeneral { get; set; }
     public HistoricalFigure? DefenderGeneral { get; set; }
 
-    public AttackedSite(List<Property> properties, World world)
+    public AttackedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -119,3 +120,4 @@ public class AttackedSite : WorldEvent
         return eventString;
     }
 }
+

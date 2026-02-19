@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -22,7 +22,7 @@ public class UndergroundRegion : WorldObject, IRegion
     public List<Location> Coordinates { get; set; } = []; // legends_plus.xml
     public int SquareTiles => Coordinates.Count;
 
-    public UndergroundRegion(List<Property> properties, World world)
+    public UndergroundRegion(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("tunnel");
@@ -103,3 +103,4 @@ public class UndergroundRegion : WorldObject, IRegion
         return Icon;
     }
 }
+

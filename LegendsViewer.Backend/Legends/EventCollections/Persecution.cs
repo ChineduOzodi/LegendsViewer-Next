@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -19,7 +20,7 @@ public class Persecution : EventCollection
     public List<HistoricalFigure> Deaths => GetSubEvents().OfType<HfDied>().Where(death => death.HistoricalFigure != null).Select(death => death.HistoricalFigure!).ToList();
     public int DeathCount => Deaths.Count;
 
-    public Persecution(List<Property> properties, World world)
+    public Persecution(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -81,3 +82,5 @@ public class Persecution : EventCollection
         return $"the {Name} in {Site}";
     }
 }
+
+

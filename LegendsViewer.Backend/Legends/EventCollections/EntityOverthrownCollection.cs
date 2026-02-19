@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -13,7 +14,7 @@ public class EntityOverthrownCollection : EventCollection
     public Location? Coordinates { get; set; }
     public Entity? TargetEntity { get; set; }
 
-    public EntityOverthrownCollection(List<Property> properties, World world)
+    public EntityOverthrownCollection(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -76,3 +77,5 @@ public class EntityOverthrownCollection : EventCollection
         return $"the {Name} against {TargetEntity?.Name}";
     }
 }
+
+

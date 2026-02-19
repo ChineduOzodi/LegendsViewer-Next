@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,7 +11,7 @@ public class ImpersonateHf : WorldEvent
     public HistoricalFigure? Cover { get; set; }
     public Entity? Target { get; set; }
 
-    public ImpersonateHf(List<Property> properties, World world)
+    public ImpersonateHf(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -36,3 +37,4 @@ public class ImpersonateHf : WorldEvent
         return eventString;
     }
 }
+

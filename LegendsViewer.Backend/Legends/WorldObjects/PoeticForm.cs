@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -8,7 +9,7 @@ namespace LegendsViewer.Backend.Legends.WorldObjects;
 
 public class PoeticForm : ArtForm
 {
-    public PoeticForm(List<Property> properties, World world)
+    public PoeticForm(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         FormType = FormType.Poetic;
@@ -36,3 +37,5 @@ public class PoeticForm : ArtForm
         return Icon;
     }
 }
+
+

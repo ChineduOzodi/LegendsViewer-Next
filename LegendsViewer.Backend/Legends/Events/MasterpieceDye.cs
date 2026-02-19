@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -19,7 +20,7 @@ public class MasterpieceDye : WorldEvent
     public int DyeMaterialType { get; set; }
     public int DyeMaterialIndex { get; set; }
 
-    public MasterpieceDye(List<Property> properties, World world)
+    public MasterpieceDye(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -72,3 +73,4 @@ public class MasterpieceDye : WorldEvent
         return eventString;
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -11,7 +12,7 @@ public class EntityDissolved : WorldEvent
     public DissolveReason Reason { get; set; }
     public string? ReasonString { get; set; }
 
-    public EntityDissolved(List<Property> properties, World world) : base(properties, world)
+    public EntityDissolved(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -59,3 +60,4 @@ public class EntityDissolved : WorldEvent
         return eventString;
     }
 }
+

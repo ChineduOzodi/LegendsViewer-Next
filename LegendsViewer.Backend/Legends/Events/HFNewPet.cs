@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -17,7 +18,7 @@ public class HfNewPet : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public Location? Coordinates { get; set; }
 
-    public HfNewPet(List<Property> properties, World world)
+    public HfNewPet(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -99,3 +100,4 @@ public class HfNewPet : WorldEvent
         return eventString;
     }
 }
+

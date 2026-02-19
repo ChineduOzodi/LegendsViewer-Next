@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -13,7 +14,7 @@ public class ArtifactLost : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public SiteProperty? SiteProperty { get; set; }
 
-    public ArtifactLost(List<Property> properties, World world) : base(properties, world)
+    public ArtifactLost(List<Property> properties, IWorld world) : base(properties, world)
     {
         int sitePropertyId = -1;
         foreach (Property property in properties)
@@ -69,3 +70,4 @@ public class ArtifactLost : WorldEvent
         return eventString;
     }
 }
+

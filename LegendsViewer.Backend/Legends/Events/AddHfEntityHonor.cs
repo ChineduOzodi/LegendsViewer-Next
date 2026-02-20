@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -26,9 +27,10 @@ public class AddHfEntityHonor : WorldEvent
             }
         }
 
-        if (HonorId >= 0)
+        if (HonorId >= 0 && Entity != null)
         {
-            Honor = Entity?.Honors.Find(h => h.Id == HonorId);
+            // Use List.Find for O(n) lookup - faster than LINQ FirstOrDefault
+            Honor = Entity.Honors.Find(h => h.Id == HonorId);
         }
         Entity?.AddEvent(this);
         HistoricalFigure?.AddEvent(this);
@@ -36,18 +38,22 @@ public class AddHfEntityHonor : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure?.ToLink(link, pov, this);
-        eventString += $" received the title {Honor?.Name} in ";
-        eventString += Entity?.ToLink(link, pov, this);
+        // Use StringBuilder instead of string concatenation for better performance
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+        sb.Append($" received the title {Honor?.Name} in ");
+        sb.Append(Entity?.ToLink(link, pov, this));
+        
         string? requirementsString = Honor?.PrintRequirementsAsString();
         if (!string.IsNullOrWhiteSpace(requirementsString))
         {
-            eventString += $" after {requirementsString}";
+            sb.Append($" after {requirementsString}");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

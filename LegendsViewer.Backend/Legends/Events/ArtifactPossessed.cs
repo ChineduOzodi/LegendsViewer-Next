@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -98,56 +99,59 @@ public class ArtifactPossessed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Artifact?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Artifact?.ToLink(link, pov, this));
         switch (ArtifactReason)
         {
             case ArtifactReason.ArtifactIsHeirloomOfFamilyHfid:
             case ArtifactReason.ArtifactIsSymbolOfEntityPosition:
-                eventString += " was acquired";
+                sb.Append(" was acquired");
                 break;
             default:
-                eventString += " was claimed";
+                sb.Append(" was claimed");
                 break;
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
 
-        eventString += " by " + HistoricalFigure?.ToLink(link, pov, this);
+        sb.Append(" by ");
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
         switch (ArtifactReason)
         {
             case ArtifactReason.ArtifactIsHeirloomOfFamilyHfid:
-                eventString += " as an heirloom of the ";
-                eventString += FamilyFigure?.ToLink(link, pov, this);
-                eventString += " family";
+                sb.Append(" as an heirloom of the ");
+                sb.Append(FamilyFigure?.ToLink(link, pov, this));
+                sb.Append(" family");
                 break;
             case ArtifactReason.ArtifactIsSymbolOfEntityPosition:
-                eventString += " as a symbol of authority within ";
-                eventString += SymbolEntity?.ToLink(link, pov, this);
+                sb.Append(" as a symbol of authority within ");
+                sb.Append(SymbolEntity?.ToLink(link, pov, this));
                 break;
         }
         switch (Circumstance)
         {
             case Circumstance.HfIsDead:
-                eventString += " after the death of ";
-                eventString += FormerHolder?.ToLink(link, pov, this);
+                sb.Append(" after the death of ");
+                sb.Append(FormerHolder?.ToLink(link, pov, this));
                 break;
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

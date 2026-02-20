@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -28,15 +29,16 @@ public class EntityAllianceFormed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += JoiningEntity?.ToLink(link, pov, this);
-        eventString += " swore to support ";
-        eventString += InitiatingEntity?.ToLink(link, pov, this);
-        eventString += " in war if the latter did likewise";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(JoiningEntity?.ToLink(link, pov, this));
+        sb.Append(" swore to support ");
+        sb.Append(InitiatingEntity?.ToLink(link, pov, this));
+        sb.Append(" in war if the latter did likewise");
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

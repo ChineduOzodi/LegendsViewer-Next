@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -77,32 +78,33 @@ public class AssumeIdentity : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Trickster?.ToLink(link, pov, this) ?? "an unknown creature";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Trickster?.ToLink(link, pov, this) ?? "an unknown creature");
         if (Target != null)
         {
-            eventString += " fooled ";
-            eventString += Target?.ToLink(link, pov, this) ?? "an unknown civilization";
-            eventString += " into believing ";
-            eventString += Trickster?.ToLink(link, pov, this) ?? "an unknown creature";
-            eventString += " was ";
+            sb.Append(" fooled ");
+            sb.Append(Target?.ToLink(link, pov, this) ?? "an unknown civilization");
+            sb.Append(" into believing ");
+            sb.Append(Trickster?.ToLink(link, pov, this) ?? "an unknown creature");
+            sb.Append(" was ");
         }
         else
         {
-            eventString += " assumed the identity of ";
+            sb.Append(" assumed the identity of ");
         }
         Identity? identity = Trickster?.Identities.Find(i => i.Id == IdentityId) ?? Identity;
         if (identity != null)
         {
-            eventString += identity.Print(link, pov, this);
+            sb.Append(identity.Print(link, pov, this));
         }
         else
         {
-            eventString += "someone else";
+            sb.Append("someone else");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

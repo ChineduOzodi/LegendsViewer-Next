@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -77,46 +78,50 @@ public class FormCreatedEvent : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         switch (FormType)
         {
             case FormType.Musical:
-                eventString += ArtForm != null ? ArtForm.ToLink(link, pov, this) : "UNKNOWN MUSICAL FORM ";
+                sb.Append(ArtForm != null ? ArtForm.ToLink(link, pov, this) : "UNKNOWN MUSICAL FORM ");
                 break;
             case FormType.Poetic:
-                eventString += ArtForm != null ? ArtForm.ToLink(link, pov, this) : "UNKNOWN POETIC FORM ";
+                sb.Append(ArtForm != null ? ArtForm.ToLink(link, pov, this) : "UNKNOWN POETIC FORM ");
                 break;
             case FormType.Dance:
-                eventString += ArtForm != null ? ArtForm.ToLink(link, pov, this) : "UNKNOWN DANCE FORM ";
+                sb.Append(ArtForm != null ? ArtForm.ToLink(link, pov, this) : "UNKNOWN DANCE FORM ");
                 break;
             default:
-                eventString += "UNKNOWN FORM ";
+                sb.Append("UNKNOWN FORM ");
                 break;
         }
-        eventString += " was created by ";
-        eventString += HistoricalFigure?.ToLink(link, pov, this);
+        sb.Append(" was created by ");
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         if (GlorifiedHf != null)
         {
-            eventString += " in order to glorify " + GlorifiedHf.ToLink(link, pov, this);
+            sb.Append(" in order to glorify ");
+            sb.Append(GlorifiedHf.ToLink(link, pov, this));
         }
         if (!string.IsNullOrWhiteSpace(Circumstance))
         {
             if (PrayToHf != null)
             {
-                eventString += " after praying to " + PrayToHf.ToLink(link, pov, this);
+                sb.Append(" after praying to ");
+                sb.Append(PrayToHf.ToLink(link, pov, this));
             }
             else
             {
-                eventString += " after a " + Circumstance;
+                sb.Append(" after a ");
+                sb.Append(Circumstance);
             }
         }
-        eventString += ".";
-        return eventString;
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -62,29 +63,34 @@ public class ChangeHfBodyState : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this) + " ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(' ');
         string stateString = "";
         switch (BodyState)
         {
             case BodyState.EntombedAtSite: stateString = "was entombed"; break;
             case BodyState.Unknown: stateString = "(" + _unknownBodyState + ")"; break;
         }
-        eventString += stateString;
+        sb.Append(stateString);
         if (Region != null)
         {
-            eventString += " in " + Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
 
         if (Site != null)
         {
-            eventString += " at " + Site.ToLink(link, pov, this);
+            sb.Append(" at ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
 
-        eventString += " within ";
-        eventString += Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" within ");
+        sb.Append(Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

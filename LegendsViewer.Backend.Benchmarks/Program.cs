@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using LegendsViewer.Backend.Benchmarks;
+using LegendsViewer.Backend.Benchmarks.Legends.Events;
+using BenchmarkDotNet.Running;
 
 namespace LegendsViewer.Backend.Benchmarks;
 
@@ -9,6 +12,8 @@ public class Program
     {
         // Register code page provider for legacy encodings (e.g., CP437)
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        BenchmarkDotNet.Running.BenchmarkRunner.Run<XmlParserBenchmarks>();
+        
+        // Run only AddHfEntityHonorBenchmarks
+        BenchmarkRunner.Run<AddHfEntityHonorBenchmarks>();
     }
 }

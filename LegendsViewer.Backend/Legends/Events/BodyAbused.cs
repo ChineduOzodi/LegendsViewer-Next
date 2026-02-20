@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -155,103 +156,105 @@ public class BodyAbused : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Bodies.Count > 1)
         {
-            eventString += "the bodies of ";
+            sb.Append("the bodies of ");
             for (int i = 0; i < Bodies.Count; i++)
             {
-                eventString += Bodies[i].ToLink(link, pov, this) ?? "UNKNOWN HISTORICAL FIGURE";
+                sb.Append(Bodies[i].ToLink(link, pov, this) ?? "UNKNOWN HISTORICAL FIGURE");
                 if (i != Bodies.Count - 1)
                 {
                     if (i == Bodies.Count - 2)
                     {
-                        eventString += " and ";
+                        sb.Append(" and ");
                     }
                     else
                     {
-                        eventString += ", ";
+                        sb.Append(", ");
                     }
                 }
             }
-            eventString += " were ";
+            sb.Append(" were ");
         }
         else
         {
-            eventString += "the body of ";
-            eventString += Bodies.FirstOrDefault()?.ToLink(link, pov, this) ?? "UNKNOWN HISTORICAL FIGURE";
-            eventString += " was ";
+            sb.Append("the body of ");
+            sb.Append(Bodies.FirstOrDefault()?.ToLink(link, pov, this) ?? "UNKNOWN HISTORICAL FIGURE");
+            sb.Append(" was ");
         }
         switch (AbuseType)
         {
             case AbuseType.Impaled:
-                eventString += "impaled on a ";
-                eventString += !string.IsNullOrWhiteSpace(Material) ? Material + " " : "";
+                sb.Append("impaled on a ");
+                sb.Append(!string.IsNullOrWhiteSpace(Material) ? Material + " " : "");
                 if (!string.IsNullOrWhiteSpace(ItemSubType) && ItemSubType != "-1")
                 {
-                    eventString += ItemSubType;
+                    sb.Append(ItemSubType);
                 }
                 else
                 {
-                    eventString += !string.IsNullOrWhiteSpace(ItemType) ? ItemType : "UNKNOWN ITEM";
+                    sb.Append(!string.IsNullOrWhiteSpace(ItemType) ? ItemType : "UNKNOWN ITEM");
                 }
                 break;
             case AbuseType.Piled:
-                eventString += "added to a " + PileType.GetDescription();
+                sb.Append("added to a ");
+                sb.Append(PileType.GetDescription());
                 break;
             case AbuseType.Flayed:
-                eventString += "flayed";
+                sb.Append("flayed");
                 break;
             case AbuseType.Hung:
-                eventString += "hung";
+                sb.Append("hung");
                 break;
             case AbuseType.Mutilated:
-                eventString += "horribly mutilated";
+                sb.Append("horribly mutilated");
                 break;
             case AbuseType.Animated:
-                eventString += "animated";
+                sb.Append("animated");
                 break;
             default:
-                eventString += "abused";
+                sb.Append("abused");
                 break;
         }
-        eventString += " by ";
+        sb.Append(" by ");
 
         if (HistoricalFigure != null)
         {
-            eventString += HistoricalFigure.ToLink(link, pov, this);
+            sb.Append(HistoricalFigure.ToLink(link, pov, this));
             if (Abuser != null)
             {
-                eventString += " of ";
+                sb.Append(" of ");
             }
         }
         if (Abuser != null)
         {
-            eventString += Abuser.ToLink(link, pov, this);
+            sb.Append(Abuser.ToLink(link, pov, this));
         }
         if (Structure != null)
         {
-            eventString += " in ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

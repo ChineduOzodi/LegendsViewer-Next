@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -41,33 +42,34 @@ public class ArtifactLost : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Artifact != null ? Artifact.ToLink(link, pov, this) : "UNKNOWN ARTIFACT";
-        eventString += " was lost";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Artifact != null ? Artifact.ToLink(link, pov, this) : "UNKNOWN ARTIFACT");
+        sb.Append(" was lost");
         if (SiteProperty != null)
         {
-            eventString += " in ";
-            eventString += SiteProperty.Print(link, pov);
+            sb.Append(" in ");
+            sb.Append(SiteProperty.Print(link, pov));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

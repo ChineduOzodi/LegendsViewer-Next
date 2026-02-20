@@ -135,12 +135,14 @@ public class AddHfEntityLink : WorldEvent, IFeatured
 
         if (AppointerHf != null)
         {
-            eventString.Append($", appointed by {AppointerHf.ToLink(link, pov, this)}");
+            eventString.Append(", appointed by ");
+            eventString.Append(AppointerHf.ToLink(link, pov, this));
         }
 
         if (PromiseToHf != null)
         {
-            eventString.Append($" as promised to {PromiseToHf.ToLink(link, pov, this)}");
+            eventString.Append(" as promised to ");
+            eventString.Append(PromiseToHf.ToLink(link, pov, this));
         }
 
         eventString.Append('.');

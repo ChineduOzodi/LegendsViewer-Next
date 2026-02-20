@@ -4,6 +4,7 @@ using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
+using System.Text;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
@@ -64,16 +65,17 @@ public class ArtifactClaimFormed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Artifact?.ToLink(link, pov, this);
+        var eventString = new StringBuilder();
+        eventString.Append(GetYearTime());
+        eventString.Append(Artifact?.ToLink(link, pov, this));
         if ((Claim == Claim.Symbol ||
             Claim == Claim.Heirloom && HistoricalFigure != null) && Circumstance != "from afar")
         {
-            eventString += " was made a ";
-            eventString += Claim.GetDescription();
+            eventString.Append(" was made a ");
+            eventString.Append(Claim.GetDescription());
             if (PositionProfileId > -1 && Entity != null)
             {
-                eventString += " of the ";
+                eventString.Append(" of the ");
                 bool foundPosition = false;
                 foreach (EntityPositionAssignment assignment in Entity.EntityPositionAssignments)
                 {
@@ -82,40 +84,40 @@ public class ArtifactClaimFormed : WorldEvent
                     if (position != null && assignment.HistoricalFigure != null)
                     {
                         string positionName = position.GetTitleByCaste(assignment.HistoricalFigure.Caste);
-                        eventString += positionName;
+                        eventString.Append(positionName);
                         foundPosition = true;
                         break;
                     }
                 }
                 if (!foundPosition)
                 {
-                    eventString += "Position Title '" + PositionProfileId + "'";
+                    eventString.Append("Position Title '").Append(PositionProfileId).Append("'");
                 }
             }
         }
         else
         {
-            eventString += " was claimed";
+            eventString.Append(" was claimed");
         }
         if (Entity != null)
         {
-            eventString += " by ";
-            eventString += Entity.ToLink(link, pov, this);
+            eventString.Append(" by ");
+            eventString.Append(Entity.ToLink(link, pov, this));
         }
         if (HistoricalFigure != null)
         {
-            eventString += " by ";
-            eventString += HistoricalFigure.ToLink(link, pov, this);
+            eventString.Append(" by ");
+            eventString.Append(HistoricalFigure.ToLink(link, pov, this));
         }
 
         if (!string.IsNullOrWhiteSpace(Circumstance))
         {
-            eventString += " ";
-            eventString += Circumstance;
+            eventString.Append(' ');
+            eventString.Append(Circumstance);
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        eventString.Append(PrintParentCollection(link, pov));
+        eventString.Append('.');
+        return eventString.ToString();
     }
 }
 

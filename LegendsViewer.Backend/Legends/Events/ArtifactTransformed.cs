@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -35,50 +36,51 @@ public class ArtifactTransformed : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += NewArtifact?.ToLink(link, pov, this);
-        eventString += ", ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(NewArtifact?.ToLink(link, pov, this));
+        sb.Append(", ");
         if (!string.IsNullOrWhiteSpace(NewArtifact?.Material))
         {
-            eventString += NewArtifact.Material;
+            sb.Append(NewArtifact.Material);
         }
         if (!string.IsNullOrWhiteSpace(NewArtifact?.Subtype))
         {
-            eventString += " ";
-            eventString += NewArtifact.Subtype;
+            sb.Append(" ");
+            sb.Append(NewArtifact.Subtype);
         }
         else
         {
-            eventString += " ";
-            eventString += !string.IsNullOrWhiteSpace(NewArtifact?.Type) ? NewArtifact.Type.ToLower() : "UNKNOWN TYPE";
+            sb.Append(" ");
+            sb.Append(!string.IsNullOrWhiteSpace(NewArtifact?.Type) ? NewArtifact.Type.ToLower() : "UNKNOWN TYPE");
         }
-        eventString += ", was made from ";
-        eventString += OldArtifact?.ToLink(link, pov, this);
-        eventString += ", ";
+        sb.Append(" was made from ");
+        sb.Append(OldArtifact?.ToLink(link, pov, this));
+        sb.Append(", ");
         if (!string.IsNullOrWhiteSpace(OldArtifact?.Material))
         {
-            eventString += OldArtifact.Material;
+            sb.Append(OldArtifact.Material);
         }
         if (!string.IsNullOrWhiteSpace(OldArtifact?.Subtype))
         {
-            eventString += " ";
-            eventString += OldArtifact.Subtype;
+            sb.Append(" ");
+            sb.Append(OldArtifact.Subtype);
         }
         else
         {
-            eventString += " ";
-            eventString += !string.IsNullOrWhiteSpace(OldArtifact?.Type) ? OldArtifact.Type.ToLower() : "UNKNOWN TYPE";
+            sb.Append(" ");
+            sb.Append(!string.IsNullOrWhiteSpace(OldArtifact?.Type) ? OldArtifact.Type.ToLower() : "UNKNOWN TYPE");
         }
         if (Site != null)
         {
-            eventString += " in " + Site?.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
 
-        eventString += " by ";
-        eventString += HistoricalFigure != null ? HistoricalFigure?.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" by ");
+        sb.Append(HistoricalFigure != null ? HistoricalFigure?.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
-

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -60,23 +61,24 @@ public class CreatedWorldConstruction : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SiteEntity != null ? SiteEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " of ";
-        eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-        eventString += " constructed ";
-        eventString += WorldConstruction != null ? WorldConstruction.ToLink(link, pov, this) : "UNKNOWN CONSTRUCTION";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SiteEntity != null ? SiteEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" of ");
+        sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+        sb.Append(" constructed ");
+        sb.Append(WorldConstruction != null ? WorldConstruction.ToLink(link, pov, this) : "UNKNOWN CONSTRUCTION");
         if (MasterWorldConstruction != null)
         {
-            eventString += " as part of ";
-            eventString += MasterWorldConstruction.ToLink(link, pov, this);
+            sb.Append(" as part of ");
+            sb.Append(MasterWorldConstruction.ToLink(link, pov, this));
         }
-        eventString += " connecting ";
-        eventString += Site1 != null ? Site1.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += " and ";
-        eventString += Site2 != null ? Site2.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += ".";
-        return eventString;
+        sb.Append(" connecting ");
+        sb.Append(Site1 != null ? Site1.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(" and ");
+        sb.Append(Site2 != null ? Site2.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

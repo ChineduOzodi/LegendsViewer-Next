@@ -143,19 +143,21 @@ public class ChangeHfState : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        StringBuilder eventString = new StringBuilder(GetYearTime());
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
 
         string figure = HistoricalFigure?.ToLink(link, pov, this) ?? "UNKNOWN HISTORICAL FIGURE";
-        eventString.Append(figure).Append(' ');
+        sb.Append(figure);
+        sb.Append(' ');
 
         // Determine the main action based on State and Mood
         if (State == HfState.Visiting)
         {
-            eventString.Append("visited ");
+            sb.Append("visited ");
         }
         else if (State == HfState.Settled)
         {
-            eventString.Append(SubState switch
+            sb.Append(SubState switch
             {
                 45 => "fled to ",
                 46 or 47 => "moved to study in ",
@@ -164,23 +166,25 @@ public class ChangeHfState : WorldEvent
         }
         else if (State == HfState.Wandering)
         {
-            eventString.Append("began wandering ");
+            sb.Append("began wandering ");
         }
         else if (State is HfState.Refugee or HfState.Snatcher or HfState.Thief)
         {
-            eventString.Append($"became a {State.ToString().ToLower()} in ");
+            sb.Append("became a ");
+            sb.Append(State.ToString().ToLower());
+            sb.Append(" in ");
         }
         else if (State == HfState.Scouting)
         {
-            eventString.Append("began scouting the area around ");
+            sb.Append("began scouting the area around ");
         }
         else if (State == HfState.Hunting)
         {
-            eventString.Append("began hunting great beasts in ");
+            sb.Append("began hunting great beasts in ");
         }
         else if (Mood != Mood.Unknown)
         {
-            eventString.Append(Mood switch
+            sb.Append(Mood switch
             {
                 Mood.Macabre => "began to skulk and brood in ",
                 Mood.Secretive => "withdrew from society in ",
@@ -196,19 +200,19 @@ public class ChangeHfState : WorldEvent
         }
         else
         {
-            eventString.Append("changed state in ");
+            sb.Append("changed state in ");
         }
 
         // Determine location
-        eventString.Append(Site?.ToLink(link, pov, this) ??
-                            Region?.ToLink(link, pov, this) ??
-                            UndergroundRegion?.ToLink(link, pov, this) ??
-                            "the wilds");
+        sb.Append(Site?.ToLink(link, pov, this) ??
+                   Region?.ToLink(link, pov, this) ??
+                   UndergroundRegion?.ToLink(link, pov, this) ??
+                   "the wilds");
 
         // Determine reason
         if (Reason != ChangeHfStateReason.Unknown)
         {
-            eventString.Append(Reason switch
+            sb.Append(Reason switch
             {
                 ChangeHfStateReason.FailedMood => " after failing to create an artifact",
                 ChangeHfStateReason.GatherInformation => " to gather information",
@@ -223,8 +227,8 @@ public class ChangeHfState : WorldEvent
             });
         }
 
-        eventString.Append(PrintParentCollection(link, pov)).Append('.');
-        return eventString.ToString();
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
-

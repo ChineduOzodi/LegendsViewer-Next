@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -45,17 +46,18 @@ public class ChangedCreatureType : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Changer?.ToLink(link, pov, this) ?? "An unknown creature";
-        eventString += " changed ";
-        eventString += Changee?.ToLink(link, pov, this) ?? "an unknown creature";
-        eventString += " from ";
-        eventString += Formatting.AddArticle(OldRace ?? "unknown race").ToLower();
-        eventString += " into ";
-        eventString += Formatting.AddArticle(NewRace ?? "unknown race").ToLower();
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Changer?.ToLink(link, pov, this) ?? "An unknown creature");
+        sb.Append(" changed ");
+        sb.Append(Changee?.ToLink(link, pov, this) ?? "an unknown creature");
+        sb.Append(" from ");
+        sb.Append(Formatting.AddArticle(OldRace ?? "unknown race").ToLower());
+        sb.Append(" into ");
+        sb.Append(Formatting.AddArticle(NewRace ?? "unknown race").ToLower());
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
 

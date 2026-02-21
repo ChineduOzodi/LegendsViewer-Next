@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -31,16 +32,14 @@ public class HolyCityDeclaration : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += ReligionEntity?.ToLink(link, pov, this);
-        eventString += " declared ";
-        eventString += Site?.ToLink(link, pov, this);
-        eventString += " to be a holy city";
-
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(ReligionEntity?.ToLink(link, pov, this));
+        sb.Append(" declared ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(" to be a holy city");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-
-

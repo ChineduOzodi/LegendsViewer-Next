@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -70,66 +71,67 @@ public class EntityPersecuted : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += PersecutorHf?.ToLink(link, pov, this);
-        eventString += " of ";
-        eventString += PersecutorEntity?.ToLink(link, pov, this);
-        eventString += " persecuted ";
-        eventString += TargetEntity?.ToLink(link, pov, this);
-        eventString += " in ";
-        eventString += Site?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(PersecutorHf?.ToLink(link, pov, this));
+        sb.Append(" of ");
+        sb.Append(PersecutorEntity?.ToLink(link, pov, this));
+        sb.Append(" persecuted ");
+        sb.Append(TargetEntity?.ToLink(link, pov, this));
+        sb.Append(" in ");
+        sb.Append(Site?.ToLink(link, pov, this));
         if (ExpelledHfs.Count > 0)
         {
-            eventString += ". ";
+            sb.Append(". ");
             if (ExpelledHfs.Count == 1)
             {
-                eventString += ExpelledHfs[0].ToLink(link, pov, this).ToUpperFirstLetter();
-                eventString += " was";
+                sb.Append(ExpelledHfs[0].ToLink(link, pov, this).ToUpperFirstLetter());
+                sb.Append(" was");
             }
             else
             {
-                eventString += ExpelledHfs[0].ToLink(link, pov, this).ToUpperFirstLetter();
+                sb.Append(ExpelledHfs[0].ToLink(link, pov, this).ToUpperFirstLetter());
                 for (int i = 1; i < ExpelledHfs.Count; i++)
                 {
                     if (i == ExpelledHfs.Count - 1)
                     {
-                        eventString += " and ";
+                        sb.Append(" and ");
                     }
                     else
                     {
-                        eventString += ", ";
+                        sb.Append(", ");
                     }
-                    eventString += ExpelledHfs[i].ToLink(link, pov, this);
+                    sb.Append(ExpelledHfs[i].ToLink(link, pov, this));
                 }
-                eventString += " were";
+                sb.Append(" were");
             }
-            eventString += " expelled";
+            sb.Append(" expelled");
             if (ShrineAmountDestroyed > 0 || DestroyedStructure != null)
             {
-                eventString += " and";
+                sb.Append(" and");
             }
         }
         else
         {
-            eventString += " and";
+            sb.Append(" and");
         }
 
         if (DestroyedStructure != null)
         {
-            eventString += " ";
-            eventString += DestroyedStructure.ToLink(link, pov, this);
-            eventString += " was destroyed";
+            sb.Append(" ");
+            sb.Append(DestroyedStructure.ToLink(link, pov, this));
+            sb.Append(" was destroyed");
             if (ShrineAmountDestroyed > 0)
             {
-                eventString += " along with several smaller sacred sites";
+                sb.Append(" along with several smaller sacred sites");
             }
         }
         else if (ShrineAmountDestroyed > 0)
         {
-            eventString += " and some sacred sites were desecrated";
+            sb.Append(" and some sacred sites were desecrated");
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

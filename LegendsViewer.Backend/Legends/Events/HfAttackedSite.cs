@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -44,15 +45,20 @@ public class HfAttackedSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Attacker?.ToLink(link, pov, this) + " attacked " + SiteCiv?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(link, pov, this));
+        sb.Append(" attacked ");
+        sb.Append(SiteCiv?.ToLink(link, pov, this));
         if (DefenderCiv != null && DefenderCiv != SiteCiv)
         {
-            eventString += " of " + DefenderCiv.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(DefenderCiv.ToLink(link, pov, this));
         }
-        eventString += " at " + Site?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" at ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

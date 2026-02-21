@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -109,37 +110,38 @@ public class OccasionEvent : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-        eventString += " held a ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+        sb.Append(" held a ");
         if (Schedule != null)
         {
             if (!string.IsNullOrWhiteSpace(Schedule.ItemType) || !string.IsNullOrWhiteSpace(Schedule.ItemSubType))
             {
-                eventString += !string.IsNullOrWhiteSpace(Schedule.ItemSubType) ? Schedule.ItemSubType : Schedule.ItemType;
-                eventString += " ";
+                sb.Append(!string.IsNullOrWhiteSpace(Schedule.ItemSubType) ? Schedule.ItemSubType : Schedule.ItemType);
+                sb.Append(" ");
             }
         }
-        eventString += Schedule?.ScheduleType.GetDescription().ToLowerInvariant() ?? OccasionType.GetDescription().ToLowerInvariant();
+        sb.Append(Schedule?.ScheduleType.GetDescription().ToLowerInvariant() ?? OccasionType.GetDescription().ToLowerInvariant());
         if (ReferencedArtForm != null)
         {
-            eventString += " of ";
-            eventString += ReferencedArtForm.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(ReferencedArtForm.ToLink(link, pov, this));
         }
         else if (Schedule?.ScheduleType == ScheduleType.Storytelling && Schedule.Reference != -1)
         {
             WorldEvent? worldEvent = World?.GetEvent(Schedule.Reference);
             if (worldEvent is IFeatured featured)
             {
-                eventString += " of ";
-                eventString += featured.PrintFeature();
+                sb.Append(" of ");
+                sb.Append(featured.PrintFeature());
             }
         }
-        eventString += " in ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += " as part of ";
-        eventString += EntityOccasion != null ? EntityOccasion.Name : "UNKNOWN OCCASION";
-        eventString += ".";
+        sb.Append(" in ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(" as part of ");
+        sb.Append(EntityOccasion != null ? EntityOccasion.Name : "UNKNOWN OCCASION");
+        sb.Append(".");
         if (Schedule != null)
         {
             switch (Schedule.ScheduleType)
@@ -149,15 +151,15 @@ public class OccasionEvent : WorldEvent
                     Structure? endStructure = Site?.Structures.Find(s => s.LocalId == Schedule.Reference2);
                     if (startStructure != null || endStructure != null)
                     {
-                        eventString += " It started at ";
-                        eventString += startStructure != null ? startStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-                        eventString += " and ended at ";
-                        eventString += endStructure != null ? endStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-                        eventString += ".";
+                        sb.Append(" It started at ");
+                        sb.Append(startStructure != null ? startStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+                        sb.Append(" and ended at ");
+                        sb.Append(endStructure != null ? endStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+                        sb.Append(".");
                     }
                     break;
             }
         }
-        return eventString;
+        return sb.ToString();
     }
 }

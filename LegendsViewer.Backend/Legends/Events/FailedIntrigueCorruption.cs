@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -43,7 +44,6 @@ public class FailedIntrigueCorruption : WorldEvent
     public int RelevantPositionProfileId { get; set; }
     public int RelevantIdForMethod { get; set; }
 
-    // Similar to hfs formed intrigue relationship
     public FailedIntrigueCorruption(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
@@ -114,123 +114,90 @@ public class FailedIntrigueCorruption : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += CorruptorHf?.ToLink(link, pov, this);
-        eventString += " attempted to corrupt ";
-        eventString += TargetHf?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(CorruptorHf?.ToLink(link, pov, this));
+        sb.Append(" attempted to corrupt ");
+        sb.Append(TargetHf?.ToLink(link, pov, this));
         switch (Action)
         {
             case IntrigueAction.BribeOfficial:
-                eventString += " in order to have law enforcement look the other way";
+                sb.Append(" in order to have law enforcement look the other way");
                 break;
             case IntrigueAction.InduceToEmbezzle:
-                eventString += " in order to secure embezzled funds";
+                sb.Append(" in order to secure embezzled funds");
                 break;
             case IntrigueAction.CorruptInPlace:
-                eventString += " in order to have an agent";
+                sb.Append(" in order to have an agent");
                 break;
             case IntrigueAction.BringIntoNetwork:
-                eventString += " in order to have someone to act on plots and schemes";
+                sb.Append(" in order to have someone to act on plots and schemes");
                 break;
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site?.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region?.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region?.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion?.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion?.ToLink(link, pov, this));
         }
         else
         {
-            eventString += " in the wilds";
+            sb.Append(" in the wilds");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ". ";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(". ");
         if (LureHf != null)
         {
-            eventString += LureHf.ToLink(link, pov, this).ToUpperFirstLetter();
-            eventString += " lured ";
-            eventString += TargetHf?.ToLink(link, pov, this);
-            eventString += " into a meeting";
+            sb.Append(LureHf.ToLink(link, pov, this).ToUpperFirstLetter());
+            sb.Append(" lured ");
+            sb.Append(TargetHf?.ToLink(link, pov, this));
+            sb.Append(" into a meeting");
         }
         else
         {
-            eventString += CorruptorHf?.ToLink(link, pov, this).ToUpperFirstLetter();
-            eventString += " met with ";
-            eventString += TargetHf?.ToLink(link, pov, this);
+            sb.Append(CorruptorHf?.ToLink(link, pov, this).ToUpperFirstLetter());
+            sb.Append(" met with ");
+            sb.Append(TargetHf?.ToLink(link, pov, this));
         }
-        eventString += " and, while completely misreading the situation, ";
+        sb.Append(" and, while completely misreading the situation, ");
         switch (Method)
         {
             case IntrigueMethod.Intimidate:
-                eventString += "made a threat. ";
-                //eventString += TargetHf.ToLink(link, pov, this).ToUpperFirstLetter();
-                //eventString += " was unfraid and refused.";
+                sb.Append("made a threat. ");
                 break;
             case IntrigueMethod.Flatter:
-                eventString += "made flattering remarks. ";
-                //eventString += TargetHf.ToLink(link, pov, this).ToUpperFirstLetter();
-                //eventString += " hated ";
-                //eventString += CorruptorHf.ToLink(link, pov, this);
-                //eventString += " and refused.";
+                sb.Append("made flattering remarks. ");
                 break;
             case IntrigueMethod.Bribe:
-                eventString += "offered a bribe. ";
+                sb.Append("offered a bribe. ");
                 break;
             case IntrigueMethod.Precedence:
-                eventString += "pulled rank. ";
+                sb.Append("pulled rank. ");
                 break;
             case IntrigueMethod.OfferImmortality:
-                eventString += "offered immortality. ";
+                sb.Append("offered immortality. ");
                 break;
             case IntrigueMethod.ReligiousSympathy:
-                eventString += $"played on sympathy by appealing to a shared worship of {World?.GetHistoricalFigure(RelevantIdForMethod)?.ToLink(link, pov, this)}. ";
+                sb.Append($"played on sympathy by appealing to a shared worship of {World?.GetHistoricalFigure(RelevantIdForMethod)?.ToLink(link, pov, this)}. ");
                 break;
             case IntrigueMethod.BlackmailOverEmbezzlement:
                 var position = RelevantEntity?.EntityPositions.Find(p => p.Id == RelevantPositionProfileId);
-                eventString += $"made a blackmail threat, due to embezzlement using the position {position?.Name} of {RelevantEntity?.ToLink(link, pov, this)}. ";
+                sb.Append($"made a blackmail threat, due to embezzlement using the position {position?.Name} of {RelevantEntity?.ToLink(link, pov, this)}. ");
                 break;
             case IntrigueMethod.RevengeOnGrudge:
-                eventString += $"offered revenge upon  {World?.GetHistoricalFigure(RelevantIdForMethod)?.ToLink(link, pov, this)}. ";
+                sb.Append($"offered revenge upon  {World?.GetHistoricalFigure(RelevantIdForMethod)?.ToLink(link, pov, this)}. ");
                 break;
         }
-        eventString += "The plan failed.";
-        // TODO create the right sentences for facet, value and relationship factors
-        //eventString += "<br/>";
-        //if (TopFacet != null)
-        //{
-        //    eventString += $" TopFacet: {TopFacet} ({TopFacetRating}/{TopFacetModifier}) ";
-        //}
-        //if (TopValue != null)
-        //{
-        //    eventString += $" TopValue: {TopValue} ({TopValueRating}/{TopValueModifier}) ";
-        //}
-        //if (TopRelationshipFactor != null)
-        //{
-        //    eventString += $" TopRelationshipFactor: {TopRelationshipFactor} ({TopRelationshipRating}/{TopRelationshipModifier}) ";
-        //}
-        //if (FailedJudgmentTest)
-        //{
-        //    eventString += " FailedJudgmentTest ";
-        //}
-        //if (AllyDefenseBonus != 0)
-        //{
-        //    eventString += $" AllyDefenseBonus: {AllyDefenseBonus}";
-        //}
-        //if (CoConspiratorBonus != 0)
-        //{
-        //    eventString += $" CoConspiratorBonus: {CoConspiratorBonus}";
-        //}
-        return eventString;
+        sb.Append("The plan failed.");
+        return sb.ToString();
     }
 }
-
-

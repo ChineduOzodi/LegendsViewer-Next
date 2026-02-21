@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -34,7 +35,6 @@ public class Merchant : WorldEvent
                     Site = world.GetSite(Convert.ToInt32(property.Value));
                     break;
                 case "site_id":
-                    // points to wrong site
                     property.Known = true;
                     break;
                 case "seizure": Seizure = true; property.Known = true; break;
@@ -47,33 +47,34 @@ public class Merchant : WorldEvent
         Destination.AddEvent(this);
         Site.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += "merchants from ";
-        eventString += Source != null ? Source.ToLink(link, pov, this) : "UNKNOWN CIV";
-        eventString += " visited ";
-        eventString += Destination != null ? Destination.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " at ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append("merchants from ");
+        sb.Append(Source != null ? Source.ToLink(link, pov, this) : "UNKNOWN CIV");
+        sb.Append(" visited ");
+        sb.Append(Destination != null ? Destination.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" at ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
         if (HardShip)
         {
-            eventString += " and suffered great hardships";
+            sb.Append(" and suffered great hardships");
         }
-        eventString += ".";
+        sb.Append(".");
         if (AllDead)
         {
-            eventString += " They never returned.";
+            sb.Append(" They never returned.");
         }
         if (Seizure)
         {
-            eventString += " They reported a seizure of goods.";
+            sb.Append(" They reported a seizure of goods.");
         }
         if (LostValue)
         {
-            eventString += " They reported irregularities with their goods.";
+            sb.Append(" They reported irregularities with their goods.");
         }
-        return eventString;
+        return sb.ToString();
     }
 }
-

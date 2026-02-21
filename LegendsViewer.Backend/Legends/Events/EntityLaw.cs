@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -45,34 +46,36 @@ public class EntityLaw : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
         if (LawLaid)
         {
-            eventString += " laid a series of ";
+            sb.Append(" laid a series of ");
         }
         else
         {
-            eventString += " lifted numerous ";
+            sb.Append(" lifted numerous ");
         }
 
         switch (Law)
         {
-            case EntityLawType.Harsh: eventString += "oppressive"; break;
-            case EntityLawType.Unknown: eventString += "(" + _unknownLawType + ")"; break;
+            case EntityLawType.Harsh: sb.Append("oppressive"); break;
+            case EntityLawType.Unknown: sb.Append("(" + _unknownLawType + ")"); break;
         }
         if (LawLaid)
         {
-            eventString += " edicts upon ";
+            sb.Append(" edicts upon ");
         }
         else
         {
-            eventString += " laws from ";
+            sb.Append(" laws from ");
         }
 
-        eventString += Entity?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(Entity?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

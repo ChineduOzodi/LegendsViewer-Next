@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -35,28 +36,29 @@ public class HfReachSummit : WorldEvent
         UndergroundRegion.AddEvent(this);
         Site.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-        eventString += " reached the summit";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+        sb.Append(" reached the summit");
         if (Region != null)
         {
-            eventString += ", which rises above ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(", which rises above ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += ", in the depths of ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(", in the depths of ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

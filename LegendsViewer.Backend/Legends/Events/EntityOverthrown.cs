@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -56,48 +57,49 @@ public class EntityOverthrown : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Instigator?.ToLink(link, pov, this);
-        eventString += " toppled the government of ";
-        eventString += OverthrownHistoricalFigure?.ToLink(link, pov, this);
-        eventString += " of ";
-        eventString += Entity?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Instigator?.ToLink(link, pov, this));
+        sb.Append(" toppled the government of ");
+        sb.Append(OverthrownHistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(" of ");
+        sb.Append(Entity?.ToLink(link, pov, this));
         if (PositionTaker != Instigator)
         {
-            eventString += " placed ";
-            eventString += PositionTaker?.ToLink(link, pov, this);
-            eventString += " in power";
+            sb.Append(" placed ");
+            sb.Append(PositionTaker?.ToLink(link, pov, this));
+            sb.Append(" in power");
         }
         else
         {
-            eventString += " and assumed control";
+            sb.Append(" and assumed control");
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
         if (Conspirators.Count > 0)
         {
-            eventString += " The support of ";
+            sb.Append(" The support of ");
             for (int i = 0; i < Conspirators.Count; i++)
             {
                 var conspirator = Conspirators[i];
-                eventString += conspirator.ToLink(link, pov, this);
+                sb.Append(conspirator.ToLink(link, pov, this));
                 if (Conspirators.Count - i > 2)
                 {
-                    eventString += ", ";
+                    sb.Append(", ");
                 }
                 else if (Conspirators.Count - i == 2)
                 {
-                    eventString += " and ";
+                    sb.Append(" and ");
                 }
             }
-            eventString += "was crucial to the coup.";
+            sb.Append("was crucial to the coup.");
         }
-        return eventString;
+        return sb.ToString();
     }
 }
 

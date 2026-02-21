@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -30,18 +31,20 @@ public class EntitySearchedSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += " the forces of ";
-        eventString += SearcherCiv?.ToLink(true, pov) ?? "an unknown civilization";
-        eventString += " searched ";
-        eventString += Site?.ToLink(true, pov) ?? "an unknown site";
-        eventString += PrintParentCollection(link, pov);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(" the forces of ");
+        sb.Append(SearcherCiv?.ToLink(true, pov) ?? "an unknown civilization");
+        sb.Append(" searched ");
+        sb.Append(Site?.ToLink(true, pov) ?? "an unknown site");
+        sb.Append(PrintParentCollection(link, pov));
         if (!string.IsNullOrEmpty(Result))
         {
-            eventString += " and " + Result;
+            sb.Append(" and ");
+            sb.Append(Result);
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

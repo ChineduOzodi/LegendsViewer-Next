@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -37,34 +38,34 @@ public class HfEnslaved : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SellerHf?.ToLink(link, pov, this);
-        eventString += " sold ";
-        eventString += EnslavedHf?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SellerHf?.ToLink(link, pov, this));
+        sb.Append(" sold ");
+        sb.Append(EnslavedHf?.ToLink(link, pov, this));
         if (PayerHf != null)
         {
-            eventString += " to ";
-            eventString += PayerHf.ToLink(link, pov, this);
+            sb.Append(" to ");
+            sb.Append(PayerHf.ToLink(link, pov, this));
             if (PayerEntity != null)
             {
-                eventString += " of ";
-                eventString += PayerEntity.ToLink(link, pov, this);
+                sb.Append(" of ");
+                sb.Append(PayerEntity.ToLink(link, pov, this));
             }
         }
         else if (PayerEntity != null)
         {
-            eventString += " to ";
-            eventString += PayerEntity.ToLink(link, pov, this);
+            sb.Append(" to ");
+            sb.Append(PayerEntity.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ". ";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(". ");
         if (MovedToSite != null)
         {
-            eventString += EnslavedHf?.ToLink(link, pov, this).ToUpperFirstLetter();
-            eventString += " was sent to ";
-            eventString += MovedToSite.ToLink(link, pov, this);
+            sb.Append(EnslavedHf?.ToLink(link, pov, this).ToUpperFirstLetter());
+            sb.Append(" was sent to ");
+            sb.Append(MovedToSite.ToLink(link, pov, this));
         }
-        return eventString;
+        return sb.ToString();
     }
 }
-

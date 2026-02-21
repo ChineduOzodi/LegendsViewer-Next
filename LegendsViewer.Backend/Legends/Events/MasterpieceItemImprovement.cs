@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -58,49 +59,50 @@ public class MasterpieceItemImprovement : WorldEvent
         ImproverEntity.AddEvent(this);
         Site.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Improver != null ? Improver.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Improver != null ? Improver.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
         switch (ImprovementType)
         {
             case "art image":
-                eventString += " added a masterful image";
+                sb.Append(" added a masterful image");
                 break;
             case "covered":
-                eventString += " added a masterful covering";
+                sb.Append(" added a masterful covering");
                 break;
             default:
-                eventString += " added masterful ";
+                sb.Append(" added masterful ");
                 if (!string.IsNullOrWhiteSpace(ImprovementSubType) && ImprovementSubType != "-1")
                 {
-                    eventString += ImprovementSubType;
+                    sb.Append(ImprovementSubType);
                 }
                 else
                 {
-                    eventString += !string.IsNullOrWhiteSpace(ImprovementType) ? ImprovementType : "UNKNOWN ITEM";
+                    sb.Append(!string.IsNullOrWhiteSpace(ImprovementType) ? ImprovementType : "UNKNOWN ITEM");
                 }
                 break;
         }
-        eventString += " in ";
-        eventString += !string.IsNullOrWhiteSpace(ImprovementMaterial) ? ImprovementMaterial + " " : "";
-        eventString += " to a ";
-        eventString += !string.IsNullOrWhiteSpace(Material) ? Material + " " : "";
+        sb.Append(" in ");
+        sb.Append(!string.IsNullOrWhiteSpace(ImprovementMaterial) ? ImprovementMaterial + " " : "");
+        sb.Append(" to a ");
+        sb.Append(!string.IsNullOrWhiteSpace(Material) ? Material + " " : "");
         if (!string.IsNullOrWhiteSpace(ItemSubType) && ItemSubType != "-1")
         {
-            eventString += ItemSubType;
+            sb.Append(ItemSubType);
         }
         else
         {
-            eventString += !string.IsNullOrWhiteSpace(ItemType) ? ItemType : "UNKNOWN ITEM";
+            sb.Append(!string.IsNullOrWhiteSpace(ItemType) ? ItemType : "UNKNOWN ITEM");
         }
-        eventString += " for ";
-        eventString += ImproverEntity != null ? ImproverEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " at ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" for ");
+        sb.Append(ImproverEntity != null ? ImproverEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" at ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

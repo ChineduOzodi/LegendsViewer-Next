@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -7,13 +8,13 @@ namespace LegendsViewer.Backend.Legends.Events;
 
 public class MasterpieceEngraving : WorldEvent
 {
-    private string? SkillAtTime { get; set; } // TODO not used in Legends Mode
-    private string? SkillRating { get; set; } // TODO not used in Legends Mode
+    private string? SkillAtTime { get; set; }
+    private string? SkillRating { get; set; }
     public HistoricalFigure? Maker { get; set; }
     public Entity? MakerEntity { get; set; }
     public Site? Site { get; set; }
-    public int ArtId { get; set; } // TODO not used in Legends Mode
-    public int ArtSubId { get; set; } // TODO not used in Legends Mode
+    public int ArtId { get; set; }
+    public int ArtSubId { get; set; }
 
     public MasterpieceEngraving(List<Property> properties, IWorld world)
         : base(properties, world)
@@ -39,19 +40,20 @@ public class MasterpieceEngraving : WorldEvent
         MakerEntity.AddEvent(this);
         Site.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Maker != null ? Maker.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-        eventString += " created a masterful ";
-        eventString += "engraving";
-        eventString += " for ";
-        eventString += MakerEntity != null ? MakerEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " in ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Maker != null ? Maker.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+        sb.Append(" created a masterful ");
+        sb.Append("engraving");
+        sb.Append(" for ");
+        sb.Append(MakerEntity != null ? MakerEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" in ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

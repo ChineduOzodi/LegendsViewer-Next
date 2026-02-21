@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -45,18 +46,19 @@ public class ReplacedStructure : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SiteEntity != null ? SiteEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " of ";
-        eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-        eventString += " replaced ";
-        eventString += OldStructure != null ? OldStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-        eventString += " in ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += " with ";
-        eventString += NewStructure != null ? NewStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SiteEntity != null ? SiteEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" of ");
+        sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+        sb.Append(" replaced ");
+        sb.Append(OldStructure != null ? OldStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+        sb.Append(" in ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(" with ");
+        sb.Append(NewStructure != null ? NewStructure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -70,23 +71,22 @@ public class HfPrayedInsideStructure : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure?.ToLink(link, pov, this);
-        eventString += " prayed";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(" prayed");
         if (Structure != null)
         {
-            eventString += " inside ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" inside ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-
-

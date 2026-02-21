@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -26,15 +27,16 @@ public class FirstContact : WorldEvent
         Contactor.AddEvent(this);
         Contacted.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Contactor != null ? Contactor.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " made contact with ";
-        eventString += Contacted != null ? Contacted.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " at ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Contactor != null ? Contactor.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" made contact with ");
+        sb.Append(Contacted != null ? Contacted.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" at ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        return sb.ToString();
     }
 }
-

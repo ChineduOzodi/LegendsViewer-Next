@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -28,14 +29,15 @@ public class EntityRampagedInSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += " the forces of ";
-        eventString += RampageCiv?.ToLink(true, pov) ?? "an unknown civilization";
-        eventString += " rampaged throughout ";
-        eventString += Site?.ToLink(true, pov) ?? "an unknown site";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(" the forces of ");
+        sb.Append(RampageCiv?.ToLink(true, pov) ?? "an unknown civilization");
+        sb.Append(" rampaged throughout ");
+        sb.Append(Site?.ToLink(true, pov) ?? "an unknown site");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -7,7 +8,7 @@ namespace LegendsViewer.Backend.Legends.Events;
 
 public class KnowledgeDiscovered : WorldEvent
 {
-    public List<string> Knowledge { get; set; } = []; // TODO
+    public List<string> Knowledge { get; set; } = [];
     public bool First { get; set; }
     public HistoricalFigure? HistoricalFigure { get; set; }
 
@@ -17,16 +18,9 @@ public class KnowledgeDiscovered : WorldEvent
         {
             switch (property.Name)
             {
-                case "hfid":
-                    HistoricalFigure = world.GetHistoricalFigure(Convert.ToInt32(property.Value));
-                    break;
-                case "knowledge":
-                    Knowledge.AddRange(property.Value.Split(':'));
-                    break;
-                case "first":
-                    First = true;
-                    property.Known = true;
-                    break;
+                case "hfid": HistoricalFigure = world.GetHistoricalFigure(Convert.ToInt32(property.Value)); break;
+                case "knowledge": Knowledge.AddRange(property.Value.Split(':')); break;
+                case "first": First = true; property.Known = true; break;
             }
         }
 
@@ -35,26 +29,31 @@ public class KnowledgeDiscovered : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
         if (First)
         {
-            eventString += " was the first to discover ";
+            sb.Append(" was the first to discover ");
         }
         else
         {
-            eventString += " independently discovered ";
+            sb.Append(" independently discovered ");
         }
         if (Knowledge.Count > 1)
         {
-            eventString += " the " + Knowledge[1];
+            sb.Append(" the ");
+            sb.Append(Knowledge[1]);
             if (Knowledge.Count > 2)
             {
-                eventString += " (" + Knowledge[2] + ")";
+                sb.Append(" (");
+                sb.Append(Knowledge[2]);
+                sb.Append(")");
             }
-            eventString += " in the field of " + Knowledge[0] + ".";
+            sb.Append(" in the field of ");
+            sb.Append(Knowledge[0]);
+            sb.Append(".");
         }
-        return eventString;
+        return sb.ToString();
     }
 }
-

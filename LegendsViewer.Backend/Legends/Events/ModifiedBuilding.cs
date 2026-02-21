@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -37,20 +38,20 @@ public class ModifiedBuilding : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += ModifierHf?.ToLink(link, pov, this);
-        eventString += " had a ";
-        eventString += Modification;
-        eventString += " added to ";
-        eventString += Structure?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(ModifierHf?.ToLink(link, pov, this));
+        sb.Append(" had a ");
+        sb.Append(Modification);
+        sb.Append(" added to ");
+        sb.Append(Structure?.ToLink(link, pov, this));
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -51,10 +52,14 @@ public class EntityPrimaryCriminals : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Entity?.ToLink(link, pov, this) + " became the primary criminal organization in " + Site?.ToLink();
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Entity?.ToLink(link, pov, this));
+        sb.Append(" became the primary criminal organization in ");
+        sb.Append(Site?.ToLink());
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

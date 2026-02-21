@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -37,26 +38,26 @@ public class HfInterrogated : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (WantedAndRecognized && HeldFirmInInterrogation)
         {
-            eventString += TargetHf?.ToLink(link, pov, this);
-            eventString += " was recognized and arrested by ";
-            eventString += ArrestingEntity?.ToLink(link, pov, this);
-            eventString += ". Despite the interrogation by ";
-            eventString += InterrogatorHf?.ToLink(link, pov, this);
-            eventString += ", ";
-            eventString += TargetHf?.ToLink(link, pov, this);
-            eventString += " refused to reveal anything and was released";
+            sb.Append(TargetHf?.ToLink(link, pov, this));
+            sb.Append(" was recognized and arrested by ");
+            sb.Append(ArrestingEntity?.ToLink(link, pov, this));
+            sb.Append(". Despite the interrogation by ");
+            sb.Append(InterrogatorHf?.ToLink(link, pov, this));
+            sb.Append(", ");
+            sb.Append(TargetHf?.ToLink(link, pov, this));
+            sb.Append(" refused to reveal anything and was released");
         }
         else
         {
-            eventString += TargetHf?.ToLink(link, pov, this);
-            eventString += " was interrogated";
+            sb.Append(TargetHf?.ToLink(link, pov, this));
+            sb.Append(" was interrogated");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

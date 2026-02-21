@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -44,27 +45,28 @@ public class FailedFrameAttempt : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += FramerHf?.ToLink(link, pov, this);
-        eventString += " attempted to frame ";
-        eventString += TargetHf?.ToLink(link, pov, this);
-        eventString += $" for {Crime}";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(FramerHf?.ToLink(link, pov, this));
+        sb.Append(" attempted to frame ");
+        sb.Append(TargetHf?.ToLink(link, pov, this));
+        sb.Append($" for {Crime}");
         if (PlotterHf != null)
         {
-            eventString += " at the behest of ";
-            eventString += PlotterHf.ToLink(link, pov, this);
+            sb.Append(" at the behest of ");
+            sb.Append(PlotterHf.ToLink(link, pov, this));
         }
-        eventString += " by fooling ";
-        eventString += FooledHf?.ToLink(link, pov, this);
+        sb.Append(" by fooling ");
+        sb.Append(FooledHf?.ToLink(link, pov, this));
         if (ConvicterEntity != null)
         {
-            eventString += " and ";
-            eventString += ConvicterEntity?.ToLink(link, pov, this);
+            sb.Append(" and ");
+            sb.Append(ConvicterEntity?.ToLink(link, pov, this));
         }
-        eventString += " with fabricated evidence, but nothing came from it";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" with fabricated evidence, but nothing came from it");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

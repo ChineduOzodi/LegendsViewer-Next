@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -46,27 +47,27 @@ public class HfLearnsSecret : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
 
         if (Teacher != null)
         {
-            eventString += Teacher.ToLink(link, pov, this);
-            eventString += " taught ";
-            eventString += Student != null ? Student.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-            eventString += " ";
-            eventString += !string.IsNullOrWhiteSpace(SecretText) ? SecretText : "(" + Interaction + ")";
+            sb.Append(Teacher.ToLink(link, pov, this));
+            sb.Append(" taught ");
+            sb.Append(Student != null ? Student.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+            sb.Append(" ");
+            sb.Append(!string.IsNullOrWhiteSpace(SecretText) ? SecretText : "(" + Interaction + ")");
         }
         else
         {
-            eventString += Student != null ? Student.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-            eventString += " learned ";
-            eventString += !string.IsNullOrWhiteSpace(SecretText) ? SecretText : "(" + Interaction + ")";
-            eventString += " from ";
-            eventString += Artifact != null ? Artifact.ToLink(link, pov, this) : "UNKNOWN ARTIFACT";
+            sb.Append(Student != null ? Student.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+            sb.Append(" learned ");
+            sb.Append(!string.IsNullOrWhiteSpace(SecretText) ? SecretText : "(" + Interaction + ")");
+            sb.Append(" from ");
+            sb.Append(Artifact != null ? Artifact.ToLink(link, pov, this) : "UNKNOWN ARTIFACT");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

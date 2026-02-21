@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -8,7 +9,7 @@ namespace LegendsViewer.Backend.Legends.Events;
 
 public class HfProfanedStructure : WorldEvent
 {
-    public ActionsForHistoricalFigures Action { get; set; } // legends_plus.xml
+    public ActionsForHistoricalFigures Action { get; set; }
     public HistoricalFigure? HistoricalFigure { get; set; }
     public Site? Site { get; set; }
     public int StructureId { get; set; }
@@ -51,12 +52,15 @@ public class HfProfanedStructure : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this) + " profaned ";
-        eventString += Structure != null ? Structure?.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-        eventString += " in " + Site?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(" profaned ");
+        sb.Append(Structure != null ? Structure?.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+        sb.Append(" in ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

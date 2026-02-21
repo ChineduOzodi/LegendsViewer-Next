@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -48,29 +49,34 @@ public class MasterpieceDye : WorldEvent
         MakerEntity.AddEvent(this);
         Site.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Maker != null ? Maker.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-        eventString += " masterfully dyed a ";
-        eventString += !string.IsNullOrWhiteSpace(Material) ? Material + " " : "";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Maker != null ? Maker.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+        sb.Append(" masterfully dyed a ");
+        if (!string.IsNullOrWhiteSpace(Material))
+        {
+            sb.Append(Material);
+            sb.Append(" ");
+        }
         if (!string.IsNullOrWhiteSpace(ItemSubType) && ItemSubType != "-1")
         {
-            eventString += ItemSubType;
+            sb.Append(ItemSubType);
         }
         else
         {
-            eventString += !string.IsNullOrWhiteSpace(ItemType) ? ItemType : "UNKNOWN ITEM";
+            sb.Append(!string.IsNullOrWhiteSpace(ItemType) ? ItemType : "UNKNOWN ITEM");
         }
-        eventString += " with ";
-        eventString += !string.IsNullOrWhiteSpace(DyeMaterial) ? DyeMaterial : "UNKNOWN DYE";
-        eventString += " for ";
-        eventString += MakerEntity != null ? MakerEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " in ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" with ");
+        sb.Append(!string.IsNullOrWhiteSpace(DyeMaterial) ? DyeMaterial : "UNKNOWN DYE");
+        sb.Append(" for ");
+        sb.Append(MakerEntity != null ? MakerEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" in ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

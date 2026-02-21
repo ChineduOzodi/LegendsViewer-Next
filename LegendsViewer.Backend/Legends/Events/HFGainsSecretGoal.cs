@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -39,17 +40,18 @@ public class HfGainsSecretGoal : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
         string goalString = "";
         switch (Goal)
         {
             case SecretGoal.Immortality: goalString = " became obsessed with " + HistoricalFigure?.CasteNoun(true) + " own mortality and sought to extend " + HistoricalFigure?.CasteNoun(true) + " life by any means"; break;
             case SecretGoal.Unknown: goalString = " gained secret goal (" + _unknownGoal + ")"; break;
         }
-        eventString += goalString;
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(goalString);
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
-

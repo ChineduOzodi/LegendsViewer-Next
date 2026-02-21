@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -51,19 +52,23 @@ public class EntityRelocate : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Entity?.ToLink(link, pov, this) + " moved to ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Entity?.ToLink(link, pov, this));
+        sb.Append(" moved to ");
         if (Structure != null)
         {
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN STRUCTURE";
+            sb.Append("UNKNOWN STRUCTURE");
         }
-        eventString += " in " + Site?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" in ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

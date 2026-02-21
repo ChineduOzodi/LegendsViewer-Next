@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -83,28 +84,29 @@ public class RemoveHfEntityLink : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (HistoricalFigure != null)
         {
-            eventString += HistoricalFigure.ToLink(link, pov, this);
+            sb.Append(HistoricalFigure.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
+            sb.Append("UNKNOWN HISTORICAL FIGURE");
         }
         switch (LinkType)
         {
             case HfEntityLinkType.Prisoner:
-                eventString += " escaped from the prisons of ";
+                sb.Append(" escaped from the prisons of ");
                 break;
             case HfEntityLinkType.Slave:
-                eventString += " fled from ";
+                sb.Append(" fled from ");
                 break;
             case HfEntityLinkType.Enemy:
-                eventString += " stopped being an enemy of ";
+                sb.Append(" stopped being an enemy of ");
                 break;
             case HfEntityLinkType.Member:
-                eventString += " left ";
+                sb.Append(" left ");
                 break;
             case HfEntityLinkType.Squad:
             case HfEntityLinkType.Position:
@@ -112,26 +114,30 @@ public class RemoveHfEntityLink : WorldEvent
                 if (position != null)
                 {
                     string positionName = position.GetTitleByCaste(HistoricalFigure?.Caste ?? string.Empty);
-                    eventString += " stopped being the " + positionName + " of ";
+                    sb.Append(" stopped being the ");
+                    sb.Append(positionName);
+                    sb.Append(" of ");
                 }
                 else if (!string.IsNullOrWhiteSpace(Position))
                 {
-                    eventString += " stopped being the " + Position + " of ";
+                    sb.Append(" stopped being the ");
+                    sb.Append(Position);
+                    sb.Append(" of ");
                 }
                 else
                 {
-                    eventString += " stopped being an unspecified position of ";
+                    sb.Append(" stopped being an unspecified position of ");
                 }
                 break;
             default:
-                eventString += " stopped being linked to ";
+                sb.Append(" stopped being linked to ");
                 break;
         }
 
-        eventString += Entity?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(Entity?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

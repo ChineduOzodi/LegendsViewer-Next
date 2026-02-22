@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -45,36 +46,40 @@ public class Persecution : EventCollection
     {
         if (link)
         {
+            var sb = new StringBuilder();
             string title = GetTitle();
-            string linkedString = "the ";
-            linkedString += pov != this
+            sb.Append("the ");
+            sb.Append(pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "persecution", Id, title, Name)
-                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
+                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name)));
 
             if (TargetEntity != null && pov != TargetEntity)
             {
-                linkedString += $" of {TargetEntity.ToLink(true, this)}";
+                sb.Append(" of ");
+                sb.Append(TargetEntity.ToLink(true, this));
             }
 
             if (Site != null && pov != Site)
             {
-                linkedString += $" in {Site.ToLink(true, this)}";
+                sb.Append(" in ");
+                sb.Append(Site.ToLink(true, this));
             }
-            return linkedString;
+            return sb.ToString();
         }
         return ToString();
     }
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += "Of Entity: ";
-        title += TargetEntity != null ? TargetEntity.ToLink(false) : "UNKNOWN";
-        title += "&#13";
-        title += "Site: ";
-        title += Site != null ? Site.ToLink(false) : "UNKNOWN";
-        return title;
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append("Of Entity: ");
+        sb.Append(TargetEntity != null ? TargetEntity.ToLink(false) : "UNKNOWN");
+        sb.Append("&#13");
+        sb.Append("Site: ");
+        sb.Append(Site != null ? Site.ToLink(false) : "UNKNOWN");
+        return sb.ToString();
     }
 
     public override string ToString()

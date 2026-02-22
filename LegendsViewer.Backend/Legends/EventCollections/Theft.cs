@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -73,32 +74,37 @@ public class Theft : EventCollection, IHasComplexSubtype
     {
         if (link)
         {
+            var sb = new StringBuilder();
             string title = GetTitle();
-            string linkedString = "the ";
-            linkedString += pov != this
+            sb.Append("the ");
+            sb.Append(pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "theft", Id, title, Name)
-                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
+                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name)));
 
             if (Site != null && pov != Site)
             {
-                linkedString += $" in {Site.ToLink(true, this)}";
+                sb.Append(" in ");
+                sb.Append(Site.ToLink(true, this));
             }
-            return linkedString;
+            return sb.ToString();
         }
         return ToString();
     }
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += Attacker?.PrintEntity(false) + " (Attacker)";
-        title += "&#13";
-        title += Defender?.PrintEntity(false) + " (Defender)";
-        title += "&#13";
-        title += "Site: ";
-        title += Site != null ? Site.ToLink(false) : "UNKNOWN";
-        return title;
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append(Attacker?.PrintEntity(false));
+        sb.Append(" (Attacker)");
+        sb.Append("&#13");
+        sb.Append(Defender?.PrintEntity(false));
+        sb.Append(" (Defender)");
+        sb.Append("&#13");
+        sb.Append("Site: ");
+        sb.Append(Site != null ? Site.ToLink(false) : "UNKNOWN");
+        return sb.ToString();
     }
 
     public override string ToString()

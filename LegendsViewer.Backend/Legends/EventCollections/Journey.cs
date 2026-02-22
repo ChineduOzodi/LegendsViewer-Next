@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
@@ -50,80 +51,91 @@ public class Journey : EventCollection
     {
         if (link)
         {
+            var sb = new StringBuilder();
             string title = GetTitle();
-            string linkedString = "the ";
-            linkedString += pov != this
+            sb.Append("the ");
+            sb.Append(pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "journey", Id, title, Name)
-                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
+                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name)));
             if (HistoricalFigure != null && pov != HistoricalFigure)
             {
-                linkedString += $" of {HistoricalFigure.ToLink(true, this)}";
+                sb.Append(" of ");
+                sb.Append(HistoricalFigure.ToLink(true, this));
             }
 
             if (Site != null && pov != Site)
             {
-                linkedString += $" to {Site.ToLink(true, this)}";
+                sb.Append(" to ");
+                sb.Append(Site.ToLink(true, this));
             }
             else if (Region != null && pov != Region)
             {
-                linkedString += $" to {Region.ToLink(true, this)}";
+                sb.Append(" to ");
+                sb.Append(Region.ToLink(true, this));
             }
             else if (UndergroundRegion != null && pov != UndergroundRegion)
             {
-                linkedString += $" to {UndergroundRegion.ToLink(true, this)}";
+                sb.Append(" to ");
+                sb.Append(UndergroundRegion.ToLink(true, this));
             }
-            return linkedString;
+            return sb.ToString();
         }
         return ToString();
     }
 
     private string GetTitle()
     {
-        string title = Type;
+        var sb = new StringBuilder();
+        sb.Append(Type);
         if (Site != null)
         {
-            title += "&#13";
-            title += "Site: ";
-            title += Site.ToLink(false);
+            sb.Append("&#13");
+            sb.Append("Site: ");
+            sb.Append(Site.ToLink(false));
         }
         else if (Region != null)
         {
-            title += "&#13";
-            title += "Region: ";
-            title += Region.ToLink(false);
+            sb.Append("&#13");
+            sb.Append("Region: ");
+            sb.Append(Region.ToLink(false));
         }
         else if (UndergroundRegion != null)
         {
-            title += "&#13";
-            title += "Underground Region: ";
-            title += UndergroundRegion.ToLink(false);
+            sb.Append("&#13");
+            sb.Append("Underground Region: ");
+            sb.Append(UndergroundRegion.ToLink(false));
         }
-        return title;
+        return sb.ToString();
     }
 
     public override string ToString()
     {
-        string text = "the ";
-        text += Name;
+        var sb = new StringBuilder();
+        sb.Append("the ");
+        sb.Append(Name);
 
         if (HistoricalFigure != null)
         {
-            text += $" of {HistoricalFigure.ToLink(true, this)}";
+            sb.Append(" of ");
+            sb.Append(HistoricalFigure.ToLink(true, this));
         }
 
         if (Site != null)
         {
-            text += $" to {Site.ToLink(true, this)}";
+            sb.Append(" to ");
+            sb.Append(Site.ToLink(true, this));
         }
         else if (Region != null)
         {
-            text += $" to {Region.ToLink(true, this)}";
+            sb.Append(" to ");
+            sb.Append(Region.ToLink(true, this));
         }
         else if (UndergroundRegion != null)
         {
-            text += $" to {UndergroundRegion.ToLink(true, this)}";
+            sb.Append(" to ");
+            sb.Append(UndergroundRegion.ToLink(true, this));
         }
-        return text;
+        return sb.ToString();
     }
 }
 

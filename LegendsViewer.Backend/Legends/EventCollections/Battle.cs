@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
 using LegendsViewer.Backend.Legends.Enums;
@@ -521,28 +522,31 @@ public class Battle : EventCollection, IHasComplexSubtype
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += Attacker != null ? Attacker.PrintEntity(false) : "UNKNOWN";
-        title += " (Attacker)";
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append(Attacker != null ? Attacker.PrintEntity(false) : "UNKNOWN");
+        sb.Append(" (Attacker)");
         if (Victor == Attacker)
         {
-            title += "(V)";
+            sb.Append("(V)");
         }
 
-        title += "&#13";
-        title += "Kills: " + DefenderDeathCount;
-        title += "&#13";
-        title += Defender != null ? Defender.PrintEntity(false) : "UNKNOWN";
-        title += " (Defender)";
+        sb.Append("&#13");
+        sb.Append("Kills: ");
+        sb.Append(DefenderDeathCount);
+        sb.Append("&#13");
+        sb.Append(Defender != null ? Defender.PrintEntity(false) : "UNKNOWN");
+        sb.Append(" (Defender)");
         if (Victor == Defender)
         {
-            title += "(V)";
+            sb.Append("(V)");
         }
 
-        title += "&#13";
-        title += "Kills: " + AttackerDeathCount;
-        return title;
+        sb.Append("&#13");
+        sb.Append("Kills: ");
+        sb.Append(AttackerDeathCount);
+        return sb.ToString();
     }
 
     public override string ToString()

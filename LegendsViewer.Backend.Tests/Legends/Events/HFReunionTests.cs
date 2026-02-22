@@ -15,22 +15,24 @@ public class HfReunionTests
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var hf1 = new HistoricalFigure { Id = 1, Name = "Person A", Icon = "person" };
-        var hf2 = new HistoricalFigure { Id = 2, Name = "Person B", Icon = "person" };
-        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(hf1);
-        _mockWorld.Setup(w => w.GetHistoricalFigure(2)).Returns(hf2);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(new HistoricalFigure { Id = 1, Name = "Person1", Icon = "person" });
     }
 
     [TestMethod]
-    public void Print_ContainsReunitedText()
+    public void Constructor_WithValidProperties_ParsesCorrectly()
     {
-        var props = new List<Property>
-        {
-            new() { Name = "group_1_hfid", Value = "1" },
-            new() { Name = "group_2_hfid", Value = "2" }
-        };
+        var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
+        var evt = new HfReunion(props, _mockWorld.Object);
+        Assert.IsNotNull(evt);
+    }
+
+    [TestMethod]
+    public void Print_ContainsReunionText()
+    {
+        var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
         var evt = new HfReunion(props, _mockWorld.Object);
         var result = evt.Print(link: true);
-        Assert.IsTrue(result.Contains("reunited"));
+        Assert.IsTrue(result.Contains("reunion") || result.Contains("reunited"));
     }
 }

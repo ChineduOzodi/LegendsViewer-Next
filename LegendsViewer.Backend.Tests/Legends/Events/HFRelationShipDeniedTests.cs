@@ -15,18 +15,22 @@ public class HfRelationShipDeniedTests
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var hf = new HistoricalFigure { Id = 1, Name = "Seeker", Icon = "person" };
-        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(hf);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(new HistoricalFigure { Id = 1, Name = "HF1", Icon = "person" });
+    }
+
+    [TestMethod]
+    public void Constructor_WithValidProperties_ParsesCorrectly()
+    {
+        var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
+        var evt = new HfRelationShipDenied(props, _mockWorld.Object);
+        Assert.IsNotNull(evt);
     }
 
     [TestMethod]
     public void Print_ContainsDeniedText()
     {
-        var props = new List<Property>
-        {
-            new() { Name = "seeker_hfid", Value = "1" },
-            new() { Name = "relationship", Value = "apprentice" }
-        };
+        var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
         var evt = new HfRelationShipDenied(props, _mockWorld.Object);
         var result = evt.Print(link: true);
         Assert.IsTrue(result.Contains("denied"));

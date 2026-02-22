@@ -1,4 +1,5 @@
 using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,13 +11,32 @@ namespace LegendsViewer.Backend.Tests.Legends.Events;
 public class ItemStolenTests
 {
     private Mock<IWorld> _mockWorld = null!;
+    private HistoricalFigure _thief = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var hf = new HistoricalFigure { Id = 1, Name = "Thief", Icon = "person" };
-        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(hf);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        
+        _thief = new HistoricalFigure { Id = 1, Name = "Thief", Icon = "person" };
+        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(_thief);
+        _mockWorld.Setup(w => w.GetArtifact(1)).Returns(new Artifact([], _mockWorld.Object) { Id = 1, Name = "Gem", Icon = "artifact" });
+    }
+
+    [TestMethod]
+    public void Constructor_WithValidProperties_ParsesCorrectly()
+    {
+        var props = new List<Property>
+        {
+            new Property { Name = "histfig", Value = "1" },
+            new Property { Name = "item", Value = "1" }
+        };
+
+        var evt = new ItemStolen(props, _mockWorld.Object);
+
+        Assert.IsNotNull(evt);
+        Assert.AreEqual(_thief, evt.Thief);
     }
 
     [TestMethod]

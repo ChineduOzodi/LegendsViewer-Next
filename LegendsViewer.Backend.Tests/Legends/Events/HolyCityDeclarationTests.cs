@@ -10,15 +10,35 @@ namespace LegendsViewer.Backend.Tests.Legends.Events;
 public class HolyCityDeclarationTests
 {
     private Mock<IWorld> _mockWorld = null!;
+    private Site _site = null!;
+    private Entity _entity = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var site = new Site([], _mockWorld.Object) { Id = 1, Name = "Holy City" };
-        var entity = new Entity([], _mockWorld.Object) { Id = 1, Name = "Sun Temple", Icon = "civilization" };
-        _mockWorld.Setup(w => w.GetSite(1)).Returns(site);
-        _mockWorld.Setup(w => w.GetEntity(1)).Returns(entity);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        
+        _site = new Site([], _mockWorld.Object) { Id = 1, Name = "Holy City", Icon = "location" };
+        _entity = new Entity([], _mockWorld.Object) { Id = 1, Name = "Sun Temple", Icon = "civilization" };
+        _mockWorld.Setup(w => w.GetSite(1)).Returns(_site);
+        _mockWorld.Setup(w => w.GetEntity(1)).Returns(_entity);
+    }
+
+    [TestMethod]
+    public void Constructor_WithValidProperties_ParsesCorrectly()
+    {
+        var props = new List<Property>
+        {
+            new Property { Name = "site_id", Value = "1" },
+            new Property { Name = "religion_id", Value = "1" }
+        };
+
+        var evt = new HolyCityDeclaration(props, _mockWorld.Object);
+
+        Assert.IsNotNull(evt);
+        Assert.AreEqual(_site, evt.Site);
+        Assert.AreEqual(_entity, evt.ReligionEntity);
     }
 
     [TestMethod]

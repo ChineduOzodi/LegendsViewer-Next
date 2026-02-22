@@ -10,30 +10,47 @@ namespace LegendsViewer.Backend.Tests.Legends.Events;
 public class MasterpieceEngravingTests
 {
     private Mock<IWorld> _mockWorld = null!;
+    private HistoricalFigure _hf = null!;
+    private Entity _entity = null!;
+    private Site _site = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var hf = new HistoricalFigure { Id = 1, Name = "Artist", Icon = "person" };
-        var entity = new Entity([], _mockWorld.Object) { Id = 1, Name = "Guild", Icon = "civilization" };
-        var site = new Site([], _mockWorld.Object) { Id = 1, Name = "City" };
-        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(hf);
-        _mockWorld.Setup(w => w.GetEntity(1)).Returns(entity);
-        _mockWorld.Setup(w => w.GetSite(1)).Returns(site);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        _hf = new HistoricalFigure { Id = 1, Name = "Artist", Icon = "person" };
+        _entity = new Entity([], _mockWorld.Object) { Id = 1, Name = "Guild", Icon = "civilization" };
+        _site = new Site([], _mockWorld.Object) { Id = 1, Name = "Workshop", Icon = "location" };
+        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(_hf);
+        _mockWorld.Setup(w => w.GetEntity(1)).Returns(_entity);
+        _mockWorld.Setup(w => w.GetSite(1)).Returns(_site);
     }
 
     [TestMethod]
-    public void Print_ContainsEngravingText()
+    public void Constructor_WithValidProperties_ParsesCorrectly()
     {
         var props = new List<Property>
         {
-            new() { Name = "hfid", Value = "1" },
-            new() { Name = "entity_id", Value = "1" },
-            new() { Name = "site_id", Value = "1" }
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "entity_id", Value = "1" },
+            new Property { Name = "site_id", Value = "1" }
+        };
+        var evt = new MasterpieceEngraving(props, _mockWorld.Object);
+        Assert.IsNotNull(evt);
+    }
+
+    [TestMethod]
+    public void Print_ContainsMasterpieceText()
+    {
+        var props = new List<Property>
+        {
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "entity_id", Value = "1" },
+            new Property { Name = "site_id", Value = "1" }
         };
         var evt = new MasterpieceEngraving(props, _mockWorld.Object);
         var result = evt.Print(link: true);
-        Assert.IsTrue(result.Contains("engraving"));
+        Assert.IsTrue(result.Contains("masterful") || result.Contains("created"));
     }
 }

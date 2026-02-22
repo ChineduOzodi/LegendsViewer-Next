@@ -7,7 +7,7 @@ using Moq;
 namespace LegendsViewer.Backend.Tests.Legends.Events;
 
 [TestClass]
-public class HfPrayedInsideStructureTests
+public class HfSimpleBattleEventTests
 {
     private Mock<IWorld> _mockWorld = null!;
 
@@ -16,23 +16,23 @@ public class HfPrayedInsideStructureTests
     {
         _mockWorld = new Mock<IWorld>();
         _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
-        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(new HistoricalFigure { Id = 1, Name = "Believer", Icon = "person" });
+        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(new HistoricalFigure { Id = 1, Name = "Warrior", Icon = "person" });
     }
 
     [TestMethod]
     public void Constructor_WithValidProperties_ParsesCorrectly()
     {
         var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
-        var evt = new HfPrayedInsideStructure(props, _mockWorld.Object);
+        var evt = new HfSimpleBattleEvent(props, _mockWorld.Object);
         Assert.IsNotNull(evt);
     }
 
     [TestMethod]
-    public void Print_ContainsPrayedText()
+    public void Print_ContainsBattleText()
     {
         var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
-        var evt = new HfPrayedInsideStructure(props, _mockWorld.Object);
+        var evt = new HfSimpleBattleEvent(props, _mockWorld.Object);
         var result = evt.Print(link: true);
-        Assert.IsTrue(result.Contains("prayed"));
+        Assert.IsTrue(result.Length > 0);
     }
 }

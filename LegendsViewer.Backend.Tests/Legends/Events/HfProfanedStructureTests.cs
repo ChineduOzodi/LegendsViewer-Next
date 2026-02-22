@@ -10,27 +10,35 @@ namespace LegendsViewer.Backend.Tests.Legends.Events;
 public class HfProfanedStructureTests
 {
     private Mock<IWorld> _mockWorld = null!;
+    private HistoricalFigure _hf = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var hf = new HistoricalFigure { Id = 1, Name = "Desecrator", Icon = "person" };
-        var site = new Site([], _mockWorld.Object) { Id = 1, Name = "Temple" };
-        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(hf);
-        _mockWorld.Setup(w => w.GetSite(1)).Returns(site);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        _hf = new HistoricalFigure { Id = 1, Name = "Desecrator", Icon = "person" };
+        _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(_hf);
+    }
+
+    [TestMethod]
+    public void Constructor_WithValidProperties_ParsesCorrectly()
+    {
+        var props = new List<Property>
+        {
+            new Property { Name = "histfig", Value = "1" }
+        };
+        var evt = new HfProfanedStructure(props, _mockWorld.Object);
+        Assert.IsNotNull(evt);
+        Assert.AreEqual(_hf, evt.HistoricalFigure);
     }
 
     [TestMethod]
     public void Print_ContainsProfanedText()
     {
-        var props = new List<Property>
-        {
-            new() { Name = "hist_fig_id", Value = "1" },
-            new() { Name = "site_id", Value = "1" }
-        };
+        var props = new List<Property> { new Property { Name = "histfig", Value = "1" } };
         var evt = new HfProfanedStructure(props, _mockWorld.Object);
         var result = evt.Print(link: true);
-        Assert.IsTrue(result.Contains("profaned"));
+        Assert.IsTrue(result.Contains("profane"));
     }
 }

@@ -10,17 +10,38 @@ namespace LegendsViewer.Backend.Tests.Legends.Events;
 public class MerchantTests
 {
     private Mock<IWorld> _mockWorld = null!;
+    private Entity _source = null!;
+    private Entity _dest = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
-        var e1 = new Entity([], _mockWorld.Object) { Id = 1, Name = "Source", Icon = "civilization" };
-        var e2 = new Entity([], _mockWorld.Object) { Id = 2, Name = "Dest", Icon = "civilization" };
-        var site = new Site([], _mockWorld.Object) { Id = 1, Name = "City" };
-        _mockWorld.Setup(w => w.GetEntity(1)).Returns(e1);
-        _mockWorld.Setup(w => w.GetEntity(2)).Returns(e2);
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
+        
+        _source = new Entity([], _mockWorld.Object) { Id = 1, Name = "Source", Icon = "civilization" };
+        _dest = new Entity([], _mockWorld.Object) { Id = 2, Name = "Dest", Icon = "civilization" };
+        var site = new Site([], _mockWorld.Object) { Id = 1, Name = "City", Icon = "location" };
+        _mockWorld.Setup(w => w.GetEntity(1)).Returns(_source);
+        _mockWorld.Setup(w => w.GetEntity(2)).Returns(_dest);
         _mockWorld.Setup(w => w.GetSite(1)).Returns(site);
+    }
+
+    [TestMethod]
+    public void Constructor_WithValidProperties_ParsesCorrectly()
+    {
+        var props = new List<Property>
+        {
+            new Property { Name = "source", Value = "1" },
+            new Property { Name = "destination", Value = "2" },
+            new Property { Name = "site", Value = "1" }
+        };
+
+        var evt = new Merchant(props, _mockWorld.Object);
+
+        Assert.IsNotNull(evt);
+        Assert.AreEqual(_source, evt.Source);
+        Assert.AreEqual(_dest, evt.Destination);
     }
 
     [TestMethod]

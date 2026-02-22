@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -44,51 +45,52 @@ public class Trade : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Trader?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Trader?.ToLink(link, pov, this));
         if (TraderEntity != null)
         {
-            eventString += " of ";
-            eventString += TraderEntity.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(TraderEntity.ToLink(link, pov, this));
         }
         // same ranges like in "gamble" event
         var balance = AccountShift;
         if (balance >= 5000)
         {
-            eventString += " made a fortune";
+            sb.Append(" made a fortune");
         }
         else if (balance >= 1000)
         {
-            eventString += " did well";
+            sb.Append(" did well");
         }
         else if (balance <= -1000)
         {
-            eventString += " did poorly";
+            sb.Append(" did poorly");
         }
         else if (balance <= -5000)
         {
-            eventString += " lost a fortune";
+            sb.Append(" lost a fortune");
         }
         else
         {
-            eventString += " broke even";
+            sb.Append(" broke even");
         }
-        eventString += " trading goods";
+        sb.Append(" trading goods");
         if (SourceSite != null)
         {
-            eventString += " from ";
-            eventString += SourceSite.ToLink(link, pov, this);
+            sb.Append(" from ");
+            sb.Append(SourceSite.ToLink(link, pov, this));
         }
 
         if (DestSite != null)
         {
-            eventString += " to ";
-            eventString += DestSite.ToLink(link, pov, this);
+            sb.Append(" to ");
+            sb.Append(DestSite.ToLink(link, pov, this));
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -96,18 +97,20 @@ public class SiteDispute : WorldEvent
                 break;
         }
 
-        string eventString = GetYearTime();
-        eventString += Entity1 != null ? Entity1.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " of ";
-        eventString += Site1 != null ? Site1.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += " and ";
-        eventString += Entity2 != null ? Entity2.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " of ";
-        eventString += Site2 != null ? Site2.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += " became embroiled in a dispute over " + dispute;
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Entity1 != null ? Entity1.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" of ");
+        sb.Append(Site1 != null ? Site1.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(" and ");
+        sb.Append(Entity2 != null ? Entity2.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" of ");
+        sb.Append(Site2 != null ? Site2.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(" became embroiled in a dispute over ");
+        sb.Append(dispute);
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

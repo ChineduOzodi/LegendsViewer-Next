@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -40,14 +41,15 @@ public class SiteRetired : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SiteEntity != null ? SiteEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " of ";
-        eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-        eventString += " at the settlement of ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += " regained their senses after an initial period of questionable judgment.";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SiteEntity != null ? SiteEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" of ");
+        sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+        sb.Append(" at the settlement of ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(" regained their senses after an initial period of questionable judgment.");
+        return sb.ToString();
     }
 }
 

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -34,20 +35,21 @@ public class SneakIntoSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Attacker?.ToLink(true, pov) ?? "an unknown group";
-        eventString += " slipped into ";
-        eventString += Site?.ToLink(true, pov) ?? "an unknown site";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(true, pov) ?? "an unknown group");
+        sb.Append(" slipped into ");
+        sb.Append(Site?.ToLink(true, pov) ?? "an unknown site");
         if (SiteCiv != null)
         {
-            eventString += " undetected by ";
-            eventString += SiteCiv.ToLink(true, pov);
-            eventString += " of ";
-            eventString += Defender?.ToLink(true, pov) ?? "an unknown group";
+            sb.Append(" undetected by ");
+            sb.Append(SiteCiv.ToLink(true, pov));
+            sb.Append(" of ");
+            sb.Append(Defender?.ToLink(true, pov) ?? "an unknown group");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

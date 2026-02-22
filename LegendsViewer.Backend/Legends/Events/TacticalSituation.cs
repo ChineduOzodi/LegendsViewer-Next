@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -77,77 +78,79 @@ public class TacticalSituation : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (AttackerTactician != null && DefenderTactician != null)
         {
             if (AttackerTacticsRoll > DefenderTacticsRoll)
             {
-                eventString += AttackerTactician.ToLink(link, pov, this);
+                sb.Append(AttackerTactician.ToLink(link, pov, this));
             }
             else
             {
-                eventString += DefenderTactician.ToLink(link, pov, this);
+                sb.Append(DefenderTactician.ToLink(link, pov, this));
             }
             if (Situation.ToString().Contains("Strongly"))
             {
-                eventString += " entirely outwitted ";
+                sb.Append(" entirely outwitted ");
             }
             else
             {
-                eventString += " outmanuevered ";
+                sb.Append(" outmanuevered ");
             }
             if (AttackerTacticsRoll > DefenderTacticsRoll)
             {
-                eventString += DefenderTactician?.ToLink(link, pov, this) ?? "an unknown creature";
+                sb.Append(DefenderTactician?.ToLink(link, pov, this) ?? "an unknown creature");
             }
             else
             {
-                eventString += AttackerTactician?.ToLink(link, pov, this) ?? "an unknown creature";
+                sb.Append(AttackerTactician?.ToLink(link, pov, this) ?? "an unknown creature");
             }
         }
         else if (AttackerTactician != null)
         {
-            eventString += AttackerTactician.ToLink(link, pov, this);
-            eventString += " used ";
-            eventString += AttackerTacticsRoll > DefenderTacticsRoll ? "good" : "poor";
-            eventString += " tactics";
+            sb.Append(AttackerTactician.ToLink(link, pov, this));
+            sb.Append(" used ");
+            sb.Append(AttackerTacticsRoll > DefenderTacticsRoll ? "good" : "poor");
+            sb.Append(" tactics");
         }
         else if (DefenderTactician != null)
         {
-            eventString += DefenderTactician.ToLink(link, pov, this);
-            eventString += " used ";
-            eventString += AttackerTacticsRoll > DefenderTacticsRoll ? "poor" : "good";
-            eventString += " tactics";
+            sb.Append(DefenderTactician.ToLink(link, pov, this));
+            sb.Append(" used ");
+            sb.Append(AttackerTacticsRoll > DefenderTacticsRoll ? "poor" : "good");
+            sb.Append(" tactics");
         }
         else
         {
-            eventString += "the forces shifted";
+            sb.Append("the forces shifted");
         }
         switch (Situation)
         {
             case TacticalSituationType.NeitherFavored:
-                eventString += ", but neither side had a positional advantage";
+                sb.Append(", but neither side had a positional advantage");
                 break;
             case TacticalSituationType.AttackersSlightlyFavored:
-                eventString += ", but the attackers had a slight positional advantage";
+                sb.Append(", but the attackers had a slight positional advantage");
                 break;
             case TacticalSituationType.DefendersSlightlyFavored:
-                eventString += ", but the defenders had a slight positional advantage";
+                sb.Append(", but the defenders had a slight positional advantage");
                 break;
             case TacticalSituationType.AttackersStronglyFavored:
-                eventString += ", and the attackers had a strong positional advantage";
+                sb.Append(", and the attackers had a strong positional advantage");
                 break;
             case TacticalSituationType.DefendersStronglyFavored:
-                eventString += ", and the defenders had a strong positional advantage";
+                sb.Append(", and the defenders had a strong positional advantage");
                 break;
         }
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

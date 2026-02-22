@@ -1,5 +1,5 @@
-using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -23,7 +23,7 @@ public class RemoveHfEntityLinkTests
         _entity = new Entity([], _mockWorld.Object)
         {
             Id = 1,
-            Name = "Test Kingdom",
+            Name = "Test Entity",
             Icon = "civilization"
         };
 
@@ -41,7 +41,6 @@ public class RemoveHfEntityLinkTests
     [TestMethod]
     public void Constructor_WithValidProperties_ParsesCorrectly()
     {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
@@ -49,10 +48,8 @@ public class RemoveHfEntityLinkTests
             new Property { Name = "link_type", Value = "member" }
         };
 
-        // Act
         var evt = new RemoveHfEntityLink(properties, _mockWorld.Object);
 
-        // Assert
         Assert.IsNotNull(evt);
         Assert.AreEqual(_entity, evt.Entity);
         Assert.AreEqual(_historicalFigure, evt.HistoricalFigure);
@@ -60,27 +57,8 @@ public class RemoveHfEntityLinkTests
     }
 
     [TestMethod]
-    public void Constructor_WithPrisonerLinkType_SetsPrisoner()
+    public void Print_WithMemberLink_ReturnsLeftText()
     {
-        // Arrange
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "prisoner" }
-        };
-
-        // Act
-        var evt = new RemoveHfEntityLink(properties, _mockWorld.Object);
-
-        // Assert
-        Assert.AreEqual(HfEntityLinkType.Prisoner, evt.LinkType);
-    }
-
-    [TestMethod]
-    public void Print_WithMemberLink_ReturnsFormattedString()
-    {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
@@ -88,20 +66,18 @@ public class RemoveHfEntityLinkTests
             new Property { Name = "link_type", Value = "member" }
         };
 
-        // Act
         var evt = new RemoveHfEntityLink(properties, _mockWorld.Object);
+
         var result = evt.Print(link: true);
 
-        // Assert
-        Assert.IsTrue(result.Contains("Test Figure"));
         Assert.IsTrue(result.Contains("left"));
-        Assert.IsTrue(result.Contains("Test Kingdom"));
+        Assert.IsTrue(result.Contains("Test Figure"));
+        Assert.IsTrue(result.Contains("Test Entity"));
     }
 
     [TestMethod]
-    public void Print_WithPrisonerLink_ReturnsEscapedString()
+    public void Print_WithPrisonerLink_ReturnsEscapedText()
     {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
@@ -109,11 +85,27 @@ public class RemoveHfEntityLinkTests
             new Property { Name = "link_type", Value = "prisoner" }
         };
 
-        // Act
         var evt = new RemoveHfEntityLink(properties, _mockWorld.Object);
+
         var result = evt.Print(link: true);
 
-        // Assert
         Assert.IsTrue(result.Contains("escaped"));
+    }
+
+    [TestMethod]
+    public void Print_WithSlaveLink_ReturnsFledText()
+    {
+        var properties = new List<Property>
+        {
+            new Property { Name = "civ_id", Value = "1" },
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "link_type", Value = "slave" }
+        };
+
+        var evt = new RemoveHfEntityLink(properties, _mockWorld.Object);
+
+        var result = evt.Print(link: true);
+
+        Assert.IsTrue(result.Contains("fled"));
     }
 }

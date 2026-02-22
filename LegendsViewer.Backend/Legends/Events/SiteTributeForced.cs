@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -48,19 +49,26 @@ public class SiteTributeForced : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Attacker?.ToLink(link, pov, this) + " secured tribute from " + SiteEntity?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(link, pov, this));
+        sb.Append(" secured tribute from ");
+        sb.Append(SiteEntity?.ToLink(link, pov, this));
         if (Defender != null)
         {
-            eventString += " of " + Defender?.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(Defender?.ToLink(link, pov, this));
         }
-        eventString += ", to be delivered from " + Site?.ToLink(link, pov, this);
+        sb.Append(", to be delivered from ");
+        sb.Append(Site?.ToLink(link, pov, this));
         if (!string.IsNullOrWhiteSpace(Season))
         {
-            eventString += " every " + Season.Trim();
+            sb.Append(" every ");
+            sb.Append(Season.Trim());
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

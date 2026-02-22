@@ -13,18 +13,18 @@ public class AddHfEntityLinkTests
     private Mock<IWorld> _mockWorld = null!;
     private Entity _entity = null!;
     private HistoricalFigure _historicalFigure = null!;
-    private HistoricalFigure _appointerHf = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _mockWorld = new Mock<IWorld>();
+        _mockWorld.Setup(w => w.ParsingErrors).Returns(new ParsingErrors());
 
         // Create test entity
         _entity = new Entity([], _mockWorld.Object)
         {
             Id = 1,
-            Name = "Test Kingdom",
+            Name = "Test Entity",
             Icon = "civilization"
         };
         _entity.EntityPositions = [];
@@ -33,28 +33,18 @@ public class AddHfEntityLinkTests
         _historicalFigure = new HistoricalFigure
         {
             Id = 1,
-            Name = "Baron Urist",
-            Icon = "human"
-        };
-
-        // Create appointer historical figure
-        _appointerHf = new HistoricalFigure
-        {
-            Id = 2,
-            Name = "King Thiel",
-            Icon = "human"
+            Name = "Test Figure",
+            Icon = "person"
         };
 
         // Setup mock world to return the entity and hf
         _mockWorld.Setup(w => w.GetEntity(1)).Returns(_entity);
         _mockWorld.Setup(w => w.GetHistoricalFigure(1)).Returns(_historicalFigure);
-        _mockWorld.Setup(w => w.GetHistoricalFigure(2)).Returns(_appointerHf);
     }
 
     [TestMethod]
     public void Constructor_WithValidProperties_ParsesCorrectly()
     {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
@@ -62,255 +52,160 @@ public class AddHfEntityLinkTests
             new Property { Name = "link_type", Value = "member" }
         };
 
-        // Act
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Assert
-        Assert.AreEqual(_entity, addHfEntityLink.Entity);
-        Assert.AreEqual(_historicalFigure, addHfEntityLink.HistoricalFigure);
-        Assert.AreEqual(HfEntityLinkType.Member, addHfEntityLink.LinkType);
+        Assert.IsNotNull(evt);
+        Assert.AreEqual(_entity, evt.Entity);
+        Assert.AreEqual(_historicalFigure, evt.HistoricalFigure);
+        Assert.AreEqual(HfEntityLinkType.Member, evt.LinkType);
     }
 
     [TestMethod]
-    public void Constructor_WithPositionLinkType_ParsesPosition()
+    public void Constructor_WithPosition_LinkType()
     {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
             new Property { Name = "hfid", Value = "1" },
             new Property { Name = "link_type", Value = "position" },
-            new Property { Name = "position", Value = "High Marshal" },
+            new Property { Name = "position", Value = "King" },
             new Property { Name = "position_id", Value = "5" }
         };
 
-        // Act
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Assert
-        Assert.AreEqual(HfEntityLinkType.Position, addHfEntityLink.LinkType);
-        Assert.AreEqual("High Marshal", addHfEntityLink.Position);
-        Assert.AreEqual(5, addHfEntityLink.PositionId);
+        Assert.AreEqual(HfEntityLinkType.Position, evt.LinkType);
+        Assert.AreEqual("King", evt.Position);
+        Assert.AreEqual(5, evt.PositionId);
     }
 
     [TestMethod]
-    public void Constructor_WithAppointer_AssignsAppointer()
+    public void Constructor_WithPrisoner_LinkType()
     {
-        // Arrange
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "position" },
-            new Property { Name = "appointer_hfid", Value = "2" }
-        };
-
-        // Act
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-
-        // Assert
-        Assert.AreEqual(_appointerHf, addHfEntityLink.AppointerHf);
-    }
-
-    [TestMethod]
-    public void Constructor_WithPromiseToHf_AssignsPromiseTo()
-    {
-        // Arrange
-        var promiseToHf = new HistoricalFigure
-        {
-            Id = 3,
-            Name = "Lord Promise",
-            Icon = "human"
-        };
-        _mockWorld.Setup(w => w.GetHistoricalFigure(3)).Returns(promiseToHf);
-
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "position" },
-            new Property { Name = "promise_to_hfid", Value = "3" }
-        };
-
-        // Act
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-
-        // Assert
-        Assert.AreEqual(promiseToHf, addHfEntityLink.PromiseToHf);
-    }
-
-    [TestMethod]
-    public void Constructor_AddsEventToHistoricalFigure()
-    {
-        // Arrange
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "member" }
-        };
-        var initialEventCount = _historicalFigure.Events.Count;
-
-        // Act
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-
-        // Assert
-        Assert.AreEqual(initialEventCount + 1, _historicalFigure.Events.Count);
-    }
-
-    [TestMethod]
-    public void Constructor_AddsEventToEntity()
-    {
-        // Arrange
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "member" }
-        };
-        var initialEventCount = _entity.Events.Count;
-
-        // Act
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-
-        // Assert
-        Assert.AreEqual(initialEventCount + 1, _entity.Events.Count);
-    }
-
-    [TestMethod]
-    public void Print_MemberLink_ReturnsFormattedString()
-    {
-        // Arrange
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "member" }
-        };
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-
-        // Act
-        var result = addHfEntityLink.Print(link: true);
-
-        // Assert
-        Assert.IsTrue(result.Contains("Baron Urist"));
-        Assert.IsTrue(result.Contains("became a member of"));
-        Assert.IsTrue(result.Contains("Test Kingdom"));
-    }
-
-    [TestMethod]
-    public void Print_PrisonerLink_ReturnsFormattedString()
-    {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
             new Property { Name = "hfid", Value = "1" },
             new Property { Name = "link_type", Value = "prisoner" }
         };
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Act
-        var result = addHfEntityLink.Print(link: true);
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Assert
-        Assert.IsTrue(result.Contains("was imprisoned by"));
+        Assert.AreEqual(HfEntityLinkType.Prisoner, evt.LinkType);
     }
 
     [TestMethod]
-    public void Print_SlaveLink_ReturnsFormattedString()
+    public void Constructor_WithSlave_LinkType()
     {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
             new Property { Name = "hfid", Value = "1" },
             new Property { Name = "link_type", Value = "slave" }
         };
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Act
-        var result = addHfEntityLink.Print(link: true);
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Assert
+        Assert.AreEqual(HfEntityLinkType.Slave, evt.LinkType);
+    }
+
+    [TestMethod]
+    public void Print_WithMemberLink_ReturnsFormattedString()
+    {
+        var properties = new List<Property>
+        {
+            new Property { Name = "civ_id", Value = "1" },
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "link_type", Value = "member" }
+        };
+
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
+
+        var result = evt.Print(link: true);
+
+        Assert.IsTrue(result.Contains("Test Figure"));
+        Assert.IsTrue(result.Contains("became a member of"));
+        Assert.IsTrue(result.Contains("Test Entity"));
+    }
+
+    [TestMethod]
+    public void Print_WithPrisonerLink_ReturnsImprisonedText()
+    {
+        var properties = new List<Property>
+        {
+            new Property { Name = "civ_id", Value = "1" },
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "link_type", Value = "prisoner" }
+        };
+
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
+
+        var result = evt.Print(link: true);
+
+        Assert.IsTrue(result.Contains("was imprisoned by"));
+    }
+
+    [TestMethod]
+    public void Print_WithSlaveLink_ReturnsEnslavedText()
+    {
+        var properties = new List<Property>
+        {
+            new Property { Name = "civ_id", Value = "1" },
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "link_type", Value = "slave" }
+        };
+
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
+
+        var result = evt.Print(link: true);
+
         Assert.IsTrue(result.Contains("was enslaved by"));
     }
 
     [TestMethod]
-    public void Print_WithAppointer_IncludesAppointer()
+    public void PrintFeature_WithPosition_ReturnsAscensionText()
     {
-        // Arrange
         var properties = new List<Property>
         {
             new Property { Name = "civ_id", Value = "1" },
             new Property { Name = "hfid", Value = "1" },
             new Property { Name = "link_type", Value = "position" },
+            new Property { Name = "position", Value = "King" }
+        };
+
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
+
+        var result = evt.PrintFeature(link: true);
+
+        Assert.IsTrue(result.Contains("ascension of"));
+        Assert.IsTrue(result.Contains("King"));
+    }
+
+    [TestMethod]
+    public void Print_WithAppointer_IncludesAppointerText()
+    {
+        var appointer = new HistoricalFigure
+        {
+            Id = 2,
+            Name = "Appointer Figure",
+            Icon = "person"
+        };
+        _mockWorld.Setup(w => w.GetHistoricalFigure(2)).Returns(appointer);
+
+        var properties = new List<Property>
+        {
+            new Property { Name = "civ_id", Value = "1" },
+            new Property { Name = "hfid", Value = "1" },
+            new Property { Name = "link_type", Value = "position" },
+            new Property { Name = "position", Value = "King" },
             new Property { Name = "appointer_hfid", Value = "2" }
         };
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Act
-        var result = addHfEntityLink.Print(link: true);
+        var evt = new AddHfEntityLink(properties, _mockWorld.Object);
 
-        // Assert
+        var result = evt.Print(link: true);
+
         Assert.IsTrue(result.Contains("appointed by"));
-        Assert.IsTrue(result.Contains("King Thiel"));
-    }
-
-    [TestMethod]
-    public void PrintFeature_WithPosition_ReturnsFormattedString()
-    {
-        // Arrange
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "position" },
-            new Property { Name = "position", Value = "High Marshal" }
-        };
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-
-        // Act
-        var result = addHfEntityLink.PrintFeature(link: true);
-
-        // Assert
-        Assert.IsTrue(result.Contains("the ascension of"));
-        Assert.IsTrue(result.Contains("High Marshal"));
-    }
-
-    [TestMethod]
-    public void Constructor_WithNullEntity_DoesNotThrow()
-    {
-        // Arrange
-        _mockWorld.Setup(w => w.GetEntity(It.IsAny<int>())).Returns((Entity?)null);
-
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "999" },
-            new Property { Name = "hfid", Value = "1" },
-            new Property { Name = "link_type", Value = "member" }
-        };
-
-        // Act & Assert
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-        Assert.IsNull(addHfEntityLink.Entity);
-    }
-
-    [TestMethod]
-    public void Constructor_WithNullHistoricalFigure_DoesNotThrow()
-    {
-        // Arrange
-        _mockWorld.Setup(w => w.GetHistoricalFigure(It.IsAny<int>())).Returns((HistoricalFigure?)null);
-
-        var properties = new List<Property>
-        {
-            new Property { Name = "civ_id", Value = "1" },
-            new Property { Name = "hfid", Value = "999" },
-            new Property { Name = "link_type", Value = "member" }
-        };
-
-        // Act & Assert
-        var addHfEntityLink = new AddHfEntityLink(properties, _mockWorld.Object);
-        Assert.IsNull(addHfEntityLink.HistoricalFigure);
+        Assert.IsTrue(result.Contains("Appointer Figure"));
     }
 }

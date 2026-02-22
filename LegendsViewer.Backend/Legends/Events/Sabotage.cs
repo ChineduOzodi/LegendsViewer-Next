@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -37,18 +38,19 @@ public class Sabotage : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SaboteurHf?.ToLink(link, pov, this);
-        eventString += " sabotaged the activities of ";
-        eventString += TargetHf?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SaboteurHf?.ToLink(link, pov, this));
+        sb.Append(" sabotaged the activities of ");
+        sb.Append(TargetHf?.ToLink(link, pov, this));
         if (Site != null)
         {
-            eventString += " at ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" at ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
 

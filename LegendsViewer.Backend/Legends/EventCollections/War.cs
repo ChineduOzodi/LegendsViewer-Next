@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
 using LegendsViewer.Backend.Legends.Cytoscape;
@@ -296,14 +297,23 @@ public class War : EventCollection, IHasComplexSubtype
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += Attacker?.PrintEntity(false) + " (Attacker)";
-        title += "&#13";
-        title += Defender?.PrintEntity(false) + " (Defender)";
-        title += "&#13";
-        title += "Deaths: " + DeathCount + " | (" + StartYear + " - " + (EndYear == -1 ? "Present" : EndYear.ToString()) + ")";
-        return title;
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append(Attacker?.PrintEntity(false));
+        sb.Append(" (Attacker)");
+        sb.Append("&#13");
+        sb.Append(Defender?.PrintEntity(false));
+        sb.Append(" (Defender)");
+        sb.Append("&#13");
+        sb.Append("Deaths: ");
+        sb.Append(DeathCount);
+        sb.Append(" | (");
+        sb.Append(StartYear);
+        sb.Append(" - ");
+        sb.Append(EndYear == -1 ? "Present" : EndYear.ToString());
+        sb.Append(")");
+        return sb.ToString();
     }
 
     public override string ToString()

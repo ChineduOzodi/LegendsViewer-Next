@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -85,11 +86,17 @@ public class WorldConstruction : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "";
-            title += "World Construction";
-            title += WorldConstructionType != WorldConstructionType.Unknown ? "" : ", " + WorldConstructionType;
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("World Construction");
+            if (WorldConstructionType != WorldConstructionType.Unknown)
+            {
+                sb.Append(", ");
+                sb.Append(WorldConstructionType);
+            }
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "construction", Id, title, Name)

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Interfaces;
 using System.Globalization;
 using System.Text.Json.Serialization;
@@ -875,48 +876,49 @@ public class HistoricalFigure : WorldObject
 
     private string GetAnchorTitle()
     {
-        string title = "";
+        var sb = new StringBuilder();
 
         var lastNoblePosition = GetLastNoblePosition();
         if (!string.IsNullOrWhiteSpace(lastNoblePosition))
         {
-            title += lastNoblePosition;
-            title += "&#13";
+            sb.Append(lastNoblePosition);
+            sb.Append("&#13");
         }
         else
         {
             var assignmentString = GetLastAssignmentString();
             if (!string.IsNullOrWhiteSpace(assignmentString))
             {
-                title += assignmentString;
-                title += "&#13";
+                sb.Append(assignmentString);
+                sb.Append("&#13");
             }
         }
         if (!string.IsNullOrWhiteSpace(AssociatedType) && AssociatedType != "Standard")
         {
-            title += AssociatedType;
-            title += "&#13";
+            sb.Append(AssociatedType);
+            sb.Append("&#13");
         }
-        title += !string.IsNullOrWhiteSpace(Caste) && Caste != "Default" ? Caste + " " : "";
-        title += Formatting.InitCaps(RaceString);
+        sb.Append(!string.IsNullOrWhiteSpace(Caste) && Caste != "Default" ? Caste + " " : "");
+        sb.Append(Formatting.InitCaps(RaceString));
         if (BirthYear != -1)
         {
-            title += "&#13";
-            title += $"Born: {BirthYear}";
+            sb.Append("&#13");
+            sb.Append($"Born: {BirthYear}");
         }
         if (!IsAlive)
         {
-            title += "&#13";
-            title += $"Died: {DeathYear}";
+            sb.Append("&#13");
+            sb.Append($"Died: {DeathYear}");
         }
         if (Age > -1)
         {
-            title += "&#13";
-            title += $"Age: {Age} years {(IsAlive ? "" : "✝")}";
+            sb.Append("&#13");
+            sb.Append($"Age: {Age} years {(IsAlive ? "" : "✝")}");
         }
-        title += "&#13";
-        title += "Events: " + Events.Count;
-        return title;
+        sb.Append("&#13");
+        sb.Append("Events: ");
+        sb.Append(Events.Count);
+        return sb.ToString();
     }
 
     public string GetLastNoblePosition()

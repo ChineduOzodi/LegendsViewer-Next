@@ -1,3 +1,4 @@
+using System.Text;
 using System.Drawing;
 using System.Text.Json.Serialization;
 using LegendsViewer.Backend.Contracts;
@@ -724,27 +725,33 @@ public class Entity : WorldObject, IHasCoordinates
 
     private string GetAnchorTitle()
     {
-        string title = GetTitle();
+        var sb = new StringBuilder();
+        sb.Append(GetTitle());
         if (Parent != null)
         {
-            title += "&#13";
-            title += "Part of " + Parent.Name;
+            sb.Append("&#13");
+            sb.Append("Part of ");
+            sb.Append(Parent.Name);
         }
         if (CurrentSites.Count > 0)
         {
-            title += "&#13";
-            title += "Current Sites: " + CurrentSites.Count;
+            sb.Append("&#13");
+            sb.Append("Current Sites: ");
+            sb.Append(CurrentSites.Count);
         }
         if (LostSites.Count > 0)
         {
-            title += "&#13";
-            title += "Lost Sites: " + LostSites.Count;
+            sb.Append("&#13");
+            sb.Append("Lost Sites: ");
+            sb.Append(LostSites.Count);
         }
-        title += "&#13";
-        title += "Events: " + EventCount;
-        title += "&#13";
-        title += "Chronicles: " + EventCollectionCount;
-        return title;
+        sb.Append("&#13");
+        sb.Append("Events: ");
+        sb.Append(EventCount);
+        sb.Append("&#13");
+        sb.Append("Chronicles: ");
+        sb.Append(EventCollectionCount);
+        return sb.ToString();
     }
 
     public string GetTitle()
@@ -760,16 +767,19 @@ public class Entity : WorldObject, IHasCoordinates
 
     public string GetSummary(bool link = true, DwarfObject? pov = null)
     {
-        string summary = ToLink(link, pov);
-        summary += " was a ";
-        summary += EntityType.GetDescription().ToLower();
+        var sb = new StringBuilder();
+        sb.Append(ToLink(link, pov));
+        sb.Append(" was a ");
+        sb.Append(EntityType.GetDescription().ToLower());
         if (Race != CreatureInfo.Unknown)
         {
-            summary += " of " + Race.NamePlural.ToLower();
+            sb.Append(" of ");
+            sb.Append(Race.NamePlural.ToLower());
         }
         if (Parent != null)
         {
-            summary += " of " + Parent.ToLink(link, pov);
+            sb.Append(" of ");
+            sb.Append(Parent.ToLink(link, pov));
         }
 
         switch (EntityType)
@@ -777,31 +787,36 @@ public class Entity : WorldObject, IHasCoordinates
             case EntityType.Religion:
                 if (Worshipped.Count > 0)
                 {
-                    summary += " centered around the worship of " + Worshipped[0].ToLink(link, pov);
+                    sb.Append(" centered around the worship of ");
+                    sb.Append(Worshipped[0].ToLink(link, pov));
                 }
                 break;
             case EntityType.MilitaryUnit:
                 bool isWorshipping = false;
                 if (Worshipped.Count > 0)
                 {
-                    summary += " devoted to the worship of " + Worshipped[0].ToLink(link, pov);
+                    sb.Append(" devoted to the worship of ");
+                    sb.Append(Worshipped[0].ToLink(link, pov));
                     isWorshipping = true;
                 }
                 if (Weapons.Count > 0)
                 {
                     if (isWorshipping)
                     {
-                        summary += " and";
+                        sb.Append(" and");
                     }
-                    summary += " dedicated to the mastery of the " + string.Join(", the ", Weapons);
+                    sb.Append(" dedicated to the mastery of the ");
+                    sb.Append(string.Join(", the ", Weapons));
                 }
                 break;
             case EntityType.Guild:
-                summary += " of " + Profession + "s";
+                sb.Append(" of ");
+                sb.Append(Profession);
+                sb.Append("s");
                 break;
         }
-        summary += ".";
-        return summary;
+        sb.Append('.');
+        return sb.ToString();
     }
 
     public override string GetIcon()

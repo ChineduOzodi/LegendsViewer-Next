@@ -1,3 +1,4 @@
+using System.Text;
 using System.Drawing;
 using System.Text.Json.Serialization;
 using LegendsViewer.Backend.Contracts;
@@ -400,11 +401,13 @@ public class Site : WorldObject, IHasCoordinates
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += "&#13";
-        title += "Events: " + Events.Count;
-        return title;
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append("&#13");
+        sb.Append("Events: ");
+        sb.Append(Events.Count);
+        return sb.ToString();
     }
 
     public override string GetIcon()

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
@@ -88,9 +89,12 @@ public class UndergroundRegion : WorldObject, IRegion
 
         if (link)
         {
-            string title = RegionType.GetDescription();
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append(RegionType.GetDescription());
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "uregion", Id, title, Name)
                 : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));

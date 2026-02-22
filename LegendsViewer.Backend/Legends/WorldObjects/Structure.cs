@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -252,21 +253,22 @@ public class Structure : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "";
+            var sb = new StringBuilder();
             if (StructureSubType != StructureSubType.Unknown)
             {
-                title += StructureSubType.GetDescription();
+                sb.Append(StructureSubType.GetDescription());
             }
             else
             {
-                title += TypeEnum.GetDescription();
+                sb.Append(TypeEnum.GetDescription());
             }
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
 
             string linkedString = pov != this
-                ? $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, title, Name)}"
-                : $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, title, HtmlStyleUtil.CurrentDwarfObject(Name))}";
+                ? $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, sb.ToString(), Name)}"
+                : $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, sb.ToString(), HtmlStyleUtil.CurrentDwarfObject(Name))}";
             return linkedString;
         }
         return Icon + Name;

@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
@@ -61,10 +62,12 @@ public class MountainPeak : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "";
-            title += IsVolcano ? "Volcano" : "Mountain Peak";
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append(IsVolcano ? "Volcano" : "Mountain Peak");
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "mountainpeak", Id, title, Name)

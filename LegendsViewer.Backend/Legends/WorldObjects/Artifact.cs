@@ -1,3 +1,4 @@
+using System.Text;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -185,9 +186,18 @@ public class Artifact : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "Artifact" + (!string.IsNullOrEmpty(Type) ? ", " + Type : "");
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("Artifact");
+            if (!string.IsNullOrEmpty(Type))
+            {
+                sb.Append(", ");
+                sb.Append(Type);
+            }
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
+            sb.Clear();
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "artifact", Id, title, Name)
                 : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));

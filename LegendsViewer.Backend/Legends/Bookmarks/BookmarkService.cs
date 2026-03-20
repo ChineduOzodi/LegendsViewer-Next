@@ -3,7 +3,6 @@ namespace LegendsViewer.Backend.Legends.Bookmarks;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 public class BookmarkService : IBookmarkService
 {
@@ -13,13 +12,10 @@ public class BookmarkService : IBookmarkService
     private const string BookmarkFileName = "bookmarks.json";
 
     private readonly ConcurrentDictionary<string, Bookmark> _bookmarks = new();
+    private readonly ConcurrentDictionary<string, string> _filePathToId = new();
     private readonly string _bookmarkFilePath;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
 
-    /// <summary>
-    /// Creates a BookmarkService that stores bookmarks at the specified file path.
-    /// </summary>
-    /// <param name="bookmarkFilePath">Full path to the bookmarks.json file.</param>
     public BookmarkService(string bookmarkFilePath)
     {
         if (string.IsNullOrWhiteSpace(bookmarkFilePath))
@@ -34,9 +30,6 @@ public class BookmarkService : IBookmarkService
         LoadBookmarksFromFile();
     }
 
-    /// <summary>
-    /// Creates a BookmarkService using the platform-specific AppData folder.
-    /// </summary>
     public BookmarkService() : this(GetDefaultBookmarkFilePath())
     {
     }
@@ -60,62 +53,14 @@ public class BookmarkService : IBookmarkService
         {
             var bookmark = kvp.Value;
             ResetBookmark(bookmark);
-            if (string.IsNullOrEmpty(bookmark.Id))
-            {
-                bookmark.Id = ExtractRegionIdFromFilePath(bookmark.FilePath, worldTimestamps: bookmark.WorldTimestamps.ToArray());
-            }
+            
+            // Ensure Id is set from WorldName + WorldRegionName
+            bookmark.Id = $"{bookmark.WorldName}_{bookmark.WorldRegionName}";
+            
+            string normalizedPath = Path.GetFullPath(bookmark.FilePath);
             _bookmarks[bookmark.Id] = bookmark;
+            _filePathToId[normalizedPath] = bookmark.Id;
         }
-    }
-
-    /// <summary>
-    /// Extracts the stable region ID from a file path.
-    /// Example: "/path/to/TheWorld_1253-12-31-legends.xml" -> "TheWorld_1253"
-    /// Supports hyphenated world names (e.g., "My-World_1253-12-31-legends.xml" -> "My-World_1253")
-    /// </summary>
-    /// <param name="filePath">The file path to parse (may contain {TIMESTAMP} placeholder)</param>
-    /// <param name="legendsXmlSuffix">Suffix for legends.xml files</param>
-    /// <param name="legendsPlusXmlSuffix">Suffix for legends_plus.xml files</param>
-    /// <param name="worldTimestamps">Optional: when filePath contains {TIMESTAMP} placeholder, use this to resolve it</param>
-    public static string ExtractRegionIdFromFilePath(string filePath, string legendsXmlSuffix = FileIdentifierLegendsXml, string legendsPlusXmlSuffix = FileIdentifierLegendsPlusXml, string[]? worldTimestamps = null)
-    {
-        if (string.IsNullOrEmpty(filePath))
-        {
-            return string.Empty;
-        }
-
-        string fileName = Path.GetFileName(filePath);
-        
-        // Handle {TIMESTAMP} placeholder for backward compatibility with older bookmarks
-        // When the filename contains {TIMESTAMP}, replace it with the first available timestamp
-        if (fileName.Contains(TimestampPlaceholder) && worldTimestamps != null && worldTimestamps.Length > 0)
-        {
-            fileName = fileName.Replace(TimestampPlaceholder, worldTimestamps[0]);
-        }
-        
-        // Handle both legends.xml and legends_plus.xml suffixes
-        string regionId = fileName
-            .Replace(legendsXmlSuffix, "")
-            .Replace(legendsPlusXmlSuffix, "");
-        
-        // Use regex to find the timestamp pattern: YYYYY-MM-DD (5-digit year)
-        // DF files use hyphen between world name and year (e.g., "world-00005-12-31")
-        // We use [-_] to handle both hyphen and underscore before year
-        var match = Regex.Match(regionId, @"^(.+?)[-_](\d{5}-\d{2}-\d{2})$");
-        if (match.Success)
-        {
-            // Return region name + year: e.g., "My-World_00005"
-            return $"{match.Groups[1].Value}_{match.Groups[2].Value[..5]}";
-        }
-        
-        // Fallback for legacy/ill-formed filenames
-        var parts = regionId.Split('-');
-        if (parts.Length >= 3)
-        {
-            return $"{parts[0]}-{parts[1]}";
-        }
-        
-        return regionId;
     }
 
     private static void ResetBookmark(Bookmark bookmark)
@@ -129,13 +74,9 @@ public class BookmarkService : IBookmarkService
     {
         ResetAllBookmarks();
         
-        // Ensure we have a stable region ID
-        if (string.IsNullOrEmpty(bookmark.Id))
-        {
-            bookmark.Id = ExtractRegionIdFromFilePath(bookmark.FilePath);
-        }
-
-        // Use concurrent dictionary - no manual synchronization needed
+        // Ensure Id is set from WorldName + WorldRegionName
+        bookmark.Id = $"{bookmark.WorldName}_{bookmark.WorldRegionName}";
+        
         if (_bookmarks.TryGetValue(bookmark.Id, out var existingBookmark))
         {
             // Merge timestamps
@@ -152,7 +93,11 @@ public class BookmarkService : IBookmarkService
             existingBookmark.State = BookmarkState.Loaded;
             existingBookmark.LoadedTimestamp = bookmark.LoadedTimestamp;
             existingBookmark.LatestTimestamp = bookmark.LatestTimestamp;
-            existingBookmark.FilePath = bookmark.FilePath; // Update to latest file path
+            existingBookmark.FilePath = bookmark.FilePath;
+            
+            string normalizedPath = Path.GetFullPath(bookmark.FilePath);
+            _filePathToId[normalizedPath] = bookmark.Id;
+            
             SaveBookmarksToFile();
             return existingBookmark;
         }
@@ -160,6 +105,10 @@ public class BookmarkService : IBookmarkService
         {
             bookmark.State = BookmarkState.Loaded;
             _bookmarks[bookmark.Id] = bookmark;
+            
+            string normalizedPath = Path.GetFullPath(bookmark.FilePath);
+            _filePathToId[normalizedPath] = bookmark.Id;
+            
             SaveBookmarksToFile();
             return bookmark;
         }
@@ -185,18 +134,14 @@ public class BookmarkService : IBookmarkService
             return null;
         }
 
-        // Normalize the path for consistent lookup
         string normalizedPath = Path.GetFullPath(filePath);
         
-        // Extract region ID from file path
-        string regionId = ExtractRegionIdFromFilePath(normalizedPath);
-        if (string.IsNullOrEmpty(regionId))
+        if (_filePathToId.TryGetValue(normalizedPath, out var id))
         {
-            return null;
+            return _bookmarks.TryGetValue(id, out var bookmark) ? bookmark : null;
         }
 
-        // Try to get bookmark by stable region ID
-        return _bookmarks.TryGetValue(regionId, out var bookmark) ? bookmark : null;
+        return null;
     }
 
     public bool DeleteBookmarkTimestamp(string filePath)
@@ -206,21 +151,20 @@ public class BookmarkService : IBookmarkService
             return false;
         }
 
-        // Extract region ID from file path
-        string regionId = ExtractRegionIdFromFilePath(filePath);
-        if (string.IsNullOrEmpty(regionId))
+        string normalizedPath = Path.GetFullPath(filePath);
+        
+        if (!_filePathToId.TryGetValue(normalizedPath, out var id))
         {
             return false;
         }
 
-        // Extract timestamp from file path
         string timestamp = ExtractTimestampFromFilePath(filePath);
         if (string.IsNullOrWhiteSpace(timestamp))
         {
             return false;
         }
 
-        if (!_bookmarks.TryGetValue(regionId, out var bookmark))
+        if (!_bookmarks.TryGetValue(id, out var bookmark))
         {
             return false;
         }
@@ -228,7 +172,8 @@ public class BookmarkService : IBookmarkService
         bookmark.WorldTimestamps.Remove(timestamp);
         if (bookmark.WorldTimestamps.Count == 0)
         {
-            _bookmarks.TryRemove(regionId, out _);
+            _bookmarks.TryRemove(id, out _);
+            _filePathToId.TryRemove(normalizedPath, out _);
         }
         else
         {
@@ -238,10 +183,6 @@ public class BookmarkService : IBookmarkService
         return true;
     }
 
-    /// <summary>
-    /// Extracts the timestamp from a file path.
-    /// Example: "/path/to/TheWorld_00005-12-31-legends.xml" -> "00005-12-31"
-    /// </summary>
     public static string ExtractTimestampFromFilePath(string filePath, string legendsXmlSuffix = FileIdentifierLegendsXml, string legendsPlusXmlSuffix = FileIdentifierLegendsPlusXml)
     {
         if (string.IsNullOrEmpty(filePath))
@@ -251,17 +192,19 @@ public class BookmarkService : IBookmarkService
 
         string fileName = Path.GetFileName(filePath);
         
-        // Handle both legends.xml and legends_plus.xml suffixes
         string regionId = fileName
             .Replace(legendsXmlSuffix, "")
             .Replace(legendsPlusXmlSuffix, "");
         
-        // Use regex to extract timestamp: YYYYY-MM-DD (5-digit year)
-        // DF files use hyphen or underscore before the timestamp
-        var match = Regex.Match(regionId, @"[-_](\d{5}-\d{2}-\d{2})$");
-        if (match.Success)
+        // Extract YYYYY-MM-DD pattern at end of filename
+        int lastHyphenIndex = regionId.LastIndexOf('-');
+        if (lastHyphenIndex > 0 && lastHyphenIndex < regionId.Length - 6)
         {
-            return match.Groups[1].Value;
+            string potentialTimestamp = regionId[(lastHyphenIndex - 4)..];
+            if (potentialTimestamp.Length == 10 && potentialTimestamp[4] == '-')
+            {
+                return potentialTimestamp;
+            }
         }
         
         return string.Empty;
@@ -269,8 +212,6 @@ public class BookmarkService : IBookmarkService
 
     private void SaveBookmarksToFile()
     {
-        // ConcurrentDictionary is thread-safe for reads/writes, but we need to
-        // serialize to a dictionary for JSON
         var bookmarksDict = new Dictionary<string, Bookmark>(_bookmarks);
         string json = JsonSerializer.Serialize(bookmarksDict, _jsonSerializerOptions);
         File.WriteAllText(_bookmarkFilePath, json);
@@ -282,18 +223,12 @@ public class BookmarkService : IBookmarkService
 
         if (lastIndex == -1)
         {
-            return source; // The string to replace was not found
+            return source;
         }
 
         return source.Remove(lastIndex, find.Length).Insert(lastIndex, replace);
     }
 
-    /// <summary>
-    /// Parses a region ID to extract the region name and timestamp.
-    /// This method does NOT mutate any external state.
-    /// </summary>
-    /// <param name="regionId">The region ID (e.g., "TheWorld_1253-12-31" or "TheWorld_1253")</param>
-    /// <returns>A tuple containing the region name and timestamp (e.g., ("TheWorld", "1253-12-31"))</returns>
     public static (string RegionName, string Timestamp) GetRegionNameAndTimestampByRegionId(string regionId)
     {
         if (string.IsNullOrWhiteSpace(regionId))
@@ -301,7 +236,6 @@ public class BookmarkService : IBookmarkService
             return ("", "");
         }
 
-        // Handle both 3-part (Year-Month-Day) and 2-part (Year only) region IDs
         var array = regionId.Split('-').ToList();
         if (array.Count < 3)
         {
@@ -315,10 +249,8 @@ public class BookmarkService : IBookmarkService
         string year = array[^1];
         array.RemoveAt(array.Count - 1);
 
-        // Whatever remains is the region name
         var regionName = string.Join('-', array);
         var timestamp = $"{year}-{month}-{day}";
         return (regionName, timestamp);
     }
-
 }

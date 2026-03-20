@@ -95,7 +95,8 @@ public class BookmarkController(
             return BadRequest($"Invalid file name.\n{fileInfo.Name}");
         }
 
-        var (RegionName, Timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId, _worldDataService);
+        var (RegionName, Timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
+        string stableRegionId = BookmarkService.GetStableRegionId(regionId);
 
         var xmlFileName = Directory.EnumerateFiles(directoryName, regionId + FileIdentifierLegendsXml).FirstOrDefault();
         if (string.IsNullOrWhiteSpace(xmlFileName))
@@ -119,7 +120,7 @@ public class BookmarkController(
 
             logger.LogInformation(_worldDataService.Log.ToString());
 
-            var bookmark = AddBookmark(filePath, RegionName, Timestamp);
+            var bookmark = AddBookmark(filePath, RegionName, Timestamp, stableRegionId);
 
             return Ok(bookmark);
         }
@@ -143,11 +144,12 @@ public class BookmarkController(
         return await ParseWorldXml(fullPath);
     }
 
-    private Bookmark AddBookmark(string filePath, string regionName, string timestamp)
+    private Bookmark AddBookmark(string filePath, string regionName, string timestamp, string stableRegionId)
     {
         var imageData = _worldMapImageGenerator.GenerateMapByteArray(WorldMapImageGenerator.DefaultTileSizeMin);
         var bookmark = new Bookmark
         {
+            RegionId = stableRegionId,
             FilePath = BookmarkService.ReplaceLastOccurrence(filePath, timestamp, BookmarkService.TimestampPlaceholder),
             WorldName = _worldDataService.Name,
             WorldAlternativeName = _worldDataService.AlternativeName,

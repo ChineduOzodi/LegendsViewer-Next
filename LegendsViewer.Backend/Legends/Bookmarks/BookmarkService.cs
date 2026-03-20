@@ -60,11 +60,11 @@ public class BookmarkService : IBookmarkService
         {
             var bookmark = kvp.Value;
             ResetBookmark(bookmark);
-            if (string.IsNullOrEmpty(bookmark.RegionId))
+            if (string.IsNullOrEmpty(bookmark.Id))
             {
-                bookmark.RegionId = ExtractRegionIdFromFilePath(bookmark.FilePath, worldTimestamps: bookmark.WorldTimestamps.ToArray());
+                bookmark.Id = ExtractRegionIdFromFilePath(bookmark.FilePath, worldTimestamps: bookmark.WorldTimestamps.ToArray());
             }
-            _bookmarks[bookmark.RegionId] = bookmark;
+            _bookmarks[bookmark.Id] = bookmark;
         }
     }
 
@@ -130,13 +130,13 @@ public class BookmarkService : IBookmarkService
         ResetAllBookmarks();
         
         // Ensure we have a stable region ID
-        if (string.IsNullOrEmpty(bookmark.RegionId))
+        if (string.IsNullOrEmpty(bookmark.Id))
         {
-            bookmark.RegionId = ExtractRegionIdFromFilePath(bookmark.FilePath);
+            bookmark.Id = ExtractRegionIdFromFilePath(bookmark.FilePath);
         }
 
         // Use concurrent dictionary - no manual synchronization needed
-        if (_bookmarks.TryGetValue(bookmark.RegionId, out var existingBookmark))
+        if (_bookmarks.TryGetValue(bookmark.Id, out var existingBookmark))
         {
             // Merge timestamps
             foreach (var timestamp in bookmark.WorldTimestamps)
@@ -159,7 +159,7 @@ public class BookmarkService : IBookmarkService
         else
         {
             bookmark.State = BookmarkState.Loaded;
-            _bookmarks[bookmark.RegionId] = bookmark;
+            _bookmarks[bookmark.Id] = bookmark;
             SaveBookmarksToFile();
             return bookmark;
         }
@@ -321,27 +321,4 @@ public class BookmarkService : IBookmarkService
         return (regionName, timestamp);
     }
 
-    /// <summary>
-    /// Extracts just the stable region identifier (region name + year) from a full region ID.
-    /// Example: "TheWorld_1253-12-31" -> "TheWorld_1253"
-    /// </summary>
-    public static string GetStableRegionId(string regionId)
-    {
-        if (string.IsNullOrWhiteSpace(regionId))
-        {
-            return "";
-        }
-
-        var array = regionId.Split('-').ToList();
-        if (array.Count < 4)
-        {
-            return regionId;
-        }
-
-        // Remove month and day, keep region name and year
-        array.RemoveAt(array.Count - 1); // Remove day
-        array.RemoveAt(array.Count - 1); // Remove month
-        
-        return string.Join('-', array);
-    }
 }

@@ -194,13 +194,13 @@ public class BookmarkServiceTests : IDisposable
     }
 
     [TestMethod]
-    public void GetRegionNameAndTimestampByRegionId_WithValidId_ShouldParseCorrectly()
+    public void GetRegionNameAndTimestampById_WithValidId_ShouldParseCorrectly()
     {
         // Arrange
         var regionId = "TheWorld-00001-01-01";
 
         // Act
-        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
+        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampById(regionId);
 
         // Assert
         Assert.AreEqual("TheWorld", regionName);
@@ -208,13 +208,13 @@ public class BookmarkServiceTests : IDisposable
     }
 
     [TestMethod]
-    public void GetRegionNameAndTimestampByRegionId_WithComplexWorldName_ShouldParseCorrectly()
+    public void GetRegionNameAndTimestampById_WithComplexWorldName_ShouldParseCorrectly()
     {
         // Arrange - path encoding test: world names with special characters
         var regionId = "World-With-Special-Name-12345-06-15";
 
         // Act
-        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
+        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampById(regionId);
 
         // Assert
         Assert.AreEqual("World-With-Special-Name", regionName);
@@ -222,12 +222,12 @@ public class BookmarkServiceTests : IDisposable
     }
 
     [TestMethod]
-    public void ExtractRegionIdFromFilePath_WithHyphenatedWorldName_ShouldParseCorrectly()
+    public void ExtractIdFromFilePath_WithHyphenatedWorldName_ShouldParseCorrectly()
     {
         // Arrange - Dwarf Fortress uses 5-digit years (padded with leading zeros)
         // Issue: Dwarf Fortress with DFHack allows hyphenated world names
         // Format: WorldName_Year-Month-Day-legends.xml (Year is always 5 digits, e.g., 00005, 01253)
-        var testCases = new (string filePath, string expectedRegionId)[]
+        var testCases = new (string filePath, string expectedId)[]
         {
             ("/path/to/My-World_01253-12-31-legends.xml", "My-World_01253"),
             ("/path/to/My-Custom-World_01253-12-31-legends.xml", "My-Custom-World_01253"),
@@ -237,38 +237,38 @@ public class BookmarkServiceTests : IDisposable
             ("/path/to/hyphenated-world_plus_02023-06-15-legends_plus.xml", "hyphenated-world_plus_02023"),
         };
 
-        foreach (var (filePath, expectedRegionId) in testCases)
+        foreach (var (filePath, expectedId) in testCases)
         {
             // Act
-            var result = BookmarkService.ExtractRegionIdFromFilePath(filePath);
+            var result = BookmarkService.ExtractIdFromFilePath(filePath);
 
             // Assert
-            Assert.AreEqual(expectedRegionId, result, $"Failed for path: {filePath}");
+            Assert.AreEqual(expectedId, result, $"Failed for path: {filePath}");
         }
     }
 
     [TestMethod]
-    public void ExtractRegionIdFromFilePath_WithLegacyDashFormat_ShouldStillWork()
+    public void ExtractIdFromFilePath_WithLegacyDashFormat_ShouldStillWork()
     {
         // Arrange - legacy format uses hyphen between world name and year
         // This is the DF convention: worldName-Year-Month-Day
         var filePath = "/path/to/world-00001-01-01-legends.xml";
 
         // Act
-        var result = BookmarkService.ExtractRegionIdFromFilePath(filePath);
+        var result = BookmarkService.ExtractIdFromFilePath(filePath);
 
         // Assert - should use underscore as separator: worldName_Year
         Assert.AreEqual("world_00001", result);
     }
 
     [TestMethod]
-    public void GetRegionNameAndTimestampByRegionId_WithInvalidId_ShouldReturnEmpty()
+    public void GetRegionNameAndTimestampById_WithInvalidId_ShouldReturnEmpty()
     {
         // Arrange
         var regionId = "invalid";
 
         // Act
-        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
+        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampById(regionId);
 
         // Assert
         Assert.AreEqual("", regionName);
@@ -432,10 +432,10 @@ public class BookmarkServiceTests : IDisposable
     }
 
     [TestMethod]
-    public void ExtractRegionIdFromFilePath_WithTimestampPlaceholder_ShouldResolveCorrectly()
+    public void ExtractIdFromFilePath_WithTimestampPlaceholder_ShouldResolveCorrectly()
     {
         // Arrange - simulates loading old bookmarks that have {TIMESTAMP} in FilePath
-        var testCases = new (string filePath, string[] worldTimestamps, string expectedRegionId)[]
+        var testCases = new (string filePath, string[] worldTimestamps, string expectedId)[]
         {
             // {TIMESTAMP} should be replaced with first timestamp from WorldTimestamps
             ("region3-{TIMESTAMP}-legends.xml", new[] { "00100-01-01" }, "region3_00100"),
@@ -447,13 +447,13 @@ public class BookmarkServiceTests : IDisposable
             // (this is expected behavior - timestamps should be provided for old bookmarks)
         };
 
-        foreach (var (filePath, worldTimestamps, expectedRegionId) in testCases)
+        foreach (var (filePath, worldTimestamps, expectedId) in testCases)
         {
             // Act
-            var result = BookmarkService.ExtractRegionIdFromFilePath(filePath, worldTimestamps: worldTimestamps);
+            var result = BookmarkService.ExtractIdFromFilePath(filePath, worldTimestamps: worldTimestamps);
 
             // Assert
-            Assert.AreEqual(expectedRegionId, result, $"Failed for path: {filePath} with timestamps: {string.Join(",", worldTimestamps)}");
+            Assert.AreEqual(expectedId, result, $"Failed for path: {filePath} with timestamps: {string.Join(",", worldTimestamps)}");
         }
     }
 
@@ -485,9 +485,9 @@ public class BookmarkServiceTests : IDisposable
         var service = new BookmarkService(testBookmarkFile);
         var all = service.GetAll();
 
-        // Assert - should have loaded the bookmark with correct RegionId
+        // Assert - should have loaded the bookmark with correct Id
         Assert.AreEqual(1, all.Count, "Should load the legacy bookmark");
-        Assert.AreEqual("region3_00100", all[0].RegionId, "RegionId should be extracted correctly from {TIMESTAMP} path");
+        Assert.AreEqual("region3_00100", all[0].Id, "Id should be extracted correctly from {TIMESTAMP} path");
         Assert.AreEqual("TestWorld", all[0].WorldName);
         Assert.IsTrue(all[0].WorldTimestamps.Contains("00100-01-01"));
     }
@@ -535,7 +535,7 @@ public class BookmarkServiceTests : IDisposable
         return new Bookmark
         {
             // Use the actual file path directly. The real BookmarkService extracts
-            // RegionId from FilePath, so we pass the real path.
+            // Id from FilePath, so we pass the real path.
             FilePath = filePath,
             WorldName = worldName,
             WorldAlternativeName = $"Alt {worldName}",

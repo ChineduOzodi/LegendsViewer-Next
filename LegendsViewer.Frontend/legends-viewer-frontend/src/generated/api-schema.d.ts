@@ -14603,6 +14603,7 @@ export interface components {
             parentEventCol?: components["schemas"]["EventCollection"];
         };
         Bookmark: {
+            id?: string | null;
             filePath?: string | null;
             worldName?: string | null;
             worldAlternativeName?: string | null;
@@ -15040,6 +15041,7 @@ export interface components {
             readonly holdingArtifactLinks?: string[] | null;
             states?: components["schemas"]["State"][] | null;
             creatureTypes?: components["schemas"]["CreatureType"][] | null;
+            undeadTypes?: components["schemas"]["CreatureType"][] | null;
             readonly relatedHistoricalFigureList?: components["schemas"]["ListItemDto"][] | null;
             readonly worshippedDeities?: components["schemas"]["ListItemDto"][] | null;
             readonly worshippingFiguresList?: components["schemas"]["ListItemDto"][] | null;
@@ -15089,6 +15091,7 @@ export interface components {
             force?: boolean;
             zombie?: boolean;
             ghost?: boolean;
+            ghostType?: string | null;
             animated?: boolean;
             animatedType?: string | null;
             adventurer?: boolean;

@@ -137,45 +137,53 @@ public class BookmarkServiceTests : IDisposable
     [TestMethod]
     public void DeleteBookmarkTimestamp_WithValidTimestamp_ShouldRemoveTimestamp()
     {
-        // Arrange - simulate Issue #25: deleting a specific timestamp from a bookmark
+        // Arrange - create actual temp file
+        var tempFile = Path.Combine(_testFolder, "world-00001-01-01-legends.xml");
+        File.WriteAllText(tempFile, "<test/>");
+        
         var service = CreateService();
         var bookmark = CreateTestBookmark(
-            "/path/to/world-00001-01-01-legends.xml",
+            tempFile,
             "TestWorld",
             "00001-01-01",
-            additionalTimestamps: new[] { "2-2-2", "3-3-3" }
+            additionalTimestamps: new[] { "00002-02-02", "00003-03-03" }
         );
         service.AddBookmark(bookmark);
 
         // Act - delete one timestamp
-        var result = service.DeleteBookmarkTimestamp("/path/to/world-00001-01-01-legends.xml");
+        var result = service.DeleteBookmarkTimestamp(tempFile);
 
         // Assert
-        Assert.IsTrue(result, "Delete should return true for valid timestamp");
+        Assert.IsTrue(result.Success, "Delete should return true for valid timestamp");
+        Assert.IsFalse(result.FileMissing, "FileMissing should be false when file exists");
         var all = service.GetAll();
         Assert.AreEqual(1, all.Count);
         Assert.IsFalse(all[0].WorldTimestamps.Contains("00001-01-01"), "Deleted timestamp should be removed");
-        Assert.IsTrue(all[0].WorldTimestamps.Contains("2-2-2"));
-        Assert.IsTrue(all[0].WorldTimestamps.Contains("3-3-3"));
+        Assert.IsTrue(all[0].WorldTimestamps.Contains("00002-02-02"));
+        Assert.IsTrue(all[0].WorldTimestamps.Contains("00003-03-03"));
     }
 
     [TestMethod]
     public void DeleteBookmarkTimestamp_WhenLastTimestamp_ShouldRemoveEntireBookmark()
     {
-        // Arrange - Issue #25 scenario: deleting the only timestamp should remove the bookmark
+        // Arrange - create actual temp file
+        var tempFile = Path.Combine(_testFolder, "world-00001-01-01-legends.xml");
+        File.WriteAllText(tempFile, "<test/>");
+        
         var service = CreateService();
         var bookmark = CreateTestBookmark(
-            "/path/to/world-00001-01-01-legends.xml",
+            tempFile,
             "TestWorld",
             "00001-01-01"
         );
         service.AddBookmark(bookmark);
 
         // Act
-        var result = service.DeleteBookmarkTimestamp("/path/to/world-00001-01-01-legends.xml");
+        var result = service.DeleteBookmarkTimestamp(tempFile);
 
         // Assert
-        Assert.IsTrue(result);
+        Assert.IsTrue(result.Success);
+        Assert.IsFalse(result.FileMissing, "FileMissing should be false when file exists");
         var all = service.GetAll();
         Assert.AreEqual(0, all.Count, "Bookmark should be completely removed when last timestamp is deleted");
     }
@@ -190,17 +198,75 @@ public class BookmarkServiceTests : IDisposable
         var result = service.DeleteBookmarkTimestamp("/nonexistent/world-00001-01-01-legends.xml");
 
         // Assert
-        Assert.IsFalse(result, "Delete should return false for non-existent bookmark");
+        Assert.IsFalse(result.Success, "Delete should return false for non-existent bookmark");
+        Assert.IsTrue(result.FileMissing, "FileMissing should be true when file doesn't exist");
     }
 
     [TestMethod]
-    public void GetRegionNameAndTimestampById_WithValidId_ShouldParseCorrectly()
+    public void DeleteBookmarkTimestamp_WithMissingFile_ButTimestampExistsInOtherBookmark_ShouldSucceed()
+    {
+        // Arrange - file is missing but the timestamp exists in another bookmark
+        var service = CreateService();
+        var bookmark1 = CreateTestBookmark(
+            "/path/to/world1-00001-01-01-legends.xml",
+            "TestWorld1",
+            "00001-01-01"
+        );
+        var bookmark2 = CreateTestBookmark(
+            "/path/to/world2-00002-02-02-legends.xml",
+            "TestWorld2",
+            "00002-02-02"
+        );
+        service.AddBookmark(bookmark1);
+        service.AddBookmark(bookmark2);
+
+        // Act - delete with a non-existent file path that has a timestamp present in bookmark1
+        // The file "/nonexistent/world1-00001-01-01-legends.xml" doesn't exist, 
+        // but timestamp "00001-01-01" exists in bookmark1
+        var result = service.DeleteBookmarkTimestamp("/nonexistent/world1-00001-01-01-legends.xml");
+
+        // Assert - should succeed because timestamp was found
+        Assert.IsTrue(result.Success, "Delete should succeed when timestamp exists in a bookmark");
+        Assert.IsTrue(result.FileMissing, "FileMissing should be true when file doesn't exist");
+        var all = service.GetAll();
+        Assert.AreEqual(1, all.Count, "Only bookmark2 should remain");
+        Assert.IsTrue(all[0].WorldTimestamps.Contains("00002-02-02"));
+    }
+
+    [TestMethod]
+    public void DeleteBookmarkTimestamp_WithMultipleTimestamps_OneFileMissing_ShouldOnlyRemoveDeletedTimestamp()
+    {
+        // Arrange - bookmark with multiple timestamps, one file is missing
+        var service = CreateService();
+        var bookmark = CreateTestBookmark(
+            "/path/to/world-00001-01-01-legends.xml",
+            "TestWorld",
+            "00001-01-01",
+            additionalTimestamps: new[] { "00002-02-02", "00003-03-03" }
+        );
+        service.AddBookmark(bookmark);
+
+        // Act - delete when file for first timestamp doesn't exist
+        var result = service.DeleteBookmarkTimestamp("/nonexistent/world-00001-01-01-legends.xml");
+
+        // Assert
+        Assert.IsTrue(result.Success, "Delete should succeed");
+        Assert.IsTrue(result.FileMissing, "FileMissing should be true");
+        var all = service.GetAll();
+        Assert.AreEqual(1, all.Count, "Bookmark should still exist with remaining timestamps");
+        Assert.IsFalse(all[0].WorldTimestamps.Contains("00001-01-01"), "Deleted timestamp should be removed");
+        Assert.IsTrue(all[0].WorldTimestamps.Contains("00002-02-02"));
+        Assert.IsTrue(all[0].WorldTimestamps.Contains("00003-03-03"));
+    }
+
+    [TestMethod]
+    public void GetRegionNameAndTimestampByRegionId_WithValidId_ShouldParseCorrectly()
     {
         // Arrange
         var regionId = "TheWorld-00001-01-01";
 
         // Act
-        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampById(regionId);
+        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
 
         // Assert
         Assert.AreEqual("TheWorld", regionName);
@@ -208,13 +274,13 @@ public class BookmarkServiceTests : IDisposable
     }
 
     [TestMethod]
-    public void GetRegionNameAndTimestampById_WithComplexWorldName_ShouldParseCorrectly()
+    public void GetRegionNameAndTimestampByRegionId_WithComplexWorldName_ShouldParseCorrectly()
     {
         // Arrange - path encoding test: world names with special characters
         var regionId = "World-With-Special-Name-12345-06-15";
 
         // Act
-        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampById(regionId);
+        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
 
         // Assert
         Assert.AreEqual("World-With-Special-Name", regionName);
@@ -222,53 +288,34 @@ public class BookmarkServiceTests : IDisposable
     }
 
     [TestMethod]
-    public void ExtractIdFromFilePath_WithHyphenatedWorldName_ShouldParseCorrectly()
+    public void ExtractTimestampFromFilePath_WithStandardFormat_ShouldExtractCorrectly()
     {
-        // Arrange - Dwarf Fortress uses 5-digit years (padded with leading zeros)
-        // Issue: Dwarf Fortress with DFHack allows hyphenated world names
-        // Format: WorldName_Year-Month-Day-legends.xml (Year is always 5 digits, e.g., 00005, 01253)
-        var testCases = new (string filePath, string expectedId)[]
+        // Arrange
+        var testCases = new (string filePath, string expectedTimestamp)[]
         {
-            ("/path/to/My-World_01253-12-31-legends.xml", "My-World_01253"),
-            ("/path/to/My-Custom-World_01253-12-31-legends.xml", "My-Custom-World_01253"),
-            ("/path/to/World-With-Many-Hyphens_02024-01-15-legends.xml", "World-With-Many-Hyphens_02024"),
-            ("/path/to/RegularWorld_01253-12-31-legends.xml", "RegularWorld_01253"),
-            ("/path/to/RegularWorld_01253-12-31-legends_plus.xml", "RegularWorld_01253"),
-            ("/path/to/hyphenated-world_plus_02023-06-15-legends_plus.xml", "hyphenated-world_plus_02023"),
+            ("/path/to/world-00001-01-01-legends.xml", "00001-01-01"),
+            ("/path/to/world-01253-12-31-legends_plus.xml", "01253-12-31"),
+            ("/path/to/region-12345-06-15-legends.xml", "12345-06-15"),
         };
 
-        foreach (var (filePath, expectedId) in testCases)
+        foreach (var (filePath, expectedTimestamp) in testCases)
         {
             // Act
-            var result = BookmarkService.ExtractIdFromFilePath(filePath);
+            var result = BookmarkService.ExtractTimestampFromFilePath(filePath);
 
             // Assert
-            Assert.AreEqual(expectedId, result, $"Failed for path: {filePath}");
+            Assert.AreEqual(expectedTimestamp, result, $"Failed for path: {filePath}");
         }
     }
 
     [TestMethod]
-    public void ExtractIdFromFilePath_WithLegacyDashFormat_ShouldStillWork()
-    {
-        // Arrange - legacy format uses hyphen between world name and year
-        // This is the DF convention: worldName-Year-Month-Day
-        var filePath = "/path/to/world-00001-01-01-legends.xml";
-
-        // Act
-        var result = BookmarkService.ExtractIdFromFilePath(filePath);
-
-        // Assert - should use underscore as separator: worldName_Year
-        Assert.AreEqual("world_00001", result);
-    }
-
-    [TestMethod]
-    public void GetRegionNameAndTimestampById_WithInvalidId_ShouldReturnEmpty()
+    public void GetRegionNameAndTimestampByRegionId_WithInvalidId_ShouldReturnEmpty()
     {
         // Arrange
         var regionId = "invalid";
 
         // Act
-        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampById(regionId);
+        var (regionName, timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
 
         // Assert
         Assert.AreEqual("", regionName);
@@ -406,55 +453,44 @@ public class BookmarkServiceTests : IDisposable
     public void AddBookmark_WithSpecialCharactersInPath_ShouldPersistCorrectly()
     {
         // Arrange - path encoding test: special characters in file paths
-        // Each world uses a unique year so they don't merge into the same bookmark
+        // Bookmarks with same WorldName+WorldRegionName merge, so use different regions
         var service = CreateService();
         
-        var testCases = new (string path, string timestamp)[]
+        var testCases = new (string path, string worldRegionName, string timestamp)[]
         {
-            ("/path/with spaces/worldA-00001-01-01-legends.xml", "00001-01-01"),
-            ("/path/with+plus/worldB-00002-02-02-legends.xml", "00002-02-02"),
-            ("/path/with#hash/worldC-00003-03-03-legends.xml", "00003-03-03"),
-            ("/path/with%percent/worldD-00004-04-04-legends.xml", "00004-04-04"),
-            ("/path/with&amp;ampersand/worldE-00005-05-05-legends.xml", "00005-05-05"),
-            ("/path/with$dollar/worldF-00006-06-06-legends.xml", "00006-06-06"),
+            ("/path/with spaces/regionA-00001-01-01-legends.xml", "regionA", "00001-01-01"),
+            ("/path/with+plus/regionB-00002-02-02-legends.xml", "regionB", "00002-02-02"),
+            ("/path/with#hash/regionC-00003-03-03-legends.xml", "regionC", "00003-03-03"),
+            ("/path/with%percent/regionD-00004-04-04-legends.xml", "regionD", "00004-04-04"),
+            ("/path/with&amp;ampersand/regionE-00005-05-05-legends.xml", "regionE", "00005-05-05"),
+            ("/path/with$dollar/regionF-00006-06-06-legends.xml", "regionF", "00006-06-06"),
         };
 
         // Act
-        foreach (var (path, timestamp) in testCases)
+        foreach (var (path, worldRegionName, timestamp) in testCases)
         {
             var bookmark = CreateTestBookmark(path, "SpecialWorld", timestamp);
+            bookmark.WorldRegionName = worldRegionName; // Use different region names
             var result = service.AddBookmark(bookmark);
             Assert.IsNotNull(result, $"Should add bookmark for path: {path}");
         }
 
-        // Assert
+        // Assert - each different region should create a separate bookmark
         Assert.AreEqual(testCases.Length, service.GetAll().Count);
     }
 
     [TestMethod]
-    public void ExtractIdFromFilePath_WithTimestampPlaceholder_ShouldResolveCorrectly()
+    public void ExtractTimestampFromFilePath_WithTimestampPlaceholder_ShouldReturnPlaceholder()
     {
-        // Arrange - simulates loading old bookmarks that have {TIMESTAMP} in FilePath
-        var testCases = new (string filePath, string[] worldTimestamps, string expectedId)[]
-        {
-            // {TIMESTAMP} should be replaced with first timestamp from WorldTimestamps
-            ("region3-{TIMESTAMP}-legends.xml", new[] { "00100-01-01" }, "region3_00100"),
-            ("region8-{TIMESTAMP}-legends.xml", new[] { "00102-03-09" }, "region8_00102"),
-            ("region9-{TIMESTAMP}-legends.xml", new[] { "00100-01-18", "00100-01-01" }, "region9_00100"),
-            // Full path with {TIMESTAMP}
-            ("/path/to/region3-{TIMESTAMP}-legends.xml", new[] { "00100-01-01" }, "region3_00100"),
-            // Without worldTimestamps, {TIMESTAMP} remains and regex may not match properly
-            // (this is expected behavior - timestamps should be provided for old bookmarks)
-        };
+        // Arrange - {TIMESTAMP} placeholder should not be resolved by ExtractTimestampFromFilePath
+        // The placeholder is resolved elsewhere (e.g., when loading bookmarks from file)
+        var filePath = "region3-{TIMESTAMP}-legends.xml";
 
-        foreach (var (filePath, worldTimestamps, expectedId) in testCases)
-        {
-            // Act
-            var result = BookmarkService.ExtractIdFromFilePath(filePath, worldTimestamps: worldTimestamps);
+        // Act
+        var result = BookmarkService.ExtractTimestampFromFilePath(filePath);
 
-            // Assert
-            Assert.AreEqual(expectedId, result, $"Failed for path: {filePath} with timestamps: {string.Join(",", worldTimestamps)}");
-        }
+        // Assert - {TIMESTAMP} doesn't match YYYYY-MM-DD pattern, so returns empty
+        Assert.AreEqual(string.Empty, result);
     }
 
     [TestMethod]
@@ -487,7 +523,7 @@ public class BookmarkServiceTests : IDisposable
 
         // Assert - should have loaded the bookmark with correct Id
         Assert.AreEqual(1, all.Count, "Should load the legacy bookmark");
-        Assert.AreEqual("region3_00100", all[0].Id, "Id should be extracted correctly from {TIMESTAMP} path");
+        Assert.AreEqual("TestWorld_region3", all[0].Id, "Id should be WorldName_RegionName");
         Assert.AreEqual("TestWorld", all[0].WorldName);
         Assert.IsTrue(all[0].WorldTimestamps.Contains("00100-01-01"));
     }

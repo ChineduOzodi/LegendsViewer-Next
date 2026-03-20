@@ -53,16 +53,24 @@ public class BookmarkController(
     public ActionResult<Bookmark> Delete([FromRoute] string encodedFilePath)
     {
         var filePath = HttpUtility.UrlDecode(encodedFilePath);
-        if (!_bookmarkService.DeleteBookmarkTimestamp(filePath))
+        var result = _bookmarkService.DeleteBookmarkTimestamp(filePath);
+        
+        if (!result.Success)
         {
             return NotFound();
         }
-        var item = _bookmarkService.GetBookmark(filePath);
-        if (item == null)
+        
+        if (result.FileMissing)
+        {
+            Response.Headers.Append("X-File-Missing", "true");
+        }
+        
+        if (result.Bookmark == null)
         {
             return NoContent();
         }
-        return Ok(item);
+        
+        return Ok(result.Bookmark);
     }
 
     [HttpPost("loadByFullPath")]

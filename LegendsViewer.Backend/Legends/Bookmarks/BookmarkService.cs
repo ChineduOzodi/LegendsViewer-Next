@@ -144,43 +144,84 @@ public class BookmarkService : IBookmarkService
         return null;
     }
 
-    public bool DeleteBookmarkTimestamp(string filePath)
+    public DeleteResult DeleteBookmarkTimestamp(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
-            return false;
+            return new DeleteResult { Success = false };
         }
 
         string normalizedPath = Path.GetFullPath(filePath);
+        bool fileMissing = !System.IO.File.Exists(normalizedPath);
         
-        if (!_filePathToId.TryGetValue(normalizedPath, out var id))
-        {
-            return false;
-        }
-
+        string? id = null;
         string timestamp = ExtractTimestampFromFilePath(filePath);
+        
         if (string.IsNullOrWhiteSpace(timestamp))
         {
-            return false;
+            return new DeleteResult { Success = false };
         }
 
-        if (!_bookmarks.TryGetValue(id, out var bookmark))
+        // Try to find bookmark via filePath mapping first
+        if (_filePathToId.TryGetValue(normalizedPath, out var mappedId))
         {
-            return false;
+            id = mappedId;
+        }
+        else if (!fileMissing)
+        {
+            // File exists but not in mapping - shouldn't happen normally
+            return new DeleteResult { Success = false };
+        }
+        
+        // If file is missing, find bookmark by searching for the timestamp
+        if (fileMissing || id == null)
+        {
+            var bookmark = _bookmarks.Values.FirstOrDefault(b => b.WorldTimestamps.Contains(timestamp));
+            if (bookmark != null)
+            {
+                id = bookmark.Id;
+            }
+            else
+            {
+                return new DeleteResult { Success = false, FileMissing = fileMissing };
+            }
         }
 
-        bookmark.WorldTimestamps.Remove(timestamp);
-        if (bookmark.WorldTimestamps.Count == 0)
+        if (!_bookmarks.TryGetValue(id!, out var bookmarkToUpdate))
         {
-            _bookmarks.TryRemove(id, out _);
-            _filePathToId.TryRemove(normalizedPath, out _);
+            return new DeleteResult { Success = false, FileMissing = fileMissing };
+        }
+
+        bookmarkToUpdate.WorldTimestamps.Remove(timestamp);
+        
+        if (bookmarkToUpdate.WorldTimestamps.Count == 0)
+        {
+            _bookmarks.TryRemove(id!, out _);
+            // Clean up all file path mappings for this bookmark
+            var pathsToRemove = _filePathToId
+                .Where(kvp => kvp.Value == id)
+                .Select(kvp => kvp.Key)
+                .ToList();
+            foreach (var path in pathsToRemove)
+            {
+                _filePathToId.TryRemove(path, out _);
+            }
         }
         else
         {
-            bookmark.LatestTimestamp = bookmark.WorldTimestamps.Order().LastOrDefault();
+            bookmarkToUpdate.LatestTimestamp = bookmarkToUpdate.WorldTimestamps.Order().LastOrDefault();
+            // Also update file path mapping
+            _filePathToId[normalizedPath] = id!;
         }
+        
         SaveBookmarksToFile();
-        return true;
+        
+        return new DeleteResult 
+        { 
+            Success = true, 
+            FileMissing = fileMissing,
+            Bookmark = bookmarkToUpdate.WorldTimestamps.Count > 0 ? bookmarkToUpdate : null
+        };
     }
 
     public static string ExtractTimestampFromFilePath(string filePath, string legendsXmlSuffix = FileIdentifierLegendsXml, string legendsPlusXmlSuffix = FileIdentifierLegendsPlusXml)
@@ -196,15 +237,12 @@ public class BookmarkService : IBookmarkService
             .Replace(legendsXmlSuffix, "")
             .Replace(legendsPlusXmlSuffix, "");
         
-        // Extract YYYYY-MM-DD pattern at end of filename
-        int lastHyphenIndex = regionId.LastIndexOf('-');
-        if (lastHyphenIndex > 0 && lastHyphenIndex < regionId.Length - 6)
+        // Find timestamp pattern: YYYYY-MM-DD at the end (5 digits, hyphen, 2 digits, hyphen, 2 digits)
+        // Pattern matches both underscore and hyphen separated region names
+        var match = System.Text.RegularExpressions.Regex.Match(regionId, @"[-_](\d{5}-\d{2}-\d{2})$");
+        if (match.Success)
         {
-            string potentialTimestamp = regionId[(lastHyphenIndex - 4)..];
-            if (potentialTimestamp.Length == 10 && potentialTimestamp[4] == '-')
-            {
-                return potentialTimestamp;
-            }
+            return match.Groups[1].Value;
         }
         
         return string.Empty;

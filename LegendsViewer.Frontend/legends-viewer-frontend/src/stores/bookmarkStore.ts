@@ -94,7 +94,7 @@ export const useBookmarkStore = defineStore('bookmark', {
         this.isLoadingNewWorld = true;
       }
 
-      const { data, error } = await client.DELETE("/api/Bookmark/{encodedFilePath}", {
+      const { data, error, response } = await client.DELETE("/api/Bookmark/{encodedFilePath}", {
         params: {
           path: {
             encodedFilePath: filePath.replace("{TIMESTAMP}", latestTimestamp)
@@ -105,6 +105,18 @@ export const useBookmarkStore = defineStore('bookmark', {
       // Check if this response is still the latest request (race condition fix)
       if (requestId !== currentRequestId) {
         return; // Stale response, ignore it
+      }
+
+      // Check for X-File-Missing header — the file was deleted or moved
+      const fileMissing = response?.headers.get('X-File-Missing') === 'true';
+      if (fileMissing) {
+        this.bookmarkWarning = 'The file was not found. It may have been deleted or moved.';
+        let existingBookmark = this.bookmarks.find(bookmark => bookmark.filePath === filePath);
+        if (existingBookmark) {
+          existingBookmark.state = 'Default';
+        }
+        this.isLoadingNewWorld = false;
+        return;
       }
 
       if (error !== undefined) {

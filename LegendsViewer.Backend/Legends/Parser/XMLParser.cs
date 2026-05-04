@@ -1,5 +1,4 @@
 using LegendsViewer.Backend.Legends.Interfaces;
-using System;
 using System.Data;
 using System.Xml;
 using LegendsViewer.Backend.Legends.Enums;

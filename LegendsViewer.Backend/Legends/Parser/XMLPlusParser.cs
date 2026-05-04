@@ -1,5 +1,4 @@
 using LegendsViewer.Backend.Legends.Interfaces;
-using System;
 using System.Xml;
 
 namespace LegendsViewer.Backend.Legends.Parser;

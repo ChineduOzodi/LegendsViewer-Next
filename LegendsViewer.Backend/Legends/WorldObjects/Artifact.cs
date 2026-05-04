@@ -1,5 +1,4 @@
 using System.Text;
-using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;

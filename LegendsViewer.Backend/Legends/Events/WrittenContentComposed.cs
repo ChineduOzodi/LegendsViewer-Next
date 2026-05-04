@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -20,7 +21,7 @@ public class WrittenContentComposed : WorldEvent
     public int CircumstanceId { get; set; }
     public WrittenContent? WrittenContent { get; set; }
 
-    public WrittenContentComposed(List<Property> properties, World world) : base(properties, world)
+    public WrittenContentComposed(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -114,3 +115,4 @@ public class WrittenContentComposed : WorldEvent
         return eventString.ToString();
     }
 }
+

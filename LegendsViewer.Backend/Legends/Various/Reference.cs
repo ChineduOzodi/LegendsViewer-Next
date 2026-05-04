@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Parser;
 
 namespace LegendsViewer.Backend.Legends.Various;
@@ -8,7 +9,7 @@ public class Reference
     public int Id { get; set; } // legends_plus.xml
     public ReferenceType Type { get; set; } // legends_plus.xml
 
-    public Reference(List<Property> properties, World world)
+    public Reference(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -43,3 +44,5 @@ public class Reference
         }
     }
 }
+
+

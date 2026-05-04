@@ -1,4 +1,5 @@
-﻿using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using System.Text;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -8,14 +9,14 @@ namespace LegendsViewer.Backend.Legends.Parser;
 
 public class HistoryParser : IDisposable
 {
-    private readonly World _world;
+    private readonly IWorld _world;
     private readonly StreamReader _history;
     private readonly StringBuilder _log;
 
     private string _currentLine = string.Empty;
     private Entity? _currentCiv;
 
-    public HistoryParser(World world, string historyFile)
+    public HistoryParser(IWorld world, string historyFile)
     {
         _world = world;
         _history = new StreamReader(historyFile, Encoding.GetEncoding("windows-1252"));
@@ -115,7 +116,7 @@ public class HistoryParser : IDisposable
                 {
                     string deityName = Formatting.InitCaps(Formatting.ReplaceNonAscii(_currentLine.Substring(2,
                         _currentLine.IndexOf(",", StringComparison.Ordinal) - 2)));
-                    var deities = _world.HistoricalFigures.Where(h => h.Name.Equals(deityName.Replace("'", "`"), StringComparison.OrdinalIgnoreCase) && (h.Deity || h.Force)).ToList();
+                    var deities = _world.HistoricalFigures.Where(h => h.Name.Equals(deityName.Replace("'", "`"), StringComparison.OrdinalIgnoreCase) && (h.IsDeity || h.Force)).ToList();
                     if (deities.Count == 1)
                     {
                         var deity = deities[0];
@@ -250,3 +251,4 @@ public class HistoryParser : IDisposable
         }
     }
 }
+

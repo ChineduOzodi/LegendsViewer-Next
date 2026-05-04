@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +18,7 @@ public class PlunderedSite : WorldEvent
     public bool TookLiveStock { get; set; }
     public bool TookItems { get; set; }
 
-    public PlunderedSite(List<Property> properties, World world)
+    public PlunderedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -77,59 +79,61 @@ public class PlunderedSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Attacker?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(link, pov, this));
         if (TookLiveStock || TookItems)
         {
-            eventString += " stole ";
+            sb.Append(" stole ");
             if (TookLiveStock)
             {
-                eventString += "livestock ";
+                sb.Append("livestock ");
             }
             else if (TookItems)
             {
-                eventString += "treasure ";
+                sb.Append("treasure ");
             }
 
             if (SiteEntity != null || Defender != null)
             {
-                eventString += "from ";
+                sb.Append("from ");
             }
             if (SiteEntity != null)
             {
-                eventString += SiteEntity.ToLink(link, pov, this);
+                sb.Append(SiteEntity.ToLink(link, pov, this));
                 if (Defender != SiteEntity && Defender != null)
                 {
-                    eventString += " of ";
+                    sb.Append(" of ");
                 }
             }
             if (Defender != null)
             {
-                eventString += Defender.ToLink(link, pov, this);
+                sb.Append(Defender.ToLink(link, pov, this));
             }
-            eventString += " in ";
-            eventString += Site?.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
         else
         {
-            eventString += " defeated ";
+            sb.Append(" defeated ");
             if (SiteEntity != null && Defender != SiteEntity)
             {
-                eventString += SiteEntity.ToLink(link, pov, this);
+                sb.Append(SiteEntity.ToLink(link, pov, this));
                 if (Defender != SiteEntity && Defender != null)
                 {
-                    eventString += " of ";
+                    sb.Append(" of ");
                 }
             }
             if (Defender != null)
             {
-                eventString += Defender.ToLink(link, pov, this);
+                sb.Append(Defender.ToLink(link, pov, this));
             }
-            eventString += " and pillaged ";
-            eventString += Site?.ToLink(link, pov, this);
+            sb.Append(" and pillaged ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

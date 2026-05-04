@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+using LegendsViewer.Backend.Legends.Interfaces;
+using System.ComponentModel;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -20,7 +21,7 @@ public class EntityEntityLink // legends_plus.xml
     public Entity? Target { get; set; }
     public int Strength { get; set; }
 
-    public EntityEntityLink(List<Property> properties, World world)
+    public EntityEntityLink(List<Property> properties, IWorld world)
     {
         Type = EntityEntityLinkType.Unknown;
         foreach (Property property in properties)
@@ -54,3 +55,4 @@ public class EntityEntityLink // legends_plus.xml
         }
     }
 }
+

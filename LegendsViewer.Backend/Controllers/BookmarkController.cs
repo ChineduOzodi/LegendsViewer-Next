@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Bookmarks;
+﻿using System.Web;
+using LegendsViewer.Backend.Legends.Bookmarks;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Maps;
 using Microsoft.AspNetCore.Mvc;
@@ -31,11 +32,12 @@ public class BookmarkController(
         return Ok(bookmarks);
     }
 
-    [HttpGet("{filePath}")]
+    [HttpGet("{encodedFilePath}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Bookmark> Get([FromRoute] string filePath)
+    public ActionResult<Bookmark> Get([FromRoute] string encodedFilePath)
     {
+        var filePath = HttpUtility.UrlDecode(encodedFilePath);
         var item = _bookmarkService.GetBookmark(filePath);
         if (item == null)
         {
@@ -44,22 +46,31 @@ public class BookmarkController(
         return Ok(item);
     }
 
-    [HttpDelete("{filePath}")]
+    [HttpDelete("{encodedFilePath}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Bookmark> Delete([FromRoute] string filePath)
+    public ActionResult<Bookmark> Delete([FromRoute] string encodedFilePath)
     {
-        if (!_bookmarkService.DeleteBookmarkTimestamp(filePath))
+        var filePath = HttpUtility.UrlDecode(encodedFilePath);
+        var result = _bookmarkService.DeleteBookmarkTimestamp(filePath);
+        
+        if (!result.Success)
         {
             return NotFound();
         }
-        var item = _bookmarkService.GetBookmark(filePath);
-        if (item == null)
+        
+        if (result.FileMissing)
+        {
+            Response.Headers.Append("X-File-Missing", "true");
+        }
+        
+        if (result.Bookmark == null)
         {
             return NoContent();
         }
-        return Ok(item);
+        
+        return Ok(result.Bookmark);
     }
 
     [HttpPost("loadByFullPath")]
@@ -92,7 +103,7 @@ public class BookmarkController(
             return BadRequest($"Invalid file name.\n{fileInfo.Name}");
         }
 
-        var (RegionName, Timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId, _worldDataService);
+        var (RegionName, Timestamp) = BookmarkService.GetRegionNameAndTimestampByRegionId(regionId);
 
         var xmlFileName = Directory.EnumerateFiles(directoryName, regionId + FileIdentifierLegendsXml).FirstOrDefault();
         if (string.IsNullOrWhiteSpace(xmlFileName))
@@ -145,6 +156,7 @@ public class BookmarkController(
         var imageData = _worldMapImageGenerator.GenerateMapByteArray(WorldMapImageGenerator.DefaultTileSizeMin);
         var bookmark = new Bookmark
         {
+            Id = $"{_worldDataService.Name}_{regionName}",
             FilePath = BookmarkService.ReplaceLastOccurrence(filePath, timestamp, BookmarkService.TimestampPlaceholder),
             WorldName = _worldDataService.Name,
             WorldAlternativeName = _worldDataService.AlternativeName,

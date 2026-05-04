@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +15,7 @@ public class HfCarouse : WorldEvent
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
 
-    public HfCarouse(List<Property> properties, World world)
+    public HfCarouse(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -47,31 +49,32 @@ public class HfCarouse : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += GroupHf?.ToLink(link, pov, this);
-        eventString += " caroused";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(GroupHf?.ToLink(link, pov, this));
+        sb.Append(" caroused");
         if (Structure != null)
         {
-            eventString += " in ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

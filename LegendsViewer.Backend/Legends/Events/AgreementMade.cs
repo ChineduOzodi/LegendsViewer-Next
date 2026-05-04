@@ -1,7 +1,9 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
+using System.Text;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
@@ -12,7 +14,7 @@ public class AgreementMade : WorldEvent
     public Site? Site { get; set; }
     public AgreementTopic Topic { get; set; }
 
-    public AgreementMade(List<Property> properties, World world) : base(properties, world)
+    public AgreementMade(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -49,32 +51,34 @@ public class AgreementMade : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var eventString = new StringBuilder();
+        eventString.Append(GetYearTime());
         switch (Topic)
         {
             case AgreementTopic.TreeQuota:
-                eventString += "a lumber agreement proposed by ";
+                eventString.Append("a lumber agreement proposed by ");
                 break;
             case AgreementTopic.BecomeLandHolder:
-                eventString += "the establishment of landed nobility proposed by ";
+                eventString.Append("the establishment of landed nobility proposed by ");
                 break;
             case AgreementTopic.PromoteLandHolder:
-                eventString += "the elevation of the landed nobility proposed by ";
+                eventString.Append("the elevation of the landed nobility proposed by ");
                 break;
             case AgreementTopic.Tribute:
-                eventString += "a tribute agreement proposed by ";
+                eventString.Append("a tribute agreement proposed by ");
                 break;
             default:
-                eventString += "UNKNOWN AGREEMENT";
+                eventString.Append("UNKNOWN AGREEMENT");
                 break;
         }
-        eventString += Source != null ? Source.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " was accepted by ";
-        eventString += Destination != null ? Destination.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " at ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        eventString.Append(Source != null ? Source.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        eventString.Append(" was accepted by ");
+        eventString.Append(Destination != null ? Destination.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        eventString.Append(" at ");
+        eventString.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        eventString.Append(PrintParentCollection(link, pov));
+        eventString.Append('.');
+        return eventString.ToString();
     }
 }
+

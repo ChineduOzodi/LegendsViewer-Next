@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -11,7 +13,7 @@ public class SiteSurrendered : WorldEvent
     public Entity? SiteEntity { get; set; }
     public Site? Site { get; set; }
 
-    public SiteSurrendered(List<Property> properties, World world) : base(properties, world)
+    public SiteSurrendered(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -43,17 +45,20 @@ public class SiteSurrendered : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SiteEntity?.ToLink(link, pov, this);
-        eventString += " of ";
-        eventString += Defender?.ToLink(link, pov, this);
-        eventString += " surrendered ";
-        eventString += Site?.ToLink(link, pov, this);
-        eventString += " to ";
-        eventString += Attacker?.ToLink(link, pov, this);
-        eventString += ".";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SiteEntity?.ToLink(link, pov, this));
+        sb.Append(" of ");
+        sb.Append(Defender?.ToLink(link, pov, this));
+        sb.Append(" surrendered ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(" to ");
+        sb.Append(Attacker?.ToLink(link, pov, this));
+        sb.Append(".");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -24,7 +26,7 @@ public class SquadVsSquad : WorldEvent
     public int AttackerLeadershipRoll { get; set; }
     public int DefenderLeadershipRoll { get; set; }
 
-    public SquadVsSquad(List<Property> properties, World world)
+    public SquadVsSquad(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -79,65 +81,71 @@ public class SquadVsSquad : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += AttackerHistoricalFigure?.ToLink(link, pov, this) ?? "an unknown creature";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(AttackerHistoricalFigure?.ToLink(link, pov, this) ?? "an unknown creature");
         if (AttackerLeader != null)
         {
-            eventString += " as part of a squad";
+            sb.Append(" as part of a squad");
             if (AttackerLeadershipRoll <= 25)
             {
-                eventString += " poorly";
+                sb.Append(" poorly");
             }
             else if (AttackerLeadershipRoll >= 100)
             {
-                eventString += " ably";
+                sb.Append(" ably");
             }
-            eventString += " led by ";
-            eventString += AttackerLeader.ToLink(link, pov, this);
-            eventString += ",";
+            sb.Append(" led by ");
+            sb.Append(AttackerLeader.ToLink(link, pov, this));
+            sb.Append(",");
         }
-        eventString += " clashed with ";
+        sb.Append(" clashed with ");
         if (DefenderHistoricalFigure != null)
         {
-            eventString += DefenderHistoricalFigure.ToLink(link, pov, this);
-            eventString += " as part of squad";
+            sb.Append(DefenderHistoricalFigure.ToLink(link, pov, this));
+            sb.Append(" as part of squad");
         }
         else if (DefenderNumber > 0 && DefenderRaceId > 0)
         {
-            eventString += Formatting.IntegerToWords(DefenderNumber);
-            eventString += " <span title='" + DefenderRaceId + "'>creatures</span>";
+            sb.Append(Formatting.IntegerToWords(DefenderNumber));
+            sb.Append(" <span title='");
+            sb.Append(DefenderRaceId);
+            sb.Append("'>creatures</span>");
         }
         else
         {
-            eventString += "another squad";
+            sb.Append("another squad");
         }
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         if (DefenderLeader != null)
         {
             if (DefenderLeadershipRoll <= 25)
             {
-                eventString += " poorly";
+                sb.Append(" poorly");
             }
             else if (DefenderLeadershipRoll >= 100)
             {
-                eventString += " ably";
+                sb.Append(" ably");
             }
-            eventString += " led by ";
-            eventString += DefenderLeader.ToLink(link, pov, this);
+            sb.Append(" led by ");
+            sb.Append(DefenderLeader.ToLink(link, pov, this));
         }
         if (DefenderNumber == DefenderSlain)
         {
-            eventString += ", slaying them";
+            sb.Append(", slaying them");
         }
         else if (DefenderSlain > 0)
         {
-            eventString += ", slaying " + Formatting.IntegerToWords(DefenderSlain);
+            sb.Append(", slaying ");
+            sb.Append(Formatting.IntegerToWords(DefenderSlain));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -61,7 +62,7 @@ public class WorldRegion : WorldObject, IRegion
 
     private static readonly char[] coordinateSeparator = ['|'];
 
-    public WorldRegion(List<Property> properties, World world)
+    public WorldRegion(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("map-legend");
@@ -164,11 +165,15 @@ public class WorldRegion : WorldObject, IRegion
     {
         if (link)
         {
-            string title = RegionType.GetDescription();
-            title += "&#13";
-            title += "Evilness: " + Evilness;
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append(RegionType.GetDescription());
+            sb.Append("&#13");
+            sb.Append("Evilness: ");
+            sb.Append(Evilness);
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? $"{HtmlStyleUtil.GetAnchorString(Icon, "region", Id, title, Name)}"
@@ -182,7 +187,7 @@ public class WorldRegion : WorldObject, IRegion
         return Icon;
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         if (ForceId != -1)
         {
@@ -194,3 +199,4 @@ public class WorldRegion : WorldObject, IRegion
         }
     }
 }
+

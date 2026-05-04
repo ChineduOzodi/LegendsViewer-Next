@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -35,7 +37,7 @@ public class BeastAttack : EventCollection
     // http://www.bay12forums.com/smf/index.php?topic=154617.msg6669851#msg6669851
     public EventCollection? ParentEventCol { get; set; }
 
-    public BeastAttack(List<Property> properties, World world)
+    public BeastAttack(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -66,35 +68,39 @@ public class BeastAttack : EventCollection
     {
         if (link)
         {
+            var sb = new StringBuilder();
             string title = GetTitle();
-            string linkedString = "the ";
-            linkedString += pov != this
+            sb.Append("the ");
+            sb.Append(pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "beastattack", Id, title, Name)
-                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
+                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name)));
             if (Beast != null)
             {
-                linkedString += $" of {Beast.ToLink(true, pov)}";
+                sb.Append(" of ");
+                sb.Append(Beast.ToLink(true, pov));
             }
 
             if (Site != null && pov != Site)
             {
-                linkedString += $" in {Site.ToLink(true, pov)}";
+                sb.Append(" in ");
+                sb.Append(Site.ToLink(true, pov));
             }
-            return linkedString;
+            return sb.ToString();
         }
         return ToString();
     }
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += "Attacker: ";
-        title += Beast != null ? Beast.ToLink(false) : "UNKNOWN";
-        title += "&#13";
-        title += "Site: ";
-        title += Site != null ? Site.ToLink(false) : "UNKNOWN";
-        return title;
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append("Attacker: ");
+        sb.Append(Beast != null ? Beast.ToLink(false) : "UNKNOWN");
+        sb.Append("&#13");
+        sb.Append("Site: ");
+        sb.Append(Site != null ? Site.ToLink(false) : "UNKNOWN");
+        return sb.ToString();
     }
 
     public override string ToString()
@@ -107,3 +113,5 @@ public class BeastAttack : EventCollection
         return Icon;
     }
 }
+
+

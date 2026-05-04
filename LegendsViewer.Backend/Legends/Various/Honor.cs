@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
 using System.Text.Json.Serialization;
@@ -30,7 +31,10 @@ public class Honor
     public List<HistoricalFigure> HonoredHfs { get; set; }
     public List<string> HonoredHfLinks => HonoredHfs.ConvertAll(x => x.ToLink(true));
 
-    public Honor(List<Property> properties, World world, Entity entity)
+    // Lazy cache for PrintRequirementsAsString to avoid recomputation
+    private Lazy<string>? _requirementsStringCache;
+
+    public Honor(List<Property> properties, IWorld world, Entity entity)
     {
         HonoredHfs = [];
         Entity = entity;
@@ -57,6 +61,75 @@ public class Honor
         {
             RequiredSkill = new Skill(RequiredSkillName, RequiredSkillIpTotal);
         }
+
+        // Initialize lazy cache for requirements string
+        _requirementsStringCache = new Lazy<string>(ComputeRequirementsString);
+    }
+
+    private string ComputeRequirementsString()
+    {
+        var requirements = new List<string>();
+        
+        if (RequiredSkill != null)
+        {
+            requirements.Add($"attaining sufficient skill with the {RequiredSkill.Name.ToLower()}");
+        }
+        else if (RequiresAnyMeleeOrRangedSkill)
+        {
+            requirements.Add("attaining sufficient skill with a weapon or technique");
+        }
+
+        if (RequiredBattles == 1)
+        {
+            requirements.Add("serving in combat");
+        }
+        else if (RequiredBattles > 1)
+        {
+            requirements.Add($"serving in {RequiredBattles} battles");
+        }
+        if (RequiredKills == 1)
+        {
+            requirements.Add("killing an enemy");
+        }
+        else if (RequiredKills > 1)
+        {
+            requirements.Add($"killing {RequiredKills} enemies");
+        }
+        if (RequiredYears == 1)
+        {
+            requirements.Add("being enlisted for a year");
+        }
+        else if (RequiredYears > 1)
+        {
+            requirements.Add($"being enlisted for {RequiredYears} years");
+        }
+
+        if (requirements.Count == 1)
+        {
+            return requirements[0];
+        }
+
+        // Use StringBuilder for efficient string concatenation
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            sb.Append(requirements[i]);
+            if (i == requirements.Count - 2)
+            {
+                sb.Append(" and ");
+            }
+            else if (i < requirements.Count - 2)
+            {
+                sb.Append(", ");
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    public string PrintRequirementsAsString()
+    {
+        return _requirementsStringCache?.Value ?? string.Empty;
     }
 
     public string Print(bool withHonoredHfs = false)
@@ -134,62 +207,6 @@ public class Honor
         }
         return html;
     }
-
-    public string PrintRequirementsAsString()
-    {
-        string requirementsString = "";
-        List<string> requirements = [];
-        if (RequiredSkill != null)
-        {
-            requirements.Add($"attaining sufficient skill with the {RequiredSkill.Name.ToLower()}");
-        }
-        else if (RequiresAnyMeleeOrRangedSkill)
-        {
-            requirements.Add("attaining sufficient skill with a weapon or technique");
-        }
-
-        if (RequiredBattles == 1)
-        {
-            requirements.Add("serving in combat");
-        }
-        else if (RequiredBattles > 1)
-        {
-            requirements.Add($"serving in {RequiredBattles} battles");
-        }
-        if (RequiredKills == 1)
-        {
-            requirements.Add("killing an enemy");
-        }
-        else if (RequiredKills > 1)
-        {
-            requirements.Add($"killing {RequiredKills} enemies");
-        }
-        if (RequiredYears == 1)
-        {
-            requirements.Add("being enlisted for a year");
-        }
-        else if (RequiredYears > 1)
-        {
-            requirements.Add($"being enlisted for {RequiredYears} years");
-        }
-
-        if (requirements.Count == 1)
-        {
-            return requirements[0];
-        }
-        for (int i = 0; i < requirements.Count; i++)
-        {
-            requirementsString += requirements[i];
-            if (i == requirements.Count - 2)
-            {
-                requirementsString += " and ";
-            }
-            else if (i < requirements.Count - 2)
-            {
-                requirementsString += ", ";
-            }
-        }
-
-        return requirementsString;
-    }
 }
+
+

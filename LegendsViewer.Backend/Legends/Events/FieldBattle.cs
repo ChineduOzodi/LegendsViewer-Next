@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -20,7 +22,7 @@ public class FieldBattle : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public Location? Coordinates { get; set; }
 
-    public FieldBattle(List<Property> properties, World world)
+    public FieldBattle(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -58,49 +60,53 @@ public class FieldBattle : WorldEvent
         AttackerSupportMercenaries.AddEvent(this);
         DefenderSupportMercenaries.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Attacker?.ToLink(true, pov);
-        eventString += " attacked ";
-        eventString += Defender?.ToLink(true, pov);
-        eventString += " in " + Region?.ToLink(link, pov, this) + ". ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(true, pov));
+        sb.Append(" attacked ");
+        sb.Append(Defender?.ToLink(true, pov));
+        sb.Append(" in ");
+        sb.Append(Region?.ToLink(link, pov, this));
+        sb.Append(". ");
         if (AttackerGeneral != null)
         {
-            eventString += "Leader of the attack was ";
-            eventString += AttackerGeneral.ToLink(link, pov, this);
+            sb.Append("Leader of the attack was ");
+            sb.Append(AttackerGeneral.ToLink(link, pov, this));
         }
         if (DefenderGeneral != null)
         {
-            eventString += ", and the defenders were led by ";
-            eventString += DefenderGeneral.ToLink(link, pov, this);
+            sb.Append(", and the defenders were led by ");
+            sb.Append(DefenderGeneral.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
         if (AttackerMercenaries != null)
         {
-            eventString += " ";
-            eventString += AttackerMercenaries.ToLink(true, pov);
-            eventString += " were hired by the attackers.";
+            sb.Append(" ");
+            sb.Append(AttackerMercenaries.ToLink(true, pov));
+            sb.Append(" were hired by the attackers.");
         }
         if (DefenderMercenaries != null)
         {
-            eventString += " ";
-            eventString += DefenderMercenaries.ToLink(true, pov);
-            eventString += " were hired by the defenders.";
+            sb.Append(" ");
+            sb.Append(DefenderMercenaries.ToLink(true, pov));
+            sb.Append(" were hired by the defenders.");
         }
         if (AttackerSupportMercenaries != null)
         {
-            eventString += " ";
-            eventString += AttackerSupportMercenaries.ToLink(true, pov);
-            eventString += " were hired as scouts by the attackers.";
+            sb.Append(" ");
+            sb.Append(AttackerSupportMercenaries.ToLink(true, pov));
+            sb.Append(" were hired as scouts by the attackers.");
         }
         if (DefenderSupportMercenaries != null)
         {
-            eventString += " ";
-            eventString += DefenderSupportMercenaries.ToLink(true, pov);
-            eventString += " were hired as scouts by the defenders.";
+            sb.Append(" ");
+            sb.Append(DefenderSupportMercenaries.ToLink(true, pov));
+            sb.Append(" were hired as scouts by the defenders.");
         }
-        return eventString;
+        return sb.ToString();
     }
 }

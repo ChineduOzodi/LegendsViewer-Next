@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -13,7 +15,7 @@ public class SiteTakenOver : WorldEvent
     public Site? Site { get; set; }
     public Entity? NewSiteEntity { get; set; }
 
-    public SiteTakenOver(List<Property> properties, World world) : base(properties, world)
+    public SiteTakenOver(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -72,23 +74,30 @@ public class SiteTakenOver : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Attacker?.ToLink(link, pov, this) + " defeated ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(link, pov, this));
+        sb.Append(" defeated ");
         if (SiteEntity != null && SiteEntity != Defender)
         {
-            eventString += SiteEntity.ToLink(link, pov, this);
+            sb.Append(SiteEntity.ToLink(link, pov, this));
             if (Defender != null)
             {
-                eventString += " of ";
+                sb.Append(" of ");
             }
         }
 
         if (Defender != null)
         {
-            eventString += Defender.ToLink(link, pov, this);
+            sb.Append(Defender.ToLink(link, pov, this));
         }
-        eventString += " and took over " + Site?.ToLink(link, pov, this) + ". The new government was called " + NewSiteEntity?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" and took over ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(". The new government was called ");
+        sb.Append(NewSiteEntity?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

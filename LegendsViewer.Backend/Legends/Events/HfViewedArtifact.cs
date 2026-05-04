@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -12,25 +14,17 @@ public class HfViewedArtifact : WorldEvent
     public int StructureId { get; set; }
     public Structure? Structure { get; set; }
 
-    public HfViewedArtifact(List<Property> properties, World world)
+    public HfViewedArtifact(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
         {
             switch (property.Name)
             {
-                case "artifact_id":
-                    Artifact = world.GetArtifact(Convert.ToInt32(property.Value));
-                    break;
-                case "hist_fig_id":
-                    HistoricalFigure = world.GetHistoricalFigure(Convert.ToInt32(property.Value));
-                    break;
-                case "site_id":
-                    Site = world.GetSite(Convert.ToInt32(property.Value));
-                    break;
-                case "structure_id":
-                    StructureId = Convert.ToInt32(property.Value);
-                    break;
+                case "artifact_id": Artifact = world.GetArtifact(Convert.ToInt32(property.Value)); break;
+                case "hist_fig_id": HistoricalFigure = world.GetHistoricalFigure(Convert.ToInt32(property.Value)); break;
+                case "site_id": Site = world.GetSite(Convert.ToInt32(property.Value)); break;
+                case "structure_id": StructureId = Convert.ToInt32(property.Value); break;
             }
         }
 
@@ -46,22 +40,23 @@ public class HfViewedArtifact : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure?.ToLink(link, pov, this);
-        eventString += " viewed ";
-        eventString += Artifact?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(" viewed ");
+        sb.Append(Artifact?.ToLink(link, pov, this));
         if (Structure != null)
         {
-            eventString += " in ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -9,7 +11,7 @@ public class EntityAllianceFormed : WorldEvent
     public Entity? InitiatingEntity { get; set; }
     public Entity? JoiningEntity { get; set; }
 
-    public EntityAllianceFormed(List<Property> properties, World world) : base(properties, world)
+    public EntityAllianceFormed(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -27,14 +29,17 @@ public class EntityAllianceFormed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += JoiningEntity?.ToLink(link, pov, this);
-        eventString += " swore to support ";
-        eventString += InitiatingEntity?.ToLink(link, pov, this);
-        eventString += " in war if the latter did likewise";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(JoiningEntity?.ToLink(link, pov, this));
+        sb.Append(" swore to support ");
+        sb.Append(InitiatingEntity?.ToLink(link, pov, this));
+        sb.Append(" in war if the latter did likewise");
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

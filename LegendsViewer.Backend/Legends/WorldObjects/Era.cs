@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Utilities;
 
@@ -9,7 +11,7 @@ public class Era : WorldObject
     public int StartYear { get; set; }
     public int EndYear { get; set; }
 
-    public Era(List<Property> properties, World world)
+    public Era(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Id = world.Eras.Count;
@@ -29,9 +31,12 @@ public class Era : WorldObject
     {
         if (link)
         {
-            string title = "Era";
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("Era");
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "era", Id, title, Name)
                 : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
@@ -44,3 +49,5 @@ public class Era : WorldObject
         return string.IsNullOrWhiteSpace(Name) ? Subtype : Name;
     }
 }
+
+

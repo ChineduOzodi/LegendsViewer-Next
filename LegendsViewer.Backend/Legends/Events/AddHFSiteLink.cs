@@ -1,7 +1,9 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
+using System.Text;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
@@ -14,7 +16,7 @@ public class AddHfSiteLink : WorldEvent
     public Site? Site { get; set; }
     public SiteLinkType LinkType { get; set; }
 
-    public AddHfSiteLink(List<Property> properties, World world)
+    public AddHfSiteLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -54,42 +56,44 @@ public class AddHfSiteLink : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
+        var eventString = new StringBuilder();
+        eventString.Append(GetYearTime());
+        eventString.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
         switch (LinkType)
         {
             case SiteLinkType.HomeSiteAbstractBuilding:
             case SiteLinkType.HomeSiteRealizationBuilding:
-                eventString += " took up residence in ";
+                eventString.Append(" took up residence in ");
                 break;
             case SiteLinkType.Hangout:
-                eventString += " ruled from ";
+                eventString.Append(" ruled from ");
                 break;
             case SiteLinkType.SeatOfPower:
-                eventString += " started working from ";
+                eventString.Append(" started working from ");
                 break;
             case SiteLinkType.Occupation:
-                eventString += " started working at ";
+                eventString.Append(" started working at ");
                 break;
             default:
-                eventString += " UNKNOWN LINKTYPE (" + LinkType + ") ";
+                eventString.Append(" UNKNOWN LINKTYPE (").Append(LinkType).Append(") ");
                 break;
         }
         if (Site != null)
         {
             Structure = Site.Structures.Find(structure => structure.LocalId == StructureId);
         }
-        eventString += Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
+        eventString.Append(Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
         if (Civ != null)
         {
-            eventString += " of " + Civ.ToLink(link, pov, this);
+            eventString.Append(" of ").Append(Civ.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            eventString.Append(" in ").Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        eventString.Append(PrintParentCollection(link, pov));
+        eventString.Append('.');
+        return eventString.ToString();
     }
 }
+

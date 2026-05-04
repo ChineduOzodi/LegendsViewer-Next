@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -10,7 +12,7 @@ public class Competition : OccasionEvent
     private HistoricalFigure? Winner { get; set; }
     private List<HistoricalFigure> Competitors { get; set; } = [];
 
-    public Competition(List<Property> properties, World world) : base(properties, world)
+    public Competition(List<Property> properties, IWorld world) : base(properties, world)
     {
         OccasionType = OccasionType.Competition;
 
@@ -43,35 +45,39 @@ public class Competition : OccasionEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = base.Print(link, pov);
+        var sb = new StringBuilder();
+        sb.Append(base.Print(link, pov));
         if (Competitors.Count > 0)
         {
-            eventString += "</br>";
-            eventString += "Competing were ";
+            sb.Append("</br>");
+            sb.Append("Competing were ");
             for (int i = 0; i < Competitors.Count; i++)
             {
                 HistoricalFigure competitor = Competitors.ElementAt(i);
                 if (i == 0)
                 {
-                    eventString += competitor.ToLink(link, pov, this);
+                    sb.Append(competitor.ToLink(link, pov, this));
                 }
                 else if (i == Competitors.Count - 1)
                 {
-                    eventString += " and " + competitor.ToLink(link, pov, this);
+                    sb.Append(" and ");
+                    sb.Append(competitor.ToLink(link, pov, this));
                 }
                 else
                 {
-                    eventString += ", " + competitor.ToLink(link, pov, this);
+                    sb.Append(", ");
+                    sb.Append(competitor.ToLink(link, pov, this));
                 }
             }
-            eventString += ". ";
+            sb.Append(". ");
         }
         if (Winner != null)
         {
-            eventString += "The winner was ";
-            eventString += Winner.ToLink(link, pov, this);
-            eventString += ".";
+            sb.Append("The winner was ");
+            sb.Append(Winner.ToLink(link, pov, this));
+            sb.Append(".");
         }
-        return eventString;
+        return sb.ToString();
     }
 }
+

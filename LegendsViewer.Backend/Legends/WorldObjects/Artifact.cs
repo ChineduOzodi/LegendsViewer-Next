@@ -1,4 +1,4 @@
-﻿using LegendsViewer.Backend.Contracts;
+using System.Text;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
@@ -51,7 +51,7 @@ public class Artifact : WorldObject, IHasCoordinates
     public WorldRegion? Region { get; set; }
     public string? RegionLink => Region?.ToLink(true, this);
 
-    public Artifact(List<Property> properties, World world)
+    public Artifact(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("diamond-stone");
@@ -159,7 +159,7 @@ public class Artifact : WorldObject, IHasCoordinates
         return new string(result);
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         if (HolderId > -1)
         {
@@ -185,9 +185,18 @@ public class Artifact : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "Artifact" + (!string.IsNullOrEmpty(Type) ? ", " + Type : "");
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("Artifact");
+            if (!string.IsNullOrEmpty(Type))
+            {
+                sb.Append(", ");
+                sb.Append(Type);
+            }
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
+            sb.Clear();
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "artifact", Id, title, Name)
                 : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
@@ -200,3 +209,4 @@ public class Artifact : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

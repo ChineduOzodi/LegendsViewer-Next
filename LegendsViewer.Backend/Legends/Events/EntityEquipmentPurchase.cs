@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -10,7 +12,7 @@ public class EntityEquipmentPurchase : WorldEvent
     public HistoricalFigure? HistoricalFigure { get; set; }
     public int Quality { get; set; }
 
-    public EntityEquipmentPurchase(List<Property> properties, World world) : base(properties, world)
+    public EntityEquipmentPurchase(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -28,38 +30,40 @@ public class EntityEquipmentPurchase : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Entity?.ToLink(link, pov, this);
-        eventString += " purchased ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Entity?.ToLink(link, pov, this));
+        sb.Append(" purchased ");
         if (Quality == 1)
         {
-            eventString += "well-crafted ";
+            sb.Append("well-crafted ");
         }
         else if (Quality == 2)
         {
-            eventString += "finely-crafted ";
+            sb.Append("finely-crafted ");
         }
         else if (Quality == 3)
         {
-            eventString += "superior quality ";
+            sb.Append("superior quality ");
         }
         else if (Quality == 4)
         {
-            eventString += "exceptional ";
+            sb.Append("exceptional ");
         }
         else if (Quality == 5)
         {
-            eventString += "masterwork ";
+            sb.Append("masterwork ");
         }
-        eventString += "equipment";
+        sb.Append("equipment");
         if (HistoricalFigure != null)
         {
-            eventString += ", which ";
-            eventString += HistoricalFigure.ToLink(link, pov, this);
-            eventString += " received";
+            sb.Append(", which ");
+            sb.Append(HistoricalFigure.ToLink(link, pov, this));
+            sb.Append(" received");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

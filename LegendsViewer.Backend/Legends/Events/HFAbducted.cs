@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -12,7 +14,7 @@ public class HfAbducted : WorldEvent
     public Site? Site { get; set; }
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
-    public HfAbducted(List<Property> properties, World world)
+    public HfAbducted(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -33,24 +35,21 @@ public class HfAbducted : WorldEvent
         Region?.AddEvent(this);
         UndergroundRegion?.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        if (Snatcher != null)
-        {
-            eventString += Snatcher.ToLink(link, pov, this);
-        }
-        else
-        {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
-        }
-
-        eventString += $" abducted {Target?.ToLink(link, pov, this)} from {Site?.ToLink(link, pov, this)}";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Snatcher != null ? Snatcher.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+        sb.Append(" abducted ");
+        sb.Append(Target?.ToLink(link, pov, this));
+        sb.Append(" from ");
+        sb.Append(Site?.ToLink(link, pov, this));
         if (ParentCollection is not Abduction)
         {
-            eventString += PrintParentCollection(link, pov);
+            sb.Append(PrintParentCollection(link, pov));
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }

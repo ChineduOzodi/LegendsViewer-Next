@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -11,7 +13,7 @@ public class SpottedLeavingSite : WorldEvent
     public Entity? SiteCiv { get; set; }
     public Site? Site { get; set; }
 
-    public SpottedLeavingSite(List<Property> properties, World world)
+    public SpottedLeavingSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -33,27 +35,30 @@ public class SpottedLeavingSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Spotter?.ToLink(true, pov) ?? "An unknown creature";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Spotter?.ToLink(true, pov) ?? "An unknown creature");
         if (SiteCiv != null)
         {
-            eventString += " of ";
-            eventString += SiteCiv.ToLink(true, pov);
+            sb.Append(" of ");
+            sb.Append(SiteCiv.ToLink(true, pov));
         }
-        eventString += " spotted the forces";
+        sb.Append(" spotted the forces");
         if (LeaverCiv != null)
         {
-            eventString += " of ";
-            eventString += LeaverCiv.ToLink(true, pov);
+            sb.Append(" of ");
+            sb.Append(LeaverCiv.ToLink(true, pov));
         }
-        eventString += " slipping out";
+        sb.Append(" slipping out");
         if (Site != null)
         {
-            eventString += " of ";
-            eventString += Site.ToLink(true, pov);
+            sb.Append(" of ");
+            sb.Append(Site.ToLink(true, pov));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +14,7 @@ public class EntityCreated : WorldEvent
     public Structure? Structure { get; set; }
     public HistoricalFigure? Creator { get; set; }
 
-    public EntityCreated(List<Property> properties, World world)
+    public EntityCreated(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -42,32 +44,35 @@ public class EntityCreated : WorldEvent
             Entity.FormedAt = Site.Coordinates.FirstOrDefault();
         }
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Creator != null)
         {
-            eventString += Creator.ToLink(link, pov, this);
-            eventString += " formed ";
-            eventString += Entity?.ToLink(link, pov, this);
+            sb.Append(Creator.ToLink(link, pov, this));
+            sb.Append(" formed ");
+            sb.Append(Entity?.ToLink(link, pov, this));
         }
         else
         {
-            eventString += Entity?.ToLink(link, pov, this);
-            eventString += " formed";
+            sb.Append(Entity?.ToLink(link, pov, this));
+            sb.Append(" formed");
         }
         if (Structure != null)
         {
-            eventString += " in ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

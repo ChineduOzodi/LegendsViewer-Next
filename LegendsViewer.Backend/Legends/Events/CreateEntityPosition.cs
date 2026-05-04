@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -13,7 +15,7 @@ public class CreateEntityPosition : WorldEvent
     public string? Position { get; set; }
     public ReasonForCreatingEntity Reason { get; set; }
 
-    public CreateEntityPosition(List<Property> properties, World world)
+    public CreateEntityPosition(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -61,49 +63,51 @@ public class CreateEntityPosition : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         switch (Reason)
         {
             case ReasonForCreatingEntity.ForceOfArgument:
-                eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-                eventString += " of ";
-                eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-                eventString += " created the position of ";
-                eventString += !string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION";
-                eventString += " through force of argument";
+                sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+                sb.Append(" of ");
+                sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+                sb.Append(" created the position of ");
+                sb.Append(!string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION");
+                sb.Append(" through force of argument");
                 break;
             case ReasonForCreatingEntity.ThreatOfViolence:
-                eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-                eventString += " of ";
-                eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-                eventString += " compelled the creation of the position of ";
-                eventString += !string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION";
-                eventString += " with threats of violence";
+                sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+                sb.Append(" of ");
+                sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+                sb.Append(" compelled the creation of the position of ");
+                sb.Append(!string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION");
+                sb.Append(" with threats of violence");
                 break;
             case ReasonForCreatingEntity.Collaboration:
-                eventString += SiteCiv != null ? SiteCiv.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-                eventString += " collaborated to create the position of ";
-                eventString += !string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION";
+                sb.Append(SiteCiv != null ? SiteCiv.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+                sb.Append(" collaborated to create the position of ");
+                sb.Append(!string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION");
                 break;
             case ReasonForCreatingEntity.WaveOfPopularSupport:
-                eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-                eventString += " of ";
-                eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-                eventString += " created the position of ";
-                eventString += !string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION";
-                eventString += ", pushed by a wave of popular support";
+                sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+                sb.Append(" of ");
+                sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+                sb.Append(" created the position of ");
+                sb.Append(!string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION");
+                sb.Append(", pushed by a wave of popular support");
                 break;
             case ReasonForCreatingEntity.AsAMatterOfCourse:
-                eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-                eventString += " of ";
-                eventString += Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV";
-                eventString += " created the position of ";
-                eventString += !string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION";
-                eventString += " as a matter of course";
+                sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+                sb.Append(" of ");
+                sb.Append(Civ != null ? Civ.ToLink(link, pov, this) : "UNKNOWN CIV");
+                sb.Append(" created the position of ");
+                sb.Append(!string.IsNullOrWhiteSpace(Position) ? Position : "UNKNOWN POSITION");
+                sb.Append(" as a matter of course");
                 break;
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

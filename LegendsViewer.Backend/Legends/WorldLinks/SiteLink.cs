@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -17,7 +18,7 @@ public class SiteLink
     [JsonIgnore]
     public Entity? Entity { get; set; }
 
-    public SiteLink(List<Property> properties, World world)
+    public SiteLink(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -54,3 +55,5 @@ public class SiteLink
         }
     }
 }
+
+

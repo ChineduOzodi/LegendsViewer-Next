@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -33,7 +34,7 @@ public class Identity
         Caste = caste;
     }
 
-    public Identity(List<Property> properties, World world)
+    public Identity(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -100,3 +101,5 @@ public class Identity
         return Caste == "Default" ? HistoricalFigure.NeuterIcon : "";
     }
 }
+
+

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Utilities;
 
 namespace LegendsViewer.Backend.Legends.Various;
@@ -11,7 +12,7 @@ public class CreatureInfo
     public string NameSingular { get; set; } = string.Empty;
     public string NamePlural { get; set; } = string.Empty;
 
-    public CreatureInfo(List<Property> properties, World world)
+    public CreatureInfo(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -40,3 +41,5 @@ public class CreatureInfo
         return NameSingular ?? NamePlural ?? string.Empty;
     }
 }
+
+

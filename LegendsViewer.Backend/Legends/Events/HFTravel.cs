@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -16,7 +18,7 @@ public class HfTravel : WorldEvent
     public Site? Site { get; set; }
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
-    public HfTravel(List<Property> properties, World world)
+    public HfTravel(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -38,41 +40,48 @@ public class HfTravel : WorldEvent
         Region?.AddEvent(this);
         UndergroundRegion?.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
         if (Escaped)
         {
-            return GetYearTime() + HistoricalFigure?.ToLink(link, pov, this) + " escaped from the " + UndergroundRegion?.ToLink(link, pov, this);
+            sb.Append(GetYearTime());
+            sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+            sb.Append(" escaped from the ");
+            sb.Append(UndergroundRegion?.ToLink(link, pov, this));
+            return sb.ToString();
         }
 
         if (Returned)
         {
-            eventString += " returned to ";
+            sb.Append(" returned to ");
         }
         else
         {
-            eventString += " made a journey to ";
+            sb.Append(" made a journey to ");
         }
 
         if (UndergroundRegion != null)
         {
-            eventString += UndergroundRegion?.ToLink(link, pov, this);
+            sb.Append(UndergroundRegion?.ToLink(link, pov, this));
         }
         else if (Site != null)
         {
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(Region.ToLink(link, pov, this));
         }
 
         if (!(ParentCollection is Journey))
         {
-            eventString += PrintParentCollection(link, pov);
+            sb.Append(PrintParentCollection(link, pov));
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }

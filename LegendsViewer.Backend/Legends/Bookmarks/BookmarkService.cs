@@ -1,41 +1,65 @@
-﻿namespace LegendsViewer.Backend.Legends.Bookmarks;
+namespace LegendsViewer.Backend.Legends.Bookmarks;
 
-using LegendsViewer.Backend.Controllers;
-using LegendsViewer.Backend.Legends.Interfaces;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 
 public class BookmarkService : IBookmarkService
 {
     public const string TimestampPlaceholder = "{TIMESTAMP}";
+    public const string FileIdentifierLegendsXml = "-legends.xml";
+    public const string FileIdentifierLegendsPlusXml = "-legends_plus.xml";
     private const string BookmarkFileName = "bookmarks.json";
 
-    private readonly Dictionary<string, Bookmark> _bookmarks;
+    private readonly ConcurrentDictionary<string, Bookmark> _bookmarks = new();
+    private readonly ConcurrentDictionary<string, string> _filePathToId = new();
     private readonly string _bookmarkFilePath;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
 
-    public BookmarkService()
+    public BookmarkService(string bookmarkFilePath)
     {
-        // Determine the platform-independent file path
+        if (string.IsNullOrWhiteSpace(bookmarkFilePath))
+            throw new ArgumentException("Bookmark file path cannot be null or empty.", nameof(bookmarkFilePath));
+
+        _bookmarkFilePath = bookmarkFilePath;
+
+        string? directory = Path.GetDirectoryName(_bookmarkFilePath);
+        if (!string.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
+
+        LoadBookmarksFromFile();
+    }
+
+    public BookmarkService() : this(GetDefaultBookmarkFilePath())
+    {
+    }
+
+    private static string GetDefaultBookmarkFilePath()
+    {
         string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        string appFolder = Path.Combine(appDataPath, "LegendsViewer"); // Adjust app folder name
-        Directory.CreateDirectory(appFolder); // Ensure directory exists
+        string appFolder = Path.Combine(appDataPath, "LegendsViewer");
+        Directory.CreateDirectory(appFolder);
+        return Path.Combine(appFolder, BookmarkFileName);
+    }
 
-        _bookmarkFilePath = Path.Combine(appFolder, BookmarkFileName);
+    private void LoadBookmarksFromFile()
+    {
+        if (!File.Exists(_bookmarkFilePath))
+            return;
 
-        // Load bookmarks from disk if the file exists
-        if (File.Exists(_bookmarkFilePath))
+        string json = File.ReadAllText(_bookmarkFilePath);
+        var loadedBookmarks = JsonSerializer.Deserialize<Dictionary<string, Bookmark>>(json) ?? [];
+        foreach (var kvp in loadedBookmarks)
         {
-            string json = File.ReadAllText(_bookmarkFilePath);
-            _bookmarks = JsonSerializer.Deserialize<Dictionary<string, Bookmark>>(json) ?? [];
-            foreach (var bookmark in _bookmarks.Values)
-            {
-                ResetBookmark(bookmark);
-            }
-        }
-        else
-        {
-            _bookmarks = [];
+            var bookmark = kvp.Value;
+            ResetBookmark(bookmark);
+            
+            // Ensure Id is set from WorldName + WorldRegionName
+            bookmark.Id = $"{bookmark.WorldName}_{bookmark.WorldRegionName}";
+            
+            string normalizedPath = Path.GetFullPath(bookmark.FilePath);
+            _bookmarks[bookmark.Id] = bookmark;
+            _filePathToId[normalizedPath] = bookmark.Id;
         }
     }
 
@@ -49,8 +73,13 @@ public class BookmarkService : IBookmarkService
     public Bookmark AddBookmark(Bookmark bookmark)
     {
         ResetAllBookmarks();
-        if (_bookmarks.TryGetValue(bookmark.FilePath, out var existingBookmark))
+        
+        // Ensure Id is set from WorldName + WorldRegionName
+        bookmark.Id = $"{bookmark.WorldName}_{bookmark.WorldRegionName}";
+        
+        if (_bookmarks.TryGetValue(bookmark.Id, out var existingBookmark))
         {
+            // Merge timestamps
             foreach (var timestamp in bookmark.WorldTimestamps)
             {
                 if (!existingBookmark.WorldTimestamps.Contains(timestamp))
@@ -64,12 +93,22 @@ public class BookmarkService : IBookmarkService
             existingBookmark.State = BookmarkState.Loaded;
             existingBookmark.LoadedTimestamp = bookmark.LoadedTimestamp;
             existingBookmark.LatestTimestamp = bookmark.LatestTimestamp;
+            existingBookmark.FilePath = bookmark.FilePath;
+            
+            string normalizedPath = Path.GetFullPath(bookmark.FilePath);
+            _filePathToId[normalizedPath] = bookmark.Id;
+            
             SaveBookmarksToFile();
             return existingBookmark;
         }
         else
         {
-            _bookmarks[bookmark.FilePath] = bookmark;
+            bookmark.State = BookmarkState.Loaded;
+            _bookmarks[bookmark.Id] = bookmark;
+            
+            string normalizedPath = Path.GetFullPath(bookmark.FilePath);
+            _filePathToId[normalizedPath] = bookmark.Id;
+            
             SaveBookmarksToFile();
             return bookmark;
         }
@@ -77,7 +116,10 @@ public class BookmarkService : IBookmarkService
 
     private void ResetAllBookmarks()
     {
-        foreach (var bookmark in _bookmarks.Values) { ResetBookmark(bookmark); }
+        foreach (var bookmark in _bookmarks.Values) 
+        { 
+            ResetBookmark(bookmark); 
+        }
     }
 
     public List<Bookmark> GetAll()
@@ -87,92 +129,163 @@ public class BookmarkService : IBookmarkService
 
     public Bookmark? GetBookmark(string filePath)
     {
-        string timestamp = string.Empty;
-        if (filePath.Contains(BookmarkController.FileIdentifierLegendsXml))
-        {
-            var fileName = Path.GetFileName(filePath);
-            string regionId = fileName.Replace(BookmarkController.FileIdentifierLegendsXml, "");
-            var (_, Timestamp) = GetRegionNameAndTimestampByRegionId(regionId);
-            timestamp = Timestamp;
-        }
-        if (string.IsNullOrWhiteSpace(timestamp))
+        if (string.IsNullOrWhiteSpace(filePath))
         {
             return null;
         }
-        return _bookmarks.TryGetValue(filePath.Replace(timestamp, TimestampPlaceholder), out var bookmark) ? bookmark : null;
+
+        string normalizedPath = Path.GetFullPath(filePath);
+        
+        if (_filePathToId.TryGetValue(normalizedPath, out var id))
+        {
+            return _bookmarks.TryGetValue(id, out var bookmark) ? bookmark : null;
+        }
+
+        return null;
     }
 
-    public bool DeleteBookmarkTimestamp(string filePath)
+    public DeleteResult DeleteBookmarkTimestamp(string filePath)
     {
-        string timestamp = string.Empty;
-        if (filePath.Contains(BookmarkController.FileIdentifierLegendsXml))
+        if (string.IsNullOrWhiteSpace(filePath))
         {
-            var fileName = Path.GetFileName(filePath);
-            string regionId = fileName.Replace(BookmarkController.FileIdentifierLegendsXml, "");
-            var (_, Timestamp) = GetRegionNameAndTimestampByRegionId(regionId);
-            timestamp = Timestamp;
-        }
-        if (string.IsNullOrWhiteSpace(timestamp))
-        {
-            return false;
+            return new DeleteResult { Success = false };
         }
 
-        string key = ReplaceLastOccurrence(filePath, timestamp, TimestampPlaceholder);
-        if (!_bookmarks.TryGetValue(key, out var bookmark))
+        string normalizedPath = Path.GetFullPath(filePath);
+        bool fileMissing = !System.IO.File.Exists(normalizedPath);
+        
+        string? id = null;
+        string timestamp = ExtractTimestampFromFilePath(filePath);
+        
+        if (string.IsNullOrWhiteSpace(timestamp))
         {
-            return false;
+            return new DeleteResult { Success = false };
         }
-        bookmark.WorldTimestamps.Remove(timestamp);
-        if (bookmark.WorldTimestamps.Count == 0)
+
+        // Try to find bookmark via filePath mapping first
+        if (_filePathToId.TryGetValue(normalizedPath, out var mappedId))
         {
-            _bookmarks.Remove(key);
+            id = mappedId;
+        }
+        else if (!fileMissing)
+        {
+            // File exists but not in mapping - shouldn't happen normally
+            return new DeleteResult { Success = false };
+        }
+        
+        // If file is missing, find bookmark by searching for the timestamp
+        if (fileMissing || id == null)
+        {
+            var bookmark = _bookmarks.Values.FirstOrDefault(b => b.WorldTimestamps.Contains(timestamp));
+            if (bookmark != null)
+            {
+                id = bookmark.Id;
+            }
+            else
+            {
+                return new DeleteResult { Success = false, FileMissing = fileMissing };
+            }
+        }
+
+        if (!_bookmarks.TryGetValue(id!, out var bookmarkToUpdate))
+        {
+            return new DeleteResult { Success = false, FileMissing = fileMissing };
+        }
+
+        bookmarkToUpdate.WorldTimestamps.Remove(timestamp);
+        
+        if (bookmarkToUpdate.WorldTimestamps.Count == 0)
+        {
+            _bookmarks.TryRemove(id!, out _);
+            // Clean up all file path mappings for this bookmark
+            var pathsToRemove = _filePathToId
+                .Where(kvp => kvp.Value == id)
+                .Select(kvp => kvp.Key)
+                .ToList();
+            foreach (var path in pathsToRemove)
+            {
+                _filePathToId.TryRemove(path, out _);
+            }
         }
         else
         {
-            bookmark.LatestTimestamp = bookmark.WorldTimestamps.Order().LastOrDefault();
+            bookmarkToUpdate.LatestTimestamp = bookmarkToUpdate.WorldTimestamps.Order().LastOrDefault();
+            // Also update file path mapping
+            _filePathToId[normalizedPath] = id!;
         }
+        
         SaveBookmarksToFile();
-        return true;
+        
+        return new DeleteResult 
+        { 
+            Success = true, 
+            FileMissing = fileMissing,
+            Bookmark = bookmarkToUpdate.WorldTimestamps.Count > 0 ? bookmarkToUpdate : null
+        };
+    }
+
+    public static string ExtractTimestampFromFilePath(string filePath, string legendsXmlSuffix = FileIdentifierLegendsXml, string legendsPlusXmlSuffix = FileIdentifierLegendsPlusXml)
+    {
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return string.Empty;
+        }
+
+        string fileName = Path.GetFileName(filePath);
+        
+        string regionId = fileName
+            .Replace(legendsXmlSuffix, "")
+            .Replace(legendsPlusXmlSuffix, "");
+        
+        // Find timestamp pattern: YYYYY-MM-DD at the end (5 digits, hyphen, 2 digits, hyphen, 2 digits)
+        // Pattern matches both underscore and hyphen separated region names
+        var match = System.Text.RegularExpressions.Regex.Match(regionId, @"[-_](\d{5}-\d{2}-\d{2})$");
+        if (match.Success)
+        {
+            return match.Groups[1].Value;
+        }
+        
+        return string.Empty;
     }
 
     private void SaveBookmarksToFile()
     {
-        string json = JsonSerializer.Serialize(_bookmarks, _jsonSerializerOptions);
+        var bookmarksDict = new Dictionary<string, Bookmark>(_bookmarks);
+        string json = JsonSerializer.Serialize(bookmarksDict, _jsonSerializerOptions);
         File.WriteAllText(_bookmarkFilePath, json);
     }
 
     public static string ReplaceLastOccurrence(string source, string find, string replace)
     {
-        int lastIndex = source.LastIndexOf(find);
+        int lastIndex = source.LastIndexOf(find, StringComparison.Ordinal);
 
         if (lastIndex == -1)
         {
-            return source; // The string to replace was not found
+            return source;
         }
 
         return source.Remove(lastIndex, find.Length).Insert(lastIndex, replace);
     }
 
-    public static (string RegionName, string Timestamp) GetRegionNameAndTimestampByRegionId(string regionId, IWorld? worldDataService = null)
+    public static (string RegionName, string Timestamp) GetRegionNameAndTimestampByRegionId(string regionId)
     {
-        var array = regionId.Split('-').ToList();
-        if (array.Count < 4)
+        if (string.IsNullOrWhiteSpace(regionId))
         {
             return ("", "");
         }
+
+        var array = regionId.Split('-').ToList();
+        if (array.Count < 3)
+        {
+            return ("", "");
+        }
+
         string day = array[^1];
         array.RemoveAt(array.Count - 1);
         string month = array[^1];
         array.RemoveAt(array.Count - 1);
         string year = array[^1];
         array.RemoveAt(array.Count - 1);
-
-        if (worldDataService != null)
-        {
-            worldDataService.CurrentDay = int.Parse(day);
-            worldDataService.CurrentMonth = int.Parse(month);
-            worldDataService.CurrentYear = int.Parse(year);
-        }
 
         var regionName = string.Join('-', array);
         var timestamp = $"{year}-{month}-{day}";

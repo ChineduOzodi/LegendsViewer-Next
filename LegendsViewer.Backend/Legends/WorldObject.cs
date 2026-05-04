@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.EventCollections;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Contracts;
+using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Parser;
 using System.Text.Json.Serialization;
@@ -22,7 +24,7 @@ public abstract class WorldObject : DwarfObject
     public List<EventCollection> EventCollections { get; set; } = [];
 
     [JsonIgnore]
-    public World? World { get; }
+    public IWorld? World { get; }
 
     public int EventCount => Events.Count;
     public int EventCollectionCount => EventCollections.Count;
@@ -32,12 +34,12 @@ public abstract class WorldObject : DwarfObject
         Id = -1;
     }
 
-    protected WorldObject(World world) : this()
+    protected WorldObject(IWorld world) : this()
     {
         World = world;
     }
 
-    protected WorldObject(List<Property> properties, World world) : this(world)
+    protected WorldObject(List<Property> properties, IWorld world) : this(world)
     {
         foreach (Property property in properties)
         {
@@ -52,4 +54,30 @@ public abstract class WorldObject : DwarfObject
     {
         return "";
     }
+
+    public virtual bool MatchesFilterCriteria(WorldObjectFilterDto filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            return true;
+        }
+
+        if (Name.Contains(filter.SearchTerm, StringComparison.InvariantCultureIgnoreCase))
+        {
+            return true;
+        }
+
+        if (Type?.Contains(filter.SearchTerm, StringComparison.InvariantCultureIgnoreCase) == true)
+        {
+            return true;
+        }
+
+        if (Subtype?.Contains(filter.SearchTerm, StringComparison.InvariantCultureIgnoreCase) == true)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
+

@@ -13,7 +13,23 @@
                         <div v-html="store.object?.icon"></div>
                     </v-col>
                     <v-col>
-                        <v-card-title>{{ store.object?.name ?? '' }}</v-card-title>
+                        <v-card-title class="d-flex align-center">
+                            {{ store.object?.name ?? '' }}
+                            <v-btn
+                                :icon="favoriteStore.isFavorite(store.object?.id ?? -1, objectType ?? '') ? 'mdi-star' : 'mdi-star-outline'"
+                                :color="favoriteStore.isFavorite(store.object?.id ?? -1, objectType ?? '') ? 'yellow-darken-2' : undefined"
+                                variant="text"
+                                density="compact"
+                                class="ml-2"
+                                :disabled="!store.object"
+                                @click="favoriteStore.toggleFavorite({
+                                    id: store.object?.id ?? -1,
+                                    type: objectType ?? '',
+                                    name: store.object?.name ?? 'Unknown',
+                                    icon: store.object?.icon
+                                })"
+                            ></v-btn>
+                        </v-card-title>
                         <v-card-subtitle class="multiline-subtitle">
                             {{ store.object?.type ?? '' }}
                         </v-card-subtitle>
@@ -50,7 +66,7 @@
                             v-model:items-per-page="store.objectEventsPerPage" :headers="eventTableHeaders"
                             :items="store.objectEvents" :items-length="store.objectEventsTotalItems"
                             :loading="store.isLoading" item-value="id"
-                            :items-per-page-options="store.itemsPerPageOptions" @update:options="loadEvents">
+                            :items-per-page-options="store.itemsPerPageOptions" :sort-by="eventSortBy" @update:options="loadEvents">
                             <template v-slot:item.html="{ value }">
                                 <span v-html="value"></span>
                             </template>
@@ -100,6 +116,9 @@ import { LoadItemsOptions, LoadItemsSortOption, TableHeader } from '../types/leg
 import LineChart from '../components/LineChart.vue';
 import ExpandableCard from '../components/ExpandableCard.vue';
 import BarChart from './BarChart.vue';
+import { useFavoriteStore } from '../stores/favoriteStore';
+
+const favoriteStore = useFavoriteStore();
 
 const route = useRoute()
 const routeId = computed(() => {

@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -10,7 +12,7 @@ public class EntityExpelsHf : WorldEvent
     public HistoricalFigure? HistoricalFigure { get; set; }
     public Site? Site { get; set; }
 
-    public EntityExpelsHf(List<Property> properties, World world)
+    public EntityExpelsHf(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -36,14 +38,17 @@ public class EntityExpelsHf : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Entity?.ToLink(true, pov) ?? "an unknown entity";
-        eventString += " expelled ";
-        eventString += HistoricalFigure?.ToLink(true, pov) ?? "an unknown creature";
-        eventString += " from ";
-        eventString += Site?.ToLink(true, pov) ?? "an unknown site";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Entity?.ToLink(true, pov) ?? "an unknown entity");
+        sb.Append(" expelled ");
+        sb.Append(HistoricalFigure?.ToLink(true, pov) ?? "an unknown creature");
+        sb.Append(" from ");
+        sb.Append(Site?.ToLink(true, pov) ?? "an unknown site");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

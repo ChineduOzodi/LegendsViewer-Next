@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -15,7 +17,7 @@ public class HfRelationShipDenied : WorldEvent
     public string? Reason { get; set; }
     public HistoricalFigure? ReasonHf { get; set; }
 
-    public HfRelationShipDenied(List<Property> properties, World world) : base(properties, world)
+    public HfRelationShipDenied(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -61,36 +63,40 @@ public class HfRelationShipDenied : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Seeker?.ToLink(link, pov, this);
-        eventString += " was denied ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Seeker?.ToLink(link, pov, this));
+        sb.Append(" was denied ");
         switch (Relationship)
         {
             case "apprentice":
-                eventString += "an apprenticeship under ";
+                sb.Append("an apprenticeship under ");
                 break;
             default:
                 break;
         }
-        eventString += Target?.ToLink(link, pov, this);
+        sb.Append(Target?.ToLink(link, pov, this));
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         if (ReasonHf != null)
         {
             switch (Reason)
             {
                 case "jealousy":
-                    eventString += " due to jealousy of " + ReasonHf.ToLink(link, pov, this);
+                    sb.Append(" due to jealousy of ");
+                    sb.Append(ReasonHf.ToLink(link, pov, this));
                     break;
                 case "prefers working alone":
-                    eventString += " as " + ReasonHf.ToLink(link, pov, this) + " prefers to work alone";
+                    sb.Append(" as ");
+                    sb.Append(ReasonHf.ToLink(link, pov, this));
+                    sb.Append(" prefers to work alone");
                     break;
             }
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }

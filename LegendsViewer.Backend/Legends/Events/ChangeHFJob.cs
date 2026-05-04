@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -14,7 +15,7 @@ public class ChangeHfJob : WorldEvent
     public UndergroundRegion? UndergroundRegion;
     public string NewJob { get; set; } = "UNKNOWN JOB";
     public string OldJob { get; set; } = "UNKNOWN JOB";
-    public ChangeHfJob(List<Property> properties, World world)
+    public ChangeHfJob(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -39,34 +40,44 @@ public class ChangeHfJob : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        StringBuilder eventString = new StringBuilder(GetYearTime());
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
 
         string figure = HistoricalFigure?.ToLink(link, pov, this) ?? "UNKNOWN HISTORICAL FIGURE";
-        eventString.Append(figure).Append(' ');
+        sb.Append(figure);
+        sb.Append(' ');
 
         if (OldJob != "standard" && NewJob != "standard")
         {
-            eventString.Append($"gave up being {Formatting.AddArticle(OldJob)} to become {Formatting.AddArticle(NewJob)}");
+            sb.Append("gave up being ");
+            sb.Append(Formatting.AddArticle(OldJob));
+            sb.Append(" to become ");
+            sb.Append(Formatting.AddArticle(NewJob));
         }
         else if (NewJob != "standard")
         {
-            eventString.Append($"became {Formatting.AddArticle(NewJob)}");
+            sb.Append("became ");
+            sb.Append(Formatting.AddArticle(NewJob));
         }
         else if (OldJob != "standard")
         {
-            eventString.Append($"stopped being {Formatting.AddArticle(OldJob)}");
+            sb.Append("stopped being ");
+            sb.Append(Formatting.AddArticle(OldJob));
         }
         else
         {
-            eventString.Append("became a peasant");
+            sb.Append("became a peasant");
         }
 
         if (Site != null)
         {
-            eventString.Append($" in {Site.ToLink(link, pov, this)}");
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
 
-        eventString.Append(PrintParentCollection(link, pov)).Append('.');
-        return eventString.ToString();
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

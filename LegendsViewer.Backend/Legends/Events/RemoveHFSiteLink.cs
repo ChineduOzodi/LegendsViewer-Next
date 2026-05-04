@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -14,7 +16,7 @@ public class RemoveHfSiteLink : WorldEvent
     public Site? Site { get; set; }
     public SiteLinkType LinkType { get; set; }
 
-    public RemoveHfSiteLink(List<Property> properties, World world) : base(properties, world)
+    public RemoveHfSiteLink(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -56,41 +58,45 @@ public class RemoveHfSiteLink : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (HistoricalFigure != null)
         {
-            eventString += HistoricalFigure.ToLink(link, pov, this);
+            sb.Append(HistoricalFigure.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
+            sb.Append("UNKNOWN HISTORICAL FIGURE");
         }
-        eventString += LinkType switch
+        sb.Append(LinkType switch
         {
             SiteLinkType.HomeSiteAbstractBuilding or SiteLinkType.HomeSiteRealizationBuilding => " moved out of ",
             SiteLinkType.Hangout => " stopped ruling from ",
             SiteLinkType.SeatOfPower => " stopped working from ",
             SiteLinkType.Occupation => " stopped working at ",
             _ => " UNKNOWN LINKTYPE (" + LinkType + ") ",
-        };
+        });
         if (Structure != null)
         {
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN STRUCTURE";
+            sb.Append("UNKNOWN STRUCTURE");
         }
         if (Civ != null)
         {
-            eventString += " of " + Civ.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(Civ.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

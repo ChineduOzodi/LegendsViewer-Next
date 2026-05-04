@@ -1,4 +1,4 @@
-@LegendsViewer.Backend_HostAddress = http://localhost:5054
+@LegendsViewer.Backend_HostAddress = http://localhost:15421
 
 POST {{LegendsViewer.Backend_HostAddress}}/api/Bookmark/loadByFullPath
 Content-Type: application/json

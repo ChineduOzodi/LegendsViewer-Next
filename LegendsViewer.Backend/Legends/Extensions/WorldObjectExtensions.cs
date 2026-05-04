@@ -1,6 +1,5 @@
 ﻿using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
-using LegendsViewer.Backend.Legends.Interfaces;
 
 namespace LegendsViewer.Backend.Legends.Extensions;
 

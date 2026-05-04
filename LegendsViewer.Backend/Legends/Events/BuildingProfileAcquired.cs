@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -19,7 +21,7 @@ public class BuildingProfileAcquired : WorldEvent
 
     // http://www.bay12games.com/dwarves/mantisbt/view.php?id=11346
     // 0011346: <acquirer_enid> is always -1 in "building profile acquired" event
-    public BuildingProfileAcquired(List<Property> properties, World world) : base(properties, world)
+    public BuildingProfileAcquired(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -50,55 +52,58 @@ public class BuildingProfileAcquired : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (AcquirerHf != null)
         {
-            eventString += AcquirerHf?.ToLink(link, pov, this);
+            sb.Append(AcquirerHf?.ToLink(link, pov, this));
             if (AcquirerEntity != null)
             {
-                eventString += " of ";
+                sb.Append(" of ");
             }
         }
         else if (AcquirerEntity != null)
         {
-            eventString += AcquirerEntity.ToLink(link, pov, this);
+            sb.Append(AcquirerEntity.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "Someone ";
+            sb.Append("Someone ");
         }
         if (PurchasedUnowned)
         {
-            eventString += " purchased ";
+            sb.Append(" purchased ");
         }
         else if (Inherited)
         {
-            eventString += " inherited ";
+            sb.Append(" inherited ");
         }
         else if (RebuiltRuined)
         {
-            eventString += " rebuilt ";
+            sb.Append(" rebuilt ");
         }
         else
         {
-            eventString += " acquired ";
+            sb.Append(" acquired ");
         }
 
-        eventString += SiteProperty?.Print(link, pov);
+        sb.Append(SiteProperty?.Print(link, pov));
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
 
         if (LastOwnerHf != null)
         {
-            eventString += " formerly owned by ";
-            eventString += LastOwnerHf.ToLink(link, pov, this);
+            sb.Append(" formerly owned by ");
+            sb.Append(LastOwnerHf.ToLink(link, pov, this));
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+
+

@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +15,7 @@ public class HfPerformedHorribleExperiments : WorldEvent
     public int StructureId { get; }
     public Structure? Structure { get; set; }
 
-    public HfPerformedHorribleExperiments(List<Property> properties, World world)
+    public HfPerformedHorribleExperiments(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -39,31 +41,32 @@ public class HfPerformedHorribleExperiments : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += GroupHistoricalFigure?.ToLink(link, pov, this);
-        eventString += " performed horrible experiments";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(GroupHistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(" performed horrible experiments");
         if (Structure != null)
         {
-            eventString += " inside ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" inside ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

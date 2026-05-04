@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using System.Text.Json.Serialization;
 
@@ -17,7 +18,7 @@ public class EntityPopulation : WorldObject
     [JsonIgnore]
     public List<HistoricalFigure> Members { get; set; } = [];
 
-    public EntityPopulation(List<Property> properties, World world)
+    public EntityPopulation(List<Property> properties, IWorld world)
         :base(properties, world)
     {
         foreach (Property property in properties)
@@ -36,3 +37,5 @@ public class EntityPopulation : WorldObject
         }
     }
 }
+
+

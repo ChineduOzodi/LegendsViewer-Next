@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -33,7 +35,7 @@ public class HfConvicted : WorldEvent
     public bool SurveiledContact { get; set; }
     public bool SurveiledTarget { get; set; }
 
-    public HfConvicted(List<Property> properties, World world) : base(properties, world)
+    public HfConvicted(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -96,98 +98,99 @@ public class HfConvicted : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (HeldFirmInInterrogation)
         {
-            eventString += "due to ongoing surveillance";
+            sb.Append("due to ongoing surveillance");
             if (SurveiledContact & ContactHf != null)
             {
-                eventString += " on the contact ";
-                eventString += ContactHf?.ToLink(link, pov, this);
+                sb.Append(" on the contact ");
+                sb.Append(ContactHf?.ToLink(link, pov, this));
             }
             if (SurveiledCoConspirator & CoConspiratorHf != null)
             {
-                eventString += " on a coconspirator ";
-                eventString += CoConspiratorHf?.ToLink(link, pov, this);
+                sb.Append(" on a coconspirator ");
+                sb.Append(CoConspiratorHf?.ToLink(link, pov, this));
             }
             if (SurveiledTarget & TargetHf != null)
             {
-                eventString += " on a target ";
-                eventString += TargetHf?.ToLink(link, pov, this);
+                sb.Append(" on a target ");
+                sb.Append(TargetHf?.ToLink(link, pov, this));
             }
-            eventString += " as the plot unfolded, ";
+            sb.Append(" as the plot unfolded, ");
         }
-        eventString += ConvictedHf?.ToLink(link, pov, this);
-        eventString += $" was {(WrongfulConviction ? "wrongfully " : "")}convicted ";
+        sb.Append(ConvictedHf?.ToLink(link, pov, this));
+        sb.Append($" was {(WrongfulConviction ? "wrongfully " : "")}convicted ");
         if (ConvictIsContact)
         {
-            eventString += $"as a go-between in a conspiracy to commit {Crime} ";
+            sb.Append($"as a go-between in a conspiracy to commit {Crime} ");
         }
         else
         {
-            eventString += $"of {Crime} ";
+            sb.Append($"of {Crime} ");
         }
         if (ConvicterEntity != null)
         {
-            eventString += "by ";
-            eventString += ConvicterEntity?.ToLink(link, pov, this);
+            sb.Append("by ");
+            sb.Append(ConvicterEntity?.ToLink(link, pov, this));
         }
 
         if (CorruptConvictorHf != null)
         {
-            eventString += " and ";
-            eventString += CorruptConvictorHf?.ToLink(link, pov, this);
+            sb.Append(" and ");
+            sb.Append(CorruptConvictorHf?.ToLink(link, pov, this));
         }
         if (PlotterHf != null && PlotterHf != CorruptConvictorHf)
         {
-            eventString += " plotted by ";
-            eventString += PlotterHf?.ToLink(link, pov, this);
+            sb.Append(" plotted by ");
+            sb.Append(PlotterHf?.ToLink(link, pov, this));
         }
         if (FooledHf != null && FramerHf != null)
         {
-            eventString += " after ";
-            eventString += FramerHf?.ToLink(link, pov, this);
-            eventString += " fooled ";
-            eventString += FooledHf?.ToLink(link, pov, this);
-            eventString += " with fabricated evidence";
+            sb.Append(" after ");
+            sb.Append(FramerHf?.ToLink(link, pov, this));
+            sb.Append(" fooled ");
+            sb.Append(FooledHf?.ToLink(link, pov, this));
+            sb.Append(" with fabricated evidence");
         }
 
         if (Beating)
         {
-            eventString += ", beaten";
+            sb.Append(", beaten");
         }
         else if (Hammerstrokes > 0)
         {
-            eventString += $", sentenced to {Hammerstrokes} hammerstrokes";
+            sb.Append($", sentenced to {Hammerstrokes} hammerstrokes");
         }
         if (PrisonMonth > 0)
         {
-            eventString += $" and imprisoned for a term of {(PrisonMonth > 12 ? PrisonMonth / 12 + " years" : PrisonMonth + " month")}";
+            sb.Append($" and imprisoned for a term of {(PrisonMonth > 12 ? PrisonMonth / 12 + " years" : PrisonMonth + " month")}");
         }
         else if (DeathPenalty)
         {
-            eventString += " and sentenced to death";
+            sb.Append(" and sentenced to death");
         }
         if (Exiled)
         {
-            eventString += " and exiled";
+            sb.Append(" and exiled");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ". ";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(". ");
         if (ImplicatedHf != null)
         {
-            eventString += ConvictedHf?.ToLink(link, pov, this);
-            eventString += " implicated ";
-            eventString += ImplicatedHf.ToLink(link, pov, this);
-            eventString += " during interrogation. ";
+            sb.Append(ConvictedHf?.ToLink(link, pov, this));
+            sb.Append(" implicated ");
+            sb.Append(ImplicatedHf.ToLink(link, pov, this));
+            sb.Append(" during interrogation. ");
         }
 
         if (InterrogatorHf != null)
         {
-            eventString += "Interrogation was led by ";
-            eventString += InterrogatorHf.ToLink(link, pov, this);
-            eventString += ". ";
+            sb.Append("Interrogation was led by ");
+            sb.Append(InterrogatorHf.ToLink(link, pov, this));
+            sb.Append(". ");
         }
-        return eventString;
+        return sb.ToString();
     }
 }

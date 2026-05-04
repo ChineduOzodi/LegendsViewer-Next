@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -13,7 +15,7 @@ public class HfPreach : WorldEvent
     public Entity? Entity1 { get; set; }
     public Entity? Entity2 { get; set; }
 
-    public HfPreach(List<Property> properties, World world) : base(properties, world)
+    public HfPreach(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -48,27 +50,28 @@ public class HfPreach : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SpeakerHf?.ToLink(link, pov, this);
-        eventString += " preached to ";
-        eventString += Entity1?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SpeakerHf?.ToLink(link, pov, this));
+        sb.Append(" preached to ");
+        sb.Append(Entity1?.ToLink(link, pov, this));
         switch (Topic)
         {
             case PreachTopic.SetEntity1AgainstEntity2:
-                eventString += ", inveighing against ";
+                sb.Append(", inveighing against ");
                 break;
             case PreachTopic.Entity1ShouldLoveEntity2:
-                eventString += ", urging love to be shown to ";
+                sb.Append(", urging love to be shown to ");
                 break;
         }
-        eventString += Entity2?.ToLink(link, pov, this);
+        sb.Append(Entity2?.ToLink(link, pov, this));
         if (Site != null)
         {
-            eventString += " at ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" at ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

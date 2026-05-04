@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -14,7 +16,7 @@ public class EntityIncorporated : WorldEvent
     public HistoricalFigure? Leader { get; set; }
     public bool PartialIncorporation { get; set; }
 
-    public EntityIncorporated(List<Property> properties, World world) : base(properties, world)
+    public EntityIncorporated(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -43,40 +45,43 @@ public class EntityIncorporated : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += JoinerEntity?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(JoinerEntity?.ToLink(link, pov, this));
         if (PartialIncorporation)
         {
-            eventString += " began operating at the direction of ";
+            sb.Append(" began operating at the direction of ");
         }
         else
         {
-            eventString += " fully incorporated into ";
+            sb.Append(" fully incorporated into ");
         }
-        eventString += JoinedEntity?.ToLink(link, pov, this);
+        sb.Append(JoinedEntity?.ToLink(link, pov, this));
         if (Leader != null)
         {
-            eventString += " under the leadership of ";
-            eventString += Leader.ToLink(link, pov, this);
+            sb.Append(" under the leadership of ");
+            sb.Append(Leader.ToLink(link, pov, this));
         }
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

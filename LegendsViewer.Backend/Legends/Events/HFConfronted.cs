@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -19,7 +21,7 @@ public class HfConfronted : WorldEvent
     private readonly string? _unknownSituation;
     private readonly List<string> _unknownReasons = [];
 
-    public HfConfronted(List<Property> properties, World world)
+    public HfConfronted(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -65,23 +67,29 @@ public class HfConfronted : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+
         string situationString = "";
         switch (Situation)
         {
             case ConfrontSituation.GeneralSuspicion: situationString = "aroused general suspicion"; break;
             case ConfrontSituation.Unknown: situationString = "(" + _unknownSituation + ")"; break;
         }
-        eventString += " " + situationString;
+        sb.Append(" ");
+        sb.Append(situationString);
 
         if (Region != null)
         {
-            eventString += " in " + Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
 
         if (Site != null)
         {
-            eventString += " at " + Site.ToLink(link, pov, this);
+            sb.Append(" at ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
 
         string reasonString = "after ";
@@ -107,9 +115,10 @@ public class HfConfronted : WorldEvent
                 reasonString += " and ";
             }
         }
-        eventString += " " + reasonString;
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" ");
+        sb.Append(reasonString);
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

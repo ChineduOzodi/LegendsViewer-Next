@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -17,7 +19,7 @@ public class ArtifactCreated : WorldEvent
     public HistoricalFigure? DefeatedFigure { get; set; }
     public Entity? Entity { get; set; }
 
-    public ArtifactCreated(List<Property> properties, World world)
+    public ArtifactCreated(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -114,45 +116,49 @@ public class ArtifactCreated : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Artifact?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Artifact?.ToLink(link, pov, this));
         if (ReceivedName)
         {
-            eventString += " received its name";
+            sb.Append(" received its name");
         }
         else
         {
-            eventString += " was created";
+            sb.Append(" was created");
         }
 
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
 
         if (ReceivedName)
         {
-            eventString += " from ";
+            sb.Append(" from ");
         }
         else
         {
-            eventString += " by ";
+            sb.Append(" by ");
         }
 
-        eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
+        sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
         if (SanctifyFigure != null)
         {
-            eventString += " in order to sanctify ";
-            eventString += SanctifyFigure.ToLink(link, pov, this);
-            eventString += " by preserving a part of the body";
+            sb.Append(" in order to sanctify ");
+            sb.Append(SanctifyFigure.ToLink(link, pov, this));
+            sb.Append(" by preserving a part of the body");
         }
 
         if (DefeatedFigure != null)
         {
-            eventString += " after defeating ";
-            eventString += DefeatedFigure.ToLink(link, pov, this);
+            sb.Append(" after defeating ");
+            sb.Append(DefeatedFigure.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

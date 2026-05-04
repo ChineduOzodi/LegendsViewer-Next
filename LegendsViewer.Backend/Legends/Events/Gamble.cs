@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -15,7 +17,7 @@ public class Gamble : WorldEvent
     public int OldAccount { get; set; }
     public int NewAccount { get; set; }
 
-    public Gamble(List<Property> properties, World world) : base(properties, world)
+    public Gamble(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -45,54 +47,56 @@ public class Gamble : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Gambler?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Gambler?.ToLink(link, pov, this));
+
         // same ranges like in "trade" event
         var balance = NewAccount - OldAccount;
         if (balance >= 5000)
         {
-            eventString += " made a fortune";
+            sb.Append(" made a fortune");
         }
         else if (balance >= 1000)
         {
-            eventString += " did well";
+            sb.Append(" did well");
         }
         else if (balance <= -1000)
         {
-            eventString += " did poorly";
+            sb.Append(" did poorly");
         }
         else if (balance <= -5000)
         {
-            eventString += " lost a fortune";
+            sb.Append(" lost a fortune");
         }
         else
         {
-            eventString += " broke even";
+            sb.Append(" broke even");
         }
-        eventString += " gambling";
+        sb.Append(" gambling");
         if (Site != null)
         {
-            eventString += " in ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in ";
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in ";
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
         if (Structure != null)
         {
-            eventString += " at ";
-            eventString += Structure.ToLink(link, pov, this);
+            sb.Append(" at ");
+            sb.Append(Structure.ToLink(link, pov, this));
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

@@ -1,7 +1,9 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
+using System.Text;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
@@ -39,7 +41,7 @@ public class AgreementFormed : WorldEvent
     public int AllyDefenseBonus { get; set; }
     public int CoconspiratorBonus { get; set; }
 
-    public AgreementFormed(List<Property> properties, World world) : base(properties, world)
+    public AgreementFormed(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -88,31 +90,33 @@ public class AgreementFormed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var eventString = new StringBuilder();
+        eventString.Append(GetYearTime());
         if (Concluder != null)
         {
-            eventString += Concluder.ToLink(link, pov, this);
-            eventString += " formed an agreement";
+            eventString.Append(Concluder.ToLink(link, pov, this));
+            eventString.Append(" formed an agreement");
         }
         else
         {
-            eventString += " an agreement has been formed";
+            eventString.Append(" an agreement has been formed");
         }
 
         switch (Reason)
         {
             case AgreementReason.Whim:
-                eventString += " on a whim";
+                eventString.Append(" on a whim");
                 break;
             case AgreementReason.ViolentDisagreement:
-                eventString += " after a violent disagreement";
+                eventString.Append(" after a violent disagreement");
                 break;
             case AgreementReason.ArrivedAtLocation:
-                eventString += " after arriving at the location";
+                eventString.Append(" after arriving at the location");
                 break;
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        eventString.Append(PrintParentCollection(link, pov));
+        eventString.Append('.');
+        return eventString.ToString();
     }
 }
+

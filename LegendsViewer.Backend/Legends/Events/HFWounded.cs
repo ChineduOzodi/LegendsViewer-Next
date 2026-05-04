@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -8,10 +10,9 @@ public class HfWounded : WorldEvent
 {
     public int WoundeeRace { get; set; }
     public int WoundeeCaste { get; set; }
-
-    public int BodyPart { get; set; } // TODO legends_plus.xml
-    public string? InjuryType { get; set; } // TODO legends_plus.xml
-    public bool PartLost { get; set; } // legends_plus.xml
+    public int BodyPart { get; set; }
+    public string? InjuryType { get; set; }
+    public bool PartLost { get; set; }
 
     public HistoricalFigure? Woundee { get; set; }
     public HistoricalFigure? Wounder { get; set; }
@@ -20,7 +21,7 @@ public class HfWounded : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public bool WasTorture { get; set; }
 
-    public HfWounded(List<Property> properties, World world)
+    public HfWounded(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -69,48 +70,53 @@ public class HfWounded : WorldEvent
         Region?.AddEvent(this);
         UndergroundRegion?.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Woundee != null)
         {
-            eventString += Woundee.ToLink(link, pov, this);
+            sb.Append(Woundee.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
+            sb.Append("UNKNOWN HISTORICAL FIGURE");
         }
 
-        eventString += " was wounded by ";
+        sb.Append(" was wounded by ");
         if (Wounder != null)
         {
-            eventString += Wounder.ToLink(link, pov, this);
+            sb.Append(Wounder.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
+            sb.Append("UNKNOWN HISTORICAL FIGURE");
         }
 
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in " + Region.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in " + UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(" in ");
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
 
         if (WasTorture)
         {
-            eventString += " as a means of torture";
+            sb.Append(" as a means of torture");
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

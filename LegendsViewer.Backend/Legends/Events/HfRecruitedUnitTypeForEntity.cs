@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -14,7 +16,7 @@ public class HfRecruitedUnitTypeForEntity : WorldEvent
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
 
-    public HfRecruitedUnitTypeForEntity(List<Property> properties, World world)
+    public HfRecruitedUnitTypeForEntity(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -47,43 +49,44 @@ public class HfRecruitedUnitTypeForEntity : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += HistoricalFigure?.ToLink(link, pov, this);
-        eventString += " recruited ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(HistoricalFigure?.ToLink(link, pov, this));
+        sb.Append(" recruited ");
         switch (UnitType)
         {
             case UnitType.Monk:
-                eventString += "monks";
+                sb.Append("monks");
                 break;
             default:
-                eventString += UnitType.GetDescription();
+                sb.Append(UnitType.GetDescription());
                 break;
         }
         if (Entity != null)
         {
-            eventString += " into ";
-            eventString += Entity.ToLink(link, pov, this);
+            sb.Append(" into ");
+            sb.Append(Entity.ToLink(link, pov, this));
         }
 
-        eventString += " in ";
+        sb.Append(" in ");
         if (Site != null)
         {
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN LOCATION";
+            sb.Append("UNKNOWN LOCATION");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

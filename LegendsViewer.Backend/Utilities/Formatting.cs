@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Text;
-using LegendsViewer.Backend.Legends;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Various;
 

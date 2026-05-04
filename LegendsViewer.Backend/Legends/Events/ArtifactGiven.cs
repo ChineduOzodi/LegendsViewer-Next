@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -16,7 +18,7 @@ public class ArtifactGiven : WorldEvent
 
     // http://www.bay12games.com/dwarves/mantisbt/view.php?id=11350
     // 0011350: "artifact given" event sometimes has the same <giver_hist_figure_id> and <receiver_hist_figure_id>
-    public ArtifactGiven(List<Property> properties, World world)
+    public ArtifactGiven(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -57,49 +59,52 @@ public class ArtifactGiven : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Artifact?.ToLink(link, pov, this);
-        eventString += " was offered to ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Artifact?.ToLink(link, pov, this));
+        sb.Append(" was offered to ");
         if (HistoricalFigureReceiver != null)
         {
-            eventString += HistoricalFigureReceiver.ToLink(link, pov, this);
+            sb.Append(HistoricalFigureReceiver.ToLink(link, pov, this));
             if (EntityReceiver != null)
             {
-                eventString += " of ";
+                sb.Append(" of ");
             }
         }
         if (EntityReceiver != null)
         {
-            eventString += EntityReceiver.ToLink(link, pov, this);
+            sb.Append(EntityReceiver.ToLink(link, pov, this));
         }
 
-        eventString += " by ";
+        sb.Append(" by ");
         if (HistoricalFigureGiver != null)
         {
-            eventString += HistoricalFigureGiver.ToLink(link, pov, this);
+            sb.Append(HistoricalFigureGiver.ToLink(link, pov, this));
             if (EntityGiver != null)
             {
-                eventString += " of ";
+                sb.Append(" of ");
             }
         }
         if (EntityGiver != null)
         {
-            eventString += EntityGiver.ToLink(link, pov, this);
+            sb.Append(EntityGiver.ToLink(link, pov, this));
         }
         if (ArtifactReason != ArtifactReason.Unknown)
         {
             switch (ArtifactReason)
             {
                 case ArtifactReason.CementBondsOfFriendship:
-                    eventString += " in order to cement the bonds of friendship";
+                    sb.Append(" in order to cement the bonds of friendship");
                     break;
                 case ArtifactReason.PartOfTradeNegotiation:
-                    eventString += " as part of a trade negotiation";
+                    sb.Append(" as part of a trade negotiation");
                     break;
             }
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+
+

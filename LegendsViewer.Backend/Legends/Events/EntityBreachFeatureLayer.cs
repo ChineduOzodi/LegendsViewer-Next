@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +15,7 @@ public class EntityBreachFeatureLayer : WorldEvent
 
     // http://www.bay12games.com/dwarves/mantisbt/view.php?id=11335
     // 0011335: <site_entity_id> and <civ_entity_id> of "entity breach feature layer" event point both to same entity
-    public EntityBreachFeatureLayer(List<Property> properties, World world) : base(properties, world)
+    public EntityBreachFeatureLayer(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -37,19 +39,21 @@ public class EntityBreachFeatureLayer : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += SiteEntity?.ToLink(link, pov, this);
-        eventString += " of ";
-        eventString += CivEntity?.ToLink(link, pov, this);
-        eventString += " breached ";
-        eventString += UndergroundRegion?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SiteEntity?.ToLink(link, pov, this));
+        sb.Append(" of ");
+        sb.Append(CivEntity?.ToLink(link, pov, this));
+        sb.Append(" breached ");
+        sb.Append(UndergroundRegion?.ToLink(link, pov, this));
         if (Site != null)
         {
-            eventString += " at ";
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(" at ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

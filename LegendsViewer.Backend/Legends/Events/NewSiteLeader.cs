@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -14,7 +16,7 @@ public class NewSiteLeader : WorldEvent
     public Site? Site { get; set; }
     public HistoricalFigure? NewLeader { get; set; }
 
-    public NewSiteLeader(List<Property> properties, World world)
+    public NewSiteLeader(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -71,28 +73,28 @@ public class NewSiteLeader : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Attacker?.ToLink(link, pov, this) ?? "an unknown entity";
-        eventString += " defeated ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(link, pov, this) ?? "an unknown entity");
+        sb.Append(" defeated ");
         if (SiteEntity != null && SiteEntity != Defender)
         {
-            eventString += SiteEntity.ToLink(link, pov, this);
-            eventString += " of ";
+            sb.Append(SiteEntity.ToLink(link, pov, this));
+            sb.Append(" of ");
         }
 
-        eventString += Defender?.ToLink(link, pov, this) ?? "an unknown entity";
-        eventString += " and placed ";
-        eventString += NewLeader?.ToLink(link, pov, this) ?? "an unknown creature";
-        eventString += " in charge of ";
-        eventString += Site?.ToLink(link, pov, this) ?? "an unknown site";
+        sb.Append(Defender?.ToLink(link, pov, this) ?? "an unknown entity");
+        sb.Append(" and placed ");
+        sb.Append(NewLeader?.ToLink(link, pov, this) ?? "an unknown creature");
+        sb.Append(" in charge of ");
+        sb.Append(Site?.ToLink(link, pov, this) ?? "an unknown site");
         if (NewSiteEntity != null)
         {
-            eventString += ".";
-            eventString += " The new government was called ";
-            eventString += NewSiteEntity.ToLink(link, pov, this);
+            sb.Append(". The new government was called ");
+            sb.Append(NewSiteEntity.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

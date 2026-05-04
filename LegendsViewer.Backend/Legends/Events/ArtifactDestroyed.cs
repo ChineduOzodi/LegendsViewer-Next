@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,7 +12,7 @@ public class ArtifactDestroyed : WorldEvent
     public Site? Site { get; set; }
     public HistoricalFigure? Destroyer { get; set; }
 
-    public ArtifactDestroyed(List<Property> properties, World world)
+    public ArtifactDestroyed(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -30,17 +32,19 @@ public class ArtifactDestroyed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Artifact?.ToLink(link, pov, this);
-        eventString += " was destroyed";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Artifact?.ToLink(link, pov, this));
+        sb.Append(" was destroyed");
         if (Destroyer != null)
         {
-            eventString += " by ";
-            eventString += Destroyer?.ToLink(link, pov, this);
+            sb.Append(" by ");
+            sb.Append(Destroyer?.ToLink(link, pov, this));
         }
-        eventString += " in ";
-        eventString += Site?.ToLink(link, pov, this);
-        eventString += ".";
-        return eventString;
+        sb.Append(" in ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

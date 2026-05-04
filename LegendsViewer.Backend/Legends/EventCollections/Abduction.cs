@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -16,7 +18,7 @@ public class Abduction : EventCollection
     public Entity? Attacker { get; set; }
     public Entity? Defender { get; set; }
 
-    public Abduction(List<Property> properties, World world)
+    public Abduction(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -46,11 +48,12 @@ public class Abduction : EventCollection
     {
         if (link)
         {
+            var sb = new StringBuilder();
             string title = GetTitle();
-            string linkedString = "the ";
-            linkedString += pov != this
+            sb.Append("the ");
+            sb.Append(pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "abduction", Id, title, Name)
-                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
+                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name)));
             if (Abductee == null)
             {
                 var abductionEvent = GetSubEvents().OfType<HfAbducted>().FirstOrDefault();
@@ -61,28 +64,31 @@ public class Abduction : EventCollection
             }
             if (Abductee != null && pov != Abductee)
             {
-                linkedString += $" of {Abductee.ToLink(true, this)}";
+                sb.Append(" of ");
+                sb.Append(Abductee.ToLink(true, this));
             }
 
             if (Site != null && pov != Site)
             {
-                linkedString += $" in {Site.ToLink(true, this)}";
+                sb.Append(" in ");
+                sb.Append(Site.ToLink(true, this));
             }
-            return linkedString;
+            return sb.ToString();
         }
         return ToString();
     }
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
-        title += "Abductee: ";
-        title += Abductee != null ? Abductee.ToLink(false) : "UNKNOWN";
-        title += "&#13";
-        title += "Site: ";
-        title += Site != null ? Site.ToLink(false) : "UNKNOWN";
-        return title;
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
+        sb.Append("Abductee: ");
+        sb.Append(Abductee != null ? Abductee.ToLink(false) : "UNKNOWN");
+        sb.Append("&#13");
+        sb.Append("Site: ");
+        sb.Append(Site != null ? Site.ToLink(false) : "UNKNOWN");
+        return sb.ToString();
     }
 
     public override string ToString()
@@ -90,3 +96,5 @@ public class Abduction : EventCollection
         return $"the {Name} of {Abductee?.Name} in {Site}";
     }
 }
+
+

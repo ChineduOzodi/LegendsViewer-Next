@@ -1,4 +1,3 @@
-﻿using System.Globalization;
 using System.Text.Json.Serialization;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Extensions;
@@ -6,7 +5,7 @@ using LegendsViewer.Backend.Legends.Cytoscape;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Events;
-using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldLinks;
@@ -14,74 +13,40 @@ using LegendsViewer.Backend.Utilities;
 
 namespace LegendsViewer.Backend.Legends.WorldObjects;
 
+/// <summary>
+/// Represents a historical figure in the world.
+/// This class acts as a facade, delegating specialized concerns to dedicated service classes:
+/// - HistoricalFigurePropertyParser: Handles parsing of World properties
+/// - HistoricalFigureFormatting: Handles all display and formatting logic
+/// - HistoricalFigureRelationships: Generates UI lists for relationships
+/// - HistoricalFigureBattleInfo: Manages battle-related data and statistics
+/// </summary>
 public class HistoricalFigure : WorldObject
 {
-    private const int MaxListItemCount = 100;
-
-    private static readonly List<string> KnownEntitySubProperties = ["entity_id", "link_strength", "link_type", "position_profile_id", "start_year", "end_year"];
-    private static readonly List<string> KnownSiteLinkSubProperties = ["link_type", "site_id", "sub_id", "entity_id", "occupation_id"];
-    private static readonly List<string> KnownEntitySquadLinkProperties = ["squad_id", "squad_position", "entity_id", "start_year", "end_year"];
-
     public static readonly string ForceNatureIcon = HtmlStyleUtil.GetIconString("leaf");
     public static readonly string DeityIcon = HtmlStyleUtil.GetIconString("weather-sunset");
     public static readonly string NeuterIcon = HtmlStyleUtil.GetIconString("gender-non-binary");
     public static readonly string FemaleIcon = HtmlStyleUtil.GetIconString("gender-female");
     public static readonly string MaleIcon = HtmlStyleUtil.GetIconString("gender-male");
 
-    public override string Type { get => Formatting.InitCaps(GetRaceString()); set => base.Type = value; }
+    // Lazy-initialized service instances
+    private HistoricalFigureFormatting? _formatting;
+    private HistoricalFigureRelationships? _relationships;
+    private HistoricalFigureBattleInfo? _battleInfo;
 
-    private string ShortName
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_shortName))
-            {
-                _shortName = Name.IndexOf(" ", StringComparison.Ordinal) >= 2 && !Name.StartsWith("The ")
-                    ? Name.Substring(0, Name.IndexOf(" ", StringComparison.Ordinal))
-                    : Name;
-            }
-            return _shortName;
-        }
-    }
+    private HistoricalFigureFormatting Formatting => _formatting ??= new HistoricalFigureFormatting(this);
+    private HistoricalFigureRelationships Relationships => _relationships ??= new HistoricalFigureRelationships(this);
+    private HistoricalFigureBattleInfo BattleInfo => _battleInfo ??= new HistoricalFigureBattleInfo(this);
 
-    private string RaceString
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_raceString))
-            {
-                _raceString = GetRaceString();
-            }
-            return _raceString;
-        }
-    }
+    public override string Type { get => LegendsViewer.Backend.Utilities.Formatting.InitCaps(Formatting.GetRaceString()); set => base.Type = value; }
 
-    public string TitleRaceString
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_TitleRaceString))
-            {
-                _TitleRaceString = GetRaceString();
-                CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
-                TextInfo textInfo = cultureInfo.TextInfo;
-                _TitleRaceString = textInfo.ToTitleCase(_TitleRaceString);
-            }
-            return _TitleRaceString;
-        }
-    }
+    private string ShortName => Formatting.GetShortName();
 
-    private string Title
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_title))
-            {
-                _title = GetAnchorTitle();
-            }
-            return _title;
-        }
-    }
+    private string RaceString => Formatting.GetRaceString();
+
+    public string TitleRaceString => Formatting.GetTitleRaceString();
+
+    private string Title => Formatting.GetAnchorTitle();
 
     public CreatureInfo Race { get; set; } = CreatureInfo.Unknown;
     public string Caste { get; set; } = string.Empty;
@@ -107,106 +72,21 @@ public class HistoricalFigure : WorldObject
     public List<State> States { get; set; } = [];
 
     public List<CreatureType> CreatureTypes { get; set; } = [];
+    public List<CreatureType> UndeadTypes { get; set; } = [];
 
     [JsonIgnore]
     public List<HistoricalFigureLink> RelatedHistoricalFigures { get; set; } = [];
-    public List<ListItemDto> RelatedHistoricalFigureList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            foreach (HistoricalFigureLink link in RelatedHistoricalFigures.Where(f => f.Type != HistoricalFigureLinkType.Deity))
-            {
-                if (link.HistoricalFigure == null)
-                {
-                    continue;
-                }
+    public List<ListItemDto> RelatedHistoricalFigureList => Relationships.GenerateRelatedHistoricalFigureList();
 
-                list.Add(new ListItemDto
-                {
-                    Title = $"{link.Type.GetDescription()}",
-                    Subtitle = $"{link.HistoricalFigure?.ToLink(true, this)}",
-                });
-            }
-            return list;
-        }
-    }
-    public List<ListItemDto> WorshippedDeities
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            foreach (HistoricalFigureLink link in RelatedHistoricalFigures.Where(f => f.Type == HistoricalFigureLinkType.Deity).OrderByDescending(f => f.Strength))
-            {
-                if (link.HistoricalFigure == null)
-                {
-                    continue;
-                }
-                string associatedSpheres = string.Join(", ", link.HistoricalFigure.Spheres);
-                list.Add(new ListItemDto
-                {
-                    Title = link.HistoricalFigure.ToLink(true, this),
-                    Subtitle = associatedSpheres,
-                    Append = HtmlStyleUtil.GetChipString(link.Strength.ToString())
-                });
-            }
-            return list;
-        }
-    }
+    public List<ListItemDto> WorshippedDeities => Relationships.GenerateWorshippedDeities();
 
     [JsonIgnore]
     public List<(HistoricalFigure Worshipper, int Strength)>? WorshippingFigures { get; set; }
-    public List<ListItemDto> WorshippingFiguresList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            if (WorshippingFigures != null)
-            {
-                foreach (var (worshipper, strength) in WorshippingFigures.OrderByDescending(w => w.Strength).Take(MaxListItemCount))
-                {
-                    list.Add(new ListItemDto
-                    {
-                        Title = worshipper?.ToLink(true, this),
-                        Subtitle = worshipper?.GetLastAssignmentString(),
-                        Append = HtmlStyleUtil.GetChipString(strength.ToString())
-                    });
-                }
-                if (WorshippingFigures.Count > MaxListItemCount)
-                {
-                    list.Add(new ListItemDto
-                    {
-                        Subtitle = $"... and {WorshippingFigures.Count - MaxListItemCount} more!",
-                    });
-                }
-            }
-
-            return list;
-        }
-    }
+    public List<ListItemDto> WorshippingFiguresList => Relationships.GenerateWorshippingFiguresList();
 
     [JsonIgnore]
     public List<Entity>? WorshippingEntities { get; set; }
-    public List<ListItemDto> WorshippingEntitiesList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            if (WorshippingEntities != null)
-            {
-                foreach (var worshipper in WorshippingEntities)
-                {
-                    list.Add(new ListItemDto
-                    {
-                        Title = worshipper?.ToLink(true, this),
-                        Subtitle = worshipper?.EntityType.GetDescription()
-                    });
-                }
-            }
-
-            return list;
-        }
-    }
+    public List<ListItemDto> WorshippingEntitiesList => Relationships.GenerateWorshippingEntitiesList();
 
     public List<SiteProperty> SiteProperties { get; set; } = [];
     public List<EntityReputation> Reputations { get; set; } = [];
@@ -217,72 +97,11 @@ public class HistoricalFigure : WorldObject
 
     [JsonIgnore]
     public List<EntityLink> RelatedEntities { get; set; } = [];
-    public List<ListItemDto> RelatedEntityList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            foreach (EntityLink link in RelatedEntities)
-            {
-                if (link.Entity == null)
-                {
-                    continue;
-                }
-                string subtitle = $"{link.Type.GetDescription()} of the {link.Entity?.Type.GetDescription()}";
-                if (link.PositionId >= 0)
-                {
-                    var assignment = link.Entity?.EntityPositionAssignments.ElementAtOrDefault(link.PositionId);
-                    if (assignment != null)
-                    {
-                        EntityPosition? position = link.Entity?.EntityPositions.Find(pos => pos.Id == assignment.PositionId);
-                        if (position != null)
-                        {
-                            string positionTitle = position.GetTitleByCaste(Caste);
-                            if (link.EndYear > -1)
-                            {
-                                subtitle = $"Former {positionTitle} of the {link.Entity?.Type.GetDescription()}";
-                            }
-                            else
-                            {
-                                subtitle = $"{positionTitle} of the {link.Entity?.Type.GetDescription()}";
-                            }
-                        }
-                    }
-                }
-
-                list.Add(new ListItemDto
-                {
-                    Title = subtitle,
-                    Subtitle = $"{link.Entity?.ToLink(true, this)}",
-                    Append = HtmlStyleUtil.GetChipString(link.Strength.ToString())
-                });
-            }
-            return list;
-        }
-    }
+    public List<ListItemDto> RelatedEntityList => Relationships.GenerateRelatedEntityList();
 
     [JsonIgnore]
     public List<SiteLink> RelatedSites { get; set; } = [];
-    public List<ListItemDto> RelatedSiteList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            foreach (SiteLink link in RelatedSites)
-            {
-                if (link.Site == null)
-                {
-                    continue;
-                }
-                list.Add(new ListItemDto
-                {
-                    Title = $"{link.Type.GetDescription()} ({link.Site?.Type.GetDescription()})",
-                    Subtitle = $"{link.Site?.ToLink(true, this)}",
-                });
-            }
-            return list;
-        }
-    }
+    public List<ListItemDto> RelatedSiteList => Relationships.GenerateRelatedSiteList();
 
     [JsonIgnore]
     // Forces can have related regions
@@ -293,27 +112,7 @@ public class HistoricalFigure : WorldObject
     public List<SkillDescription> SkillDescriptions => [.. Skills.Select(SkillDictionary.LookupSkill).OrderByDescending(d => d.Points)];
 
     public List<VagueRelationship> VagueRelationships { get; set; } = [];
-    public List<ListItemDto> VagueRelationshipList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            foreach (VagueRelationship link in VagueRelationships)
-            {
-                var hf = World?.GetHistoricalFigure(link.HfId);
-                if (hf == null)
-                {
-                    continue;
-                }
-                list.Add(new ListItemDto
-                {
-                    Title = $"{link.Type.GetDescription()}",
-                    Subtitle = $"{hf.ToLink(true, this)}",
-                });
-            }
-            return list;
-        }
-    }
+    public List<ListItemDto> VagueRelationshipList => Relationships.GenerateVagueRelationshipList();
 
     [JsonIgnore]
     public List<Structure> DedicatedStructures { get; set; } = [];
@@ -363,7 +162,7 @@ public class HistoricalFigure : WorldObject
                 list.Add(new ListItemDto
                 {
                     Title = "Age",
-                    Subtitle = Age.ToString() + (Alive ? "" : " ✝")
+                    Subtitle = Age.ToString() + (IsAlive ? "" : " ✝")
                 });
             }
             if (BirthYear != -1)
@@ -371,7 +170,7 @@ public class HistoricalFigure : WorldObject
                 list.Add(new ListItemDto
                 {
                     Title = "Born",
-                    Subtitle = Formatting.YearPlusSeconds72ToProsa(BirthYear, BirthSeconds72)
+                    Subtitle = LegendsViewer.Backend.Utilities.Formatting.YearPlusSeconds72ToProsa(BirthYear, BirthSeconds72)
                 });
             }
             if (DeathYear > -1)
@@ -379,7 +178,7 @@ public class HistoricalFigure : WorldObject
                 list.Add(new ListItemDto
                 {
                     Title = "Death",
-                    Subtitle = $"{Formatting.YearPlusSeconds72ToProsa(DeathYear, DeathSeconds72)} {(DeathEvent != null ? DeathEvent.GetDeathString(true, this) : "")}"
+                    Subtitle = $"{LegendsViewer.Backend.Utilities.Formatting.YearPlusSeconds72ToProsa(DeathYear, DeathSeconds72)} {(DeathEvent != null ? DeathEvent.GetDeathString(true, this) : "")}"
                 });
             }
             if (Spheres.Count > 0)
@@ -411,7 +210,7 @@ public class HistoricalFigure : WorldObject
                 string curse = "Curse";
                 if (!string.IsNullOrWhiteSpace(Interaction))
                 {
-                    curse = Formatting.InitCaps(Interaction);
+                    curse = LegendsViewer.Backend.Utilities.Formatting.InitCaps(Interaction);
                 }
                 list.Add(new ListItemDto
                 {
@@ -436,22 +235,7 @@ public class HistoricalFigure : WorldObject
 
     [JsonIgnore]
     public List<HfDied> NotableKills { get; set; } = [];
-    public List<ListItemDto> NotableKillList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            foreach (var killEvent in NotableKills)
-            {
-                list.Add(new ListItemDto
-                {
-                    Title = $"{killEvent.HistoricalFigure?.ToLink(true, this)}",
-                    Subtitle = $"{killEvent.GetDeathString(true, this)}",
-                });
-            }
-            return list;
-        }
-    }
+    public List<ListItemDto> NotableKillList => Relationships.GenerateNotableKillList();
 
     [JsonIgnore]
     public List<HistoricalFigure> SnatchedHfs => Events
@@ -463,41 +247,23 @@ public class HistoricalFigure : WorldObject
 
     [JsonIgnore]
     public List<Battle> Battles { get; set; } = [];
-    public List<string> BattleLinks => Battles.ConvertAll(x => x.ToLink(true, this));
+    public List<string> BattleLinks => BattleInfo.GetAllBattles().ConvertAll(x => x.ToLink(true, this));
 
     [JsonIgnore]
-    public List<Battle> BattlesAttacking => Battles.Where(battle => battle.NotableAttackers.Contains(this)).ToList();
+    public List<Battle> BattlesAttacking => BattleInfo.GetBattlesAttacking();
     public List<string> BattlesAttackingLinks => BattlesAttacking.ConvertAll(x => x.ToLink(true, this));
 
     [JsonIgnore]
-    public List<Battle> BattlesDefending => Battles.Where(battle => battle.NotableDefenders.Contains(this)).ToList();
+    public List<Battle> BattlesDefending => BattleInfo.GetBattlesDefending();
     public List<string> BattlesDefendingLinks => BattlesDefending.ConvertAll(x => x.ToLink(true, this));
 
     [JsonIgnore]
-    public List<Battle> BattlesNonCombatant => Battles.Where(battle => battle.NonCombatants.Contains(this)).ToList();
+    public List<Battle> BattlesNonCombatant => BattleInfo.GetBattlesNonCombatant();
     public List<string> BattlesNonCombatantLinks => BattlesNonCombatant.ConvertAll(x => x.ToLink(true, this));
 
     [JsonIgnore]
     public List<HfPosition>? Positions { get; set; }
-    public List<ListItemDto> PositionList
-    {
-        get
-        {
-            var list = new List<ListItemDto>();
-            if (Positions?.Count > 1)
-            {
-                foreach (var position in Positions)
-                {
-                    list.Add(new ListItemDto
-                    {
-                        Title = position.PrintTitle(true, this),
-                        Subtitle = position.PrintReign(this),
-                    });
-                }
-            }
-            return list;
-        }
-    }
+    public List<ListItemDto> PositionList => Relationships.GeneratePositionList();
 
     [JsonIgnore]
     public Entity? WorshippedBy { get; set; }
@@ -533,27 +299,23 @@ public class HistoricalFigure : WorldObject
         set => _familyTreeData = value;
     }
 
-    public bool Alive
+    public bool IsAlive
     {
         get => DeathYear == -1;
         set { }
     }
 
-    public bool Deity { get; set; }
+    public bool IsDeity { get; set; }
     public bool Skeleton { get; set; }
     public bool Force { get; set; }
     public bool Zombie { get; set; }
     public bool Ghost { get; set; }
+    public string GhostType { get; set; } = string.Empty;
     public bool Animated { get; set; }
     public string AnimatedType { get; set; } = string.Empty;
     public bool Adventurer { get; set; }
     public string? BreedId { get; set; }
     public bool IsMainCivLeader { get; internal set; }
-
-    private string? _shortName;
-    private string? _raceString;
-    private string? _TitleRaceString;
-    private string? _title;
 
     public HistoricalFigure()
     {
@@ -565,366 +327,21 @@ public class HistoricalFigure : WorldObject
         return Name;
     }
 
-    public HistoricalFigure(List<Property> properties, World world)
+    public HistoricalFigure(List<Property> properties, IWorld world)
         : base(properties, world)
     {
-        foreach (Property property in properties)
-        {
-            switch (property.Name)
-            {
-                case "appeared": Appeared = Convert.ToInt32(property.Value); break;
-                case "birth_year": BirthYear = Convert.ToInt32(property.Value); break;
-                case "birth_seconds72": BirthSeconds72 = Convert.ToInt32(property.Value); break;
-                case "death_year": DeathYear = Convert.ToInt32(property.Value); break;
-                case "death_seconds72": DeathSeconds72 = Convert.ToInt32(property.Value); break;
-                case "name": Name = Formatting.InitCaps(property.Value.Replace("'", "`")); break;
-                case "race": Race = world.GetCreatureInfo(property.Value); break;
-                case "caste": Caste = Formatting.InitCaps(property.Value); break;
-                case "associated_type": AssociatedType = Formatting.InitCaps(property.Value); break;
-                case "deity": Deity = true; property.Known = true; break;
-                case "skeleton": Skeleton = true; property.Known = true; break;
-                case "force": Force = true; property.Known = true; Race = world.GetCreatureInfo("Force"); break;
-                case "zombie": Zombie = true; property.Known = true; break;
-                case "ghost": Ghost = true; property.Known = true; break;
-                case "hf_link": //Will be processed after all HFs have been loaded
-                    world.AddHFtoHfLink(this, property);
-                    property.Known = true;
-                    List<string> knownSubProperties = ["hfid", "link_strength", "link_type"];
-                    if (property.SubProperties != null)
-                    {
-                        foreach (string subPropertyName in knownSubProperties)
-                        {
-                            Property? subProperty = property.SubProperties.Find(property1 => property1.Name == subPropertyName);
-                            if (subProperty != null)
-                            {
-                                subProperty.Known = true;
-                            }
-                        }
-                    }
-
-                    break;
-
-                case "entity_link":
-                case "entity_former_position_link":
-                case "entity_position_link":
-                    world.AddHFtoEntityLink(this, property);
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        foreach (string subPropertyName in KnownEntitySubProperties)
-                        {
-                            Property? subProperty = property.SubProperties.Find(property1 => property1.Name == subPropertyName);
-                            if (subProperty != null)
-                            {
-                                subProperty.Known = true;
-                            }
-                        }
-                    }
-
-                    break;
-
-                case "entity_reputation":
-                    world.AddReputation(this, property);
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        foreach (string subPropertyName in Reputation.KnownReputationSubProperties)
-                        {
-                            Property? subProperty = property.SubProperties.Find(property1 => property1.Name == subPropertyName);
-                            if (subProperty != null)
-                            {
-                                subProperty.Known = true;
-                            }
-                        }
-                    }
-
-                    break;
-
-                case "entity_squad_link":
-                case "entity_former_squad_link":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        foreach (string subPropertyName in KnownEntitySquadLinkProperties)
-                        {
-                            Property? subProperty = property.SubProperties.Find(property1 => property1.Name == subPropertyName);
-                            if (subProperty != null)
-                            {
-                                subProperty.Known = true;
-                            }
-                        }
-                    }
-
-                    break;
-
-                case "relationship_profile_hf":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        RelationshipProfiles.Add(new RelationshipProfileHf(property.SubProperties, RelationShipProfileType.Unknown));
-                    }
-                    break;
-                case "relationship_profile_hf_identity":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        var relationshipProfileHfIdentity = new RelationshipProfileHf(property.SubProperties, RelationShipProfileType.Identity);
-                        RelationshipProfilesOfIdentities.Add(relationshipProfileHfIdentity.Id, relationshipProfileHfIdentity);
-                    }
-                    break;
-
-                case "relationship_profile_hf_visual":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        RelationshipProfiles.Add(new RelationshipProfileHf(property.SubProperties, RelationShipProfileType.Visual));
-                    }
-                    break;
-
-                case "relationship_profile_hf_historical":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        RelationshipProfiles.Add(new RelationshipProfileHf(property.SubProperties, RelationShipProfileType.Historical));
-                    }
-                    break;
-
-                case "site_link":
-                    world.AddHFtoSiteLink(this, property);
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        foreach (string subPropertyName in KnownSiteLinkSubProperties)
-                        {
-                            Property? subProperty = property.SubProperties.Find(property1 => property1.Name == subPropertyName);
-                            if (subProperty != null)
-                            {
-                                subProperty.Known = true;
-                            }
-                        }
-                    }
-
-                    break;
-
-                case "hf_skill":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        var skill = new Skill(property.SubProperties);
-                        Skills.Add(skill);
-                    }
-                    break;
-
-                case "active_interaction": ActiveInteractions.Add(string.Intern(property.Value)); break;
-                case "interaction_knowledge": InteractionKnowledge.Add(string.Intern(property.Value)); break;
-                case "animated": Animated = true; property.Known = true; break;
-                case "animated_string": if (AnimatedType != "") { throw new Exception("Animated Type already exists."); } AnimatedType = Formatting.InitCaps(property.Value); break;
-                case "journey_pet":
-                    var creatureInfo = world.GetCreatureInfo(property.Value);
-                    JourneyPets.Add(new ListItemDto
-                    {
-                        Title = creatureInfo != CreatureInfo.Unknown ? creatureInfo.NameSingular : Formatting.FormatRace(property.Value)
-                    });
-                    break;
-                case "goal": Goal = Formatting.InitCaps(property.Value); break;
-                case "sphere": Spheres.Add(property.Value); break;
-                case "current_identity_id": CurrentIdentityId = Convert.ToInt32(property.Value); break;
-                case "used_identity_id": UsedIdentityIds.Add(Convert.ToInt32(property.Value)); break;
-                case "ent_pop_id": EntityPopulationId = Convert.ToInt32(property.Value); break;
-                case "holds_artifact":
-                    var artifact = world.GetArtifact(Convert.ToInt32(property.Value));
-                    if (artifact != null)
-                    {
-                        HoldingArtifacts.Add(artifact);
-                        artifact.Holder = this;
-                    }
-                    break;
-
-                case "adventurer":
-                    Adventurer = true;
-                    property.Known = true;
-                    break;
-
-                case "breed_id":
-                    BreedId = property.Value;
-                    if (!string.IsNullOrWhiteSpace(BreedId))
-                    {
-                        if (world.Breeds.ContainsKey(BreedId))
-                        {
-                            world.Breeds[BreedId].Add(this);
-                        }
-                        else
-                        {
-                            world.Breeds.Add(BreedId, [this]);
-                        }
-                    }
-                    break;
-
-                case "sex": property.Known = true; break;
-                case "site_property":
-                    // is resolved in SiteProperty.Resolve()
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        foreach (Property subProperty in property.SubProperties)
-                        {
-                            switch (subProperty.Name)
-                            {
-                                case "site_id":
-                                case "property_id":
-                                    subProperty.Known = true;
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-
-                case "vague_relationship":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        VagueRelationships.Add(new VagueRelationship(property.SubProperties));
-                    }
-                    break;
-
-                case "honor_entity":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        HonorEntity = new HonorEntity(property.SubProperties, world);
-                    }
-                    break;
-
-                case "intrigue_actor":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        IntrigueActors.Add(new IntrigueActor(property.SubProperties));
-                    }
-                    break;
-
-                case "intrigue_plot":
-                    property.Known = true;
-                    if (property.SubProperties != null)
-                    {
-                        IntriguePlots.Add(new IntriguePlot(property.SubProperties));
-                    }
-                    break;
-            }
-        }
-
-        if (string.IsNullOrWhiteSpace(Name))
-        {
-            Name = !string.IsNullOrWhiteSpace(AnimatedType) ? Formatting.InitCaps(AnimatedType) : "(Unnamed)";
-        }
-        Subtype = Caste ?? string.Empty;
-        if (Adventurer)
-        {
-            world.AddPlayerRelatedDwarfObjects(this);
-        }
-        Icon = GetIcon();
+        var parser = new HistoricalFigurePropertyParser(this, world);
+        parser.Parse(properties);
     }
 
     public override string ToLink(bool link = true, DwarfObject? pov = null, WorldEvent? worldEvent = null)
     {
-        if (link)
-        {
-            if (pov == null || pov != this)
-            {
-                if (pov != null && pov.GetType() == typeof(BeastAttack) && (pov as BeastAttack)?.Beast == this) //Highlight Beast when printing Beast Attack Log
-                {
-                    return $"{HtmlStyleUtil.GetAnchorString(Icon, "hf", Id, Title, ShortName)}";
-                }
-
-                return worldEvent != null
-                    ? $"the {GetRaceStringByWorldEvent(worldEvent)} {HtmlStyleUtil.GetAnchorString(Icon, "hf", Id, Title, Name)}"
-                    : $"the {RaceString} {HtmlStyleUtil.GetAnchorString(Icon, "hf", Id, Title, Name)}";
-            }
-            return $"{HtmlStyleUtil.GetAnchorString("", "hf", Id, Title, HtmlStyleUtil.CurrentDwarfObject(ShortName))}";
-        }
-        if (pov == null || pov != this)
-        {
-            return worldEvent != null ? $"{GetRaceStringByWorldEvent(worldEvent)} {Name}" : $"{RaceString} {Name}";
-        }
-        return ShortName;
+        return Formatting.ToLink(link, pov, worldEvent);
     }
 
     public override string GetIcon()
     {
-        if (Force)
-        {
-            return ForceNatureIcon;
-        }
-        if (Deity)
-        {
-            return DeityIcon;
-        }
-        if (Caste == "Female")
-        {
-            return FemaleIcon;
-        }
-        if (Caste == "Male")
-        {
-            return MaleIcon;
-        }
-        return Caste == "Default" ? NeuterIcon : "";
-    }
-
-    private string GetAnchorTitle()
-    {
-        string title = "";
-
-        var lastNoblePosition = GetLastNoblePosition();
-        if (!string.IsNullOrWhiteSpace(lastNoblePosition))
-        {
-            title += lastNoblePosition;
-            title += "&#13";
-        }
-        else
-        {
-            var assignmentString = GetLastAssignmentString();
-            if (!string.IsNullOrWhiteSpace(assignmentString))
-            {
-                title += assignmentString;
-                title += "&#13";
-            }
-        }
-        if (!string.IsNullOrWhiteSpace(AssociatedType) && AssociatedType != "Standard")
-        {
-            title += AssociatedType;
-            title += "&#13";
-        }
-        title += !string.IsNullOrWhiteSpace(Caste) && Caste != "Default" ? Caste + " " : "";
-        title += Formatting.InitCaps(RaceString);
-        if (BirthYear != -1)
-        {
-            title += "&#13";
-            title += $"Born: {BirthYear}";
-        }
-        if (!Alive)
-        {
-            title += "&#13";
-            title += $"Died: {DeathYear}";
-        }
-        if (Age > -1)
-        {
-            title += "&#13";
-            title += $"Age: {Age} years {(Alive ? "" : "✝")}";
-        }
-        title += "&#13";
-        title += "Events: " + Events.Count;
-        return title;
-    }
-
-    public string GetLastNoblePosition()
-    {
-        string title = "";
-        if (Positions?.Count > 0)
-        {
-            var lastHfposition = Positions[^1];
-            title += lastHfposition.PrintTitle(false, this);
-        }
-        return title;
+        return Formatting.GetIcon();
     }
     private List<HfJob>? _jobs;
 
@@ -951,12 +368,12 @@ public class HistoricalFigure : WorldObject
         {
             Positions = [];
         }
-        var position = Positions.LastOrDefault(p => string.Equals(p.Title, title, StringComparison.OrdinalIgnoreCase) && p.Entity == entity && p.PositionId == positionId);
+        var position = Positions.LastOrDefault(p => p.Entity == entity && p.PositionId == positionId);
         if (position != null)
         {
             position.EndYear = endYear;
         }
-        else
+        else if(!string.IsNullOrEmpty(title) && title != "-1")
         {
             Positions.Add(new HfPosition(entity, null, endYear, positionId, title));
             if (entity != null && entity.IsCiv && positionId == 0)
@@ -968,7 +385,7 @@ public class HistoricalFigure : WorldObject
 
     public string GetLastAssignmentString()
     {
-        var lastAssignmentString = GetLastNoblePosition();
+        var lastAssignmentString = Formatting.GetLastNoblePosition();
         if (!string.IsNullOrEmpty(lastAssignmentString))
         {
             return lastAssignmentString;
@@ -985,7 +402,7 @@ public class HistoricalFigure : WorldObject
                     {
                         lastJob.EndYear = relevantEvent.Year;
                     }
-                    _jobs.Add(new HfJob(relevantEvent.Site, relevantEvent.Year, null, Formatting.InitCaps(relevantEvent.NewJob)));
+                    _jobs.Add(new HfJob(relevantEvent.Site, relevantEvent.Year, null, LegendsViewer.Backend.Utilities.Formatting.InitCaps(relevantEvent.NewJob)));
                 }
                 else if (lastJob != null && relevantEvent.OldJob == lastJob.Title)
                 {
@@ -1007,13 +424,18 @@ public class HistoricalFigure : WorldObject
 
     public string GetHighestSkillAsString()
     {
-        if (Skills.Count > 0)
+        return Formatting.GetHighestSkillAsString();
+    }
+
+    public string GetLastNoblePosition()
+    {
+        string title = "";
+        if (Positions?.Count > 0)
         {
-            var highestSkill = Skills.OrderBy(skill => skill.Points).Last();
-            var highestSkillDescription = SkillDictionary.LookupSkill(highestSkill);
-            return $"{highestSkillDescription.Rank} {highestSkillDescription.Name}";
+            var lastHfposition = Positions[^1];
+            title += lastHfposition.PrintTitle(false, this);
         }
-        return string.Empty;
+        return title;
     }
 
     public class State
@@ -1071,7 +493,7 @@ public class HistoricalFigure : WorldObject
         {
             Race = CreatureInfo.Unknown;
         }
-        if (Deity)
+        if (IsDeity)
         {
             return Race.NameSingular.ToLower() + " deity";
         }
@@ -1082,6 +504,20 @@ public class HistoricalFigure : WorldObject
         }
 
         string raceString = "";
+
+        if (Ghost)
+        {
+            raceString += $"{GhostType ?? "ghost"} ";
+        }
+        else if (Skeleton)
+        {
+            raceString += "skeleton ";
+        }
+        else if (Zombie)
+        {
+            raceString += "zombie ";
+        }
+
         if (!string.IsNullOrWhiteSpace(PreviousRace))
         {
             raceString += PreviousRace.ToLower() + " turned ";
@@ -1110,13 +546,18 @@ public class HistoricalFigure : WorldObject
 
     private string GetRaceStringForTimeStamp(int year, int month, int day)
     {
-        if (CreatureTypes.Count == 0)
+        if (CreatureTypes.Count == 0 && UndeadTypes.Count == 0)
         {
             return RaceString;
         }
 
-        List<CreatureType> relevantCreatureTypes = GetRelevantCreatureTypesByTimeStamp(year, month, day);
         string raceString = "";
+
+        foreach (var undeadType in GetRelevantCreatureTypesByTimeStamp(UndeadTypes, year, month, day))
+        {
+            raceString += undeadType.Type + " ";
+        }
+
         if (!string.IsNullOrWhiteSpace(PreviousRace))
         {
             raceString += PreviousRace.ToLower();
@@ -1130,7 +571,7 @@ public class HistoricalFigure : WorldObject
             raceString += Race.NameSingular.ToLower();
         }
 
-        foreach (var creatureType in relevantCreatureTypes)
+        foreach (var creatureType in GetRelevantCreatureTypesByTimeStamp(CreatureTypes, year, month, day))
         {
             raceString += " " + creatureType.Type;
         }
@@ -1138,10 +579,10 @@ public class HistoricalFigure : WorldObject
         return raceString;
     }
 
-    private List<CreatureType> GetRelevantCreatureTypesByTimeStamp(int year, int month, int day)
+    private List<CreatureType> GetRelevantCreatureTypesByTimeStamp(List<CreatureType> creatureTypes, int year, int month, int day)
     {
         List<CreatureType> relevantCreatureTypes = [];
-        foreach (var creatureType in CreatureTypes)
+        foreach (var creatureType in creatureTypes)
         {
             if (creatureType.StartYear < year)
             {
@@ -1161,4 +602,59 @@ public class HistoricalFigure : WorldObject
         }
         return relevantCreatureTypes;
     }
+
+    public override bool MatchesFilterCriteria(WorldObjectFilterDto filter)
+    {
+        if (!base.MatchesFilterCriteria(filter))
+        {
+            return false;
+        }
+
+        foreach (var rule in filter.Filters)
+        {
+            if (rule.PropertyName.Equals(nameof(IsAlive), StringComparison.InvariantCultureIgnoreCase) &&
+                rule.ViolatesBooleanCriteria(IsAlive))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(IsDeity), StringComparison.InvariantCultureIgnoreCase) &&
+                rule.ViolatesBooleanCriteria(IsDeity))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(HistoricalFigureExtensions.IsVampire), StringComparison.InvariantCultureIgnoreCase) &&
+                rule.ViolatesBooleanCriteria(HistoricalFigureExtensions.IsVampire(this)))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(HistoricalFigureExtensions.IsWerebeast), StringComparison.InvariantCultureIgnoreCase) &&
+                rule.ViolatesBooleanCriteria(HistoricalFigureExtensions.IsWerebeast(this)))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(HistoricalFigureExtensions.IsNecromancer), StringComparison.InvariantCultureIgnoreCase) &&
+                rule.ViolatesBooleanCriteria(HistoricalFigureExtensions.IsNecromancer(this)))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(Age), StringComparison.InvariantCultureIgnoreCase) && int.TryParse(rule.Value, out int ruleAgeValue) &&
+                rule.ViolatesIntegerCriteria(Age, ruleAgeValue))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(BirthYear), StringComparison.InvariantCultureIgnoreCase) && int.TryParse(rule.Value, out int ruleBirthYearValue) &&
+                rule.ViolatesIntegerCriteria(BirthYear, ruleBirthYearValue))
+            {
+                return false;
+            }
+            if (rule.PropertyName.Equals(nameof(DeathYear), StringComparison.InvariantCultureIgnoreCase) && int.TryParse(rule.Value, out int ruleDeathYearValue) &&
+                rule.ViolatesIntegerCriteria(DeathYear, ruleDeathYearValue))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
+

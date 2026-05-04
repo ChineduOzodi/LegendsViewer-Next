@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
 namespace LegendsViewer.Backend.Legends.Various;
@@ -10,7 +11,7 @@ public class EntityPositionAssignment
     public int PositionId { get; set; } = -1;
     public int SquadId { get; set; } = -1;
 
-    public EntityPositionAssignment(List<Property> properties, World world)
+    public EntityPositionAssignment(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -24,3 +25,5 @@ public class EntityPositionAssignment
         }
     }
 }
+
+

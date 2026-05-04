@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,7 +12,7 @@ public class ImpersonateHf : WorldEvent
     public HistoricalFigure? Cover { get; set; }
     public Entity? Target { get; set; }
 
-    public ImpersonateHf(List<Property> properties, World world)
+    public ImpersonateHf(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -27,12 +29,18 @@ public class ImpersonateHf : WorldEvent
         Cover.AddEvent(this);
         Target.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Trickster?.ToLink(link, pov, this) + " fooled " + Target?.ToLink(link, pov, this)
-                             + " into believing he/she was a manifestation of the deity " + Cover?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Trickster?.ToLink(link, pov, this));
+        sb.Append(" fooled ");
+        sb.Append(Target?.ToLink(link, pov, this));
+        sb.Append(" into believing he/she was a manifestation of the deity ");
+        sb.Append(Cover?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

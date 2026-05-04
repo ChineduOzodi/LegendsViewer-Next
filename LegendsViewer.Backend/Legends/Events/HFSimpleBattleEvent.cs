@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -14,7 +16,8 @@ public class HfSimpleBattleEvent : WorldEvent
     public Site? Site { get; set; }
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
-    public HfSimpleBattleEvent(List<Property> properties, World world)
+
+    public HfSimpleBattleEvent(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -56,65 +59,86 @@ public class HfSimpleBattleEvent : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure1?.ToLink(link, pov, this);
-        if (SubType == HfSimpleBattleType.Hf2LostAfterGivingWounds)
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+
+        switch (SubType)
         {
-            eventString = GetYearTime() + HistoricalFigure2?.ToLink(link, pov, this) + " was forced to retreat from "
-                                                                                  + HistoricalFigure1?.ToLink(link, pov, this) + " despite the latter's wounds";
-        }
-        else if (SubType == HfSimpleBattleType.Hf2LostAfterMutualWounds)
-        {
-            eventString += " eventually prevailed and " + HistoricalFigure2?.ToLink(link, pov, this)
-                                                                                        + " was forced to make a hasty escape";
-        }
-        else if (SubType == HfSimpleBattleType.Hf2LostAfterReceivingWounds)
-        {
-            eventString = GetYearTime() + HistoricalFigure2?.ToLink(link, pov, this) + " managed to escape from "
-                                                                                          + HistoricalFigure1?.ToLink(link, pov, this) + "'s onslaught";
-        }
-        else if (SubType == HfSimpleBattleType.Scuffle)
-        {
-            eventString += " fought with " + HistoricalFigure2?.ToLink(link, pov, this) + ". While defeated, the latter escaped unscathed";
-        }
-        else if (SubType == HfSimpleBattleType.Attacked)
-        {
-            eventString += " attacked " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.Confronted)
-        {
-            eventString += " confronted " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.HappenedUpon)
-        {
-            eventString += " happened upon " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.Ambushed)
-        {
-            eventString += " ambushed " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.Cornered)
-        {
-            eventString += " cornered " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.Surprised)
-        {
-            eventString += " surprised " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.GotIntoABrawl)
-        {
-            eventString += " got into a brawl with " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else if (SubType == HfSimpleBattleType.Subdued)
-        {
-            eventString += " fought with and subdued " + HistoricalFigure2?.ToLink(link, pov, this);
-        }
-        else
-        {
-            eventString += " fought (" + UnknownSubType + ") " + HistoricalFigure2?.ToLink(link, pov, this);
+            case HfSimpleBattleType.Hf2LostAfterGivingWounds:
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                sb.Append(" was forced to retreat from ");
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" despite the latter's wounds");
+                break;
+            case HfSimpleBattleType.Hf2LostAfterMutualWounds:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" eventually prevailed and ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                sb.Append(" was forced to make a hasty escape");
+                break;
+            case HfSimpleBattleType.Hf2LostAfterReceivingWounds:
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                sb.Append(" managed to escape from ");
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append("'s onslaught");
+                break;
+            case HfSimpleBattleType.Scuffle:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" fought with ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                sb.Append(". While defeated, the latter escaped unscathed");
+                break;
+            case HfSimpleBattleType.Attacked:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" attacked ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.Confronted:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" confronted ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.HappenedUpon:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" happened upon ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.Ambushed:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" ambushed ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.Cornered:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" cornered ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.Surprised:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" surprised ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.GotIntoABrawl:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" got into a brawl with ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            case HfSimpleBattleType.Subdued:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" fought with and subdued ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
+            default:
+                sb.Append(HistoricalFigure1?.ToLink(link, pov, this));
+                sb.Append(" fought (");
+                sb.Append(UnknownSubType);
+                sb.Append(") ");
+                sb.Append(HistoricalFigure2?.ToLink(link, pov, this));
+                break;
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

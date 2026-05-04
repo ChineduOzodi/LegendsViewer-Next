@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -12,7 +14,7 @@ public class HfDestroyedSite : WorldEvent
     public Entity? SiteCiv { get; set; }
     public Site? Site { get; set; }
 
-    public HfDestroyedSite(List<Property> properties, World world) : base(properties, world)
+    public HfDestroyedSite(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -63,14 +65,20 @@ public class HfDestroyedSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + Attacker?.ToLink(link, pov, this) + " routed " + SiteCiv?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.ToLink(link, pov, this));
+        sb.Append(" routed ");
+        sb.Append(SiteCiv?.ToLink(link, pov, this));
         if (DefenderCiv != null)
         {
-            eventString += " of " + DefenderCiv.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(DefenderCiv.ToLink(link, pov, this));
         }
-        eventString += " and destroyed " + Site?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(" and destroyed ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

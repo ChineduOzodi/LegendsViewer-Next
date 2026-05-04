@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -13,7 +15,7 @@ public class CreatedSite : WorldEvent
     public Site? Site { get; set; }
     public HistoricalFigure? Builder { get; set; }
 
-    public CreatedSite(List<Property> properties, World world)
+    public CreatedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -53,31 +55,34 @@ public class CreatedSite : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Builder != null)
         {
-            eventString += Builder.ToLink(link, pov, this);
-            eventString += " constructed ";
-            eventString += Site?.ToLink(link, pov, this);
+            sb.Append(Builder.ToLink(link, pov, this));
+            sb.Append(" constructed ");
+            sb.Append(Site?.ToLink(link, pov, this));
             if (ResidentCiv != null)
             {
-                eventString += " for ";
-                eventString += ResidentCiv.ToLink(link, pov, this);
+                sb.Append(" for ");
+                sb.Append(ResidentCiv.ToLink(link, pov, this));
             }
         }
         else
         {
             if (SiteEntity != null)
             {
-                eventString += SiteEntity.ToLink(link, pov, this) + " of ";
+                sb.Append(SiteEntity.ToLink(link, pov, this));
+                sb.Append(" of ");
             }
 
-            eventString += Civ?.ToLink(link, pov, this);
-            eventString += " founded ";
-            eventString += Site?.ToLink(link, pov, this);
+            sb.Append(Civ?.ToLink(link, pov, this));
+            sb.Append(" founded ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

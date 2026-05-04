@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldLinks;
@@ -13,7 +15,7 @@ public class RemoveHfHfLink : WorldEvent
     public HistoricalFigure? HistoricalFigureTarget { get; set; }
     public HistoricalFigureLinkType LinkType { get; set; }
 
-    public RemoveHfHfLink(List<Property> properties, World world)
+    public RemoveHfHfLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -63,15 +65,16 @@ public class RemoveHfHfLink : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
 
         if (pov == HistoricalFigureTarget)
         {
-            eventString += HistoricalFigureTarget?.ToLink(link, pov, this) ?? "an unknown creature";
+            sb.Append(HistoricalFigureTarget?.ToLink(link, pov, this) ?? "an unknown creature");
         }
         else
         {
-            eventString += HistoricalFigure?.ToLink(link, pov, this) ?? "an unknown creature";
+            sb.Append(HistoricalFigure?.ToLink(link, pov, this) ?? "an unknown creature");
         }
 
         switch (LinkType)
@@ -79,44 +82,46 @@ public class RemoveHfHfLink : WorldEvent
             case HistoricalFigureLinkType.FormerApprentice:
                 if (pov == HistoricalFigure)
                 {
-                    eventString += " ceased being the apprentice of ";
+                    sb.Append(" ceased being the apprentice of ");
                 }
                 else
                 {
-                    eventString += " ceased being the master of ";
+                    sb.Append(" ceased being the master of ");
                 }
-
                 break;
             case HistoricalFigureLinkType.FormerMaster:
                 if (pov == HistoricalFigure)
                 {
-                    eventString += " ceased being the master of ";
+                    sb.Append(" ceased being the master of ");
                 }
                 else
                 {
-                    eventString += " ceased being the apprentice of ";
+                    sb.Append(" ceased being the apprentice of ");
                 }
-
                 break;
             case HistoricalFigureLinkType.FormerSpouse:
-                eventString += " divorced ";
+                sb.Append(" divorced ");
                 break;
             default:
-                eventString += " unlinked (" + LinkType + ") to ";
+                sb.Append(" unlinked (");
+                sb.Append(LinkType);
+                sb.Append(") to ");
                 break;
         }
 
         if (pov == HistoricalFigureTarget)
         {
-            eventString += HistoricalFigure?.ToLink(link, pov, this) ?? "an unknown creature";
+            sb.Append(HistoricalFigure?.ToLink(link, pov, this) ?? "an unknown creature");
         }
         else
         {
-            eventString += HistoricalFigureTarget?.ToLink(link, pov, this) ?? "an unknown creature";
+            sb.Append(HistoricalFigureTarget?.ToLink(link, pov, this) ?? "an unknown creature");
         }
 
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

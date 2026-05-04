@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Events;
+using System.Text;
+using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -10,7 +11,7 @@ public class Landmass : WorldObject, IHasCoordinates
 {
     public List<Location> Coordinates { get; set; } // legends_plus.xml
 
-    public Landmass(List<Property> properties, World world)
+    public Landmass(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Name = "Untitled";
@@ -72,10 +73,12 @@ public class Landmass : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "";
-            title += "Landmass";
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("Landmass");
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "landmass", Id, title, Name)
@@ -89,3 +92,4 @@ public class Landmass : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

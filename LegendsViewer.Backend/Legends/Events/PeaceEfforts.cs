@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +14,7 @@ public class PeaceEfforts : WorldEvent
     public Entity? Destination { get; set; }
     public Site? Site { get; set; }
 
-    public PeaceEfforts(List<Property> properties, World world)
+    public PeaceEfforts(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -34,15 +36,27 @@ public class PeaceEfforts : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Source != null && Destination != null)
         {
-            eventString += Destination.ToLink(link, pov, this) + " " + Decision + " an offer of peace from " + Source.ToLink(link, pov, this) + " in " + ParentCollection?.ToLink(link, pov, this) + ".";
+            sb.Append(Destination.ToLink(link, pov, this));
+            sb.Append(" ");
+            sb.Append(Decision);
+            sb.Append(" an offer of peace from ");
+            sb.Append(Source.ToLink(link, pov, this));
+            sb.Append(" in ");
+            sb.Append(ParentCollection?.ToLink(link, pov, this));
+            sb.Append(".");
         }
         else
         {
-            eventString += "Peace " + Decision + " in " + ParentCollection?.ToLink(link, pov, this) + ".";
+            sb.Append("Peace ");
+            sb.Append(Decision);
+            sb.Append(" in ");
+            sb.Append(ParentCollection?.ToLink(link, pov, this));
+            sb.Append(".");
         }
-        return eventString;
+        return sb.ToString();
     }
 }

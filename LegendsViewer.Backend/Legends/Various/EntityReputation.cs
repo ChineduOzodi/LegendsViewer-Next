@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -18,7 +19,7 @@ public class EntityReputation
 
     public Dictionary<ReputationType, int> Reputations { get; set; } = [];
 
-    public EntityReputation(List<Property> properties, World world)
+    public EntityReputation(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -44,3 +45,5 @@ public class EntityReputation
         }
     }
 }
+
+

@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -17,7 +19,7 @@ public class AttackedSite : WorldEvent
     public HistoricalFigure? AttackerGeneral { get; set; }
     public HistoricalFigure? DefenderGeneral { get; set; }
 
-    public AttackedSite(List<Property> properties, World world)
+    public AttackedSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -68,54 +70,58 @@ public class AttackedSite : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Attacker?.PrintEntity(true, pov) ?? "an unknown civilization";
-        eventString += " attacked ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Attacker?.PrintEntity(true, pov) ?? "an unknown civilization");
+        sb.Append(" attacked ");
         if (SiteEntity != null)
         {
-            eventString += SiteEntity.PrintEntity(true, pov);
+            sb.Append(SiteEntity.PrintEntity(true, pov));
         }
         else
         {
-            eventString += Defender?.PrintEntity(true, pov) ?? "an unknown civilization";
+            sb.Append(Defender?.PrintEntity(true, pov) ?? "an unknown civilization");
         }
-        eventString += " at " + Site?.ToLink(link, pov, this) + ". ";
+        sb.Append(" at ");
+        sb.Append(Site?.ToLink(link, pov, this));
+        sb.Append(". ");
         if (AttackerGeneral != null)
         {
-            eventString += "Leader of the attack was ";
-            eventString += AttackerGeneral.ToLink(link, pov, this);
+            sb.Append("Leader of the attack was ");
+            sb.Append(AttackerGeneral.ToLink(link, pov, this));
         }
         if (DefenderGeneral != null)
         {
-            eventString += ", and the defenders were led by ";
-            eventString += DefenderGeneral.ToLink(link, pov, this);
+            sb.Append(", and the defenders were led by ");
+            sb.Append(DefenderGeneral.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
         if (AttackerMercenaries != null)
         {
-            eventString += " ";
-            eventString += AttackerMercenaries.ToLink(true, pov);
-            eventString += " were hired by the attackers.";
+            sb.Append(" ");
+            sb.Append(AttackerMercenaries.ToLink(true, pov));
+            sb.Append(" were hired by the attackers.");
         }
         if (DefenderMercenaries != null)
         {
-            eventString += " ";
-            eventString += DefenderMercenaries.ToLink(true, pov);
-            eventString += " were hired by the defenders.";
+            sb.Append(" ");
+            sb.Append(DefenderMercenaries.ToLink(true, pov));
+            sb.Append(" were hired by the defenders.");
         }
         if (AttackerSupportMercenaries != null)
         {
-            eventString += " ";
-            eventString += AttackerSupportMercenaries.ToLink(true, pov);
-            eventString += " were hired as scouts by the attackers.";
+            sb.Append(" ");
+            sb.Append(AttackerSupportMercenaries.ToLink(true, pov));
+            sb.Append(" were hired as scouts by the attackers.");
         }
         if (DefenderSupportMercenaries != null)
         {
-            eventString += " ";
-            eventString += DefenderSupportMercenaries.ToLink(true, pov);
-            eventString += " were hired as scouts by the defenders.";
+            sb.Append(" ");
+            sb.Append(DefenderSupportMercenaries.ToLink(true, pov));
+            sb.Append(" were hired as scouts by the defenders.");
         }
-        return eventString;
+        return sb.ToString();
     }
 }
+

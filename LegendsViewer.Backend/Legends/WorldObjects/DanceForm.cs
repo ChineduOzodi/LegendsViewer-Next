@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -8,7 +10,7 @@ namespace LegendsViewer.Backend.Legends.WorldObjects;
 
 public class DanceForm : ArtForm
 {
-    public DanceForm(List<Property> properties, World world)
+    public DanceForm(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("dance-ballroom");
@@ -20,9 +22,12 @@ public class DanceForm : ArtForm
     {
         if (link)
         {
-            string title = "Dance Form";
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("Dance Form");
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "danceform", Id, title, Name)
                 : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
@@ -35,3 +40,5 @@ public class DanceForm : ArtForm
         return Icon;
     }
 }
+
+

@@ -1,6 +1,8 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
+using System.Text;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
@@ -17,7 +19,7 @@ public class ArtifactCopied : WorldEvent
     public Entity? SourceEntity { get; set; }
     public bool FromOriginal { get; set; }
 
-    public ArtifactCopied(List<Property> properties, World world)
+    public ArtifactCopied(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -59,26 +61,29 @@ public class ArtifactCopied : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += DestEntity?.ToLink(link, pov, this);
-        eventString += " made a copy of ";
+        var eventString = new StringBuilder();
+        eventString.Append(GetYearTime());
+        eventString.Append(DestEntity?.ToLink(link, pov, this));
+        eventString.Append(" made a copy of ");
         if (FromOriginal)
         {
-            eventString += "the original ";
+            eventString.Append("the original ");
         }
-        eventString += Artifact?.ToLink(link, pov, this);
-        eventString += " from ";
-        eventString += SourceStructure?.ToLink(link, pov, this);
-        eventString += " in ";
-        eventString += SourceSite?.ToLink(link, pov, this);
-        eventString += " of ";
-        eventString += SourceEntity?.ToLink(link, pov, this);
-        eventString += " keeping it within ";
-        eventString += DestStructure?.ToLink(link, pov, this);
-        eventString += " in ";
-        eventString += DestSite?.ToLink(link, pov, this);
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        eventString.Append(Artifact?.ToLink(link, pov, this));
+        eventString.Append(" from ");
+        eventString.Append(SourceStructure?.ToLink(link, pov, this));
+        eventString.Append(" in ");
+        eventString.Append(SourceSite?.ToLink(link, pov, this));
+        eventString.Append(" of ");
+        eventString.Append(SourceEntity?.ToLink(link, pov, this));
+        eventString.Append(" keeping it within ");
+        eventString.Append(DestStructure?.ToLink(link, pov, this));
+        eventString.Append(" in ");
+        eventString.Append(DestSite?.ToLink(link, pov, this));
+        eventString.Append(PrintParentCollection(link, pov));
+        eventString.Append('.');
+        return eventString.ToString();
     }
 }
+
+

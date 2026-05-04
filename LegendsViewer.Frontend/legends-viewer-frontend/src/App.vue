@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useBookmarkStore } from './stores/bookmarkStore';
 import { useVersionStore } from './stores/versionStore';
+import { useFavoriteStore } from './stores/favoriteStore';
 
 const versionStore = useVersionStore()
 versionStore.loadVersion()
 const bookmarkStore = useBookmarkStore()
 bookmarkStore.getAll()
+const favoriteStore = useFavoriteStore();
 
 const societyItems = [
   { title: 'Factions and Groups', to: '/entity' },
@@ -80,6 +82,26 @@ const ritualItems = [
         <v-list nav class="nav-list">
           <v-list-item prepend-icon="mdi-file-tree-outline" title="Explore Worlds" to="/"
             :active-class="'v-list-item--active'" />
+
+          <v-list-group value="Favorites" v-if="favoriteStore.favorites.length > 0">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" prepend-icon="mdi-star" title="Favorites"></v-list-item>
+            </template>
+            <template v-for="fav in favoriteStore.favorites" :key="fav.type + fav.id">
+              <v-list-item 
+                :title="fav.name"
+                :to="`/${fav.type}/${fav.id}`" 
+                :active-class="'v-list-item--active'"
+                style="padding-inline-start: 12px !important"
+              >
+                <template v-slot:prepend>
+                  <div v-if="fav.icon" v-html="fav.icon" style="display: flex; justify-content: center; align-items: center; margin-right: 8px;"></div>
+                  <v-icon v-else icon="mdi-circle-small" class="mr-2"></v-icon>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list-group>
+
           <v-list-item prepend-icon="mdi-earth-box" title="World" to="/world" :active-class="'v-list-item--active'"
             :disabled="bookmarkStore?.isLoaded == false" />
           <v-list-item prepend-icon="mdi-map-search-outline" title="Map" to="/map" :active-class="'v-list-item--active'"

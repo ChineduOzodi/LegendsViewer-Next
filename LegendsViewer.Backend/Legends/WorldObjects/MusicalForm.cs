@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -8,7 +10,7 @@ namespace LegendsViewer.Backend.Legends.WorldObjects;
 
 public class MusicalForm : ArtForm
 {
-    public MusicalForm(List<Property> properties, World world)
+    public MusicalForm(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         FormType = FormType.Musical;
@@ -20,9 +22,12 @@ public class MusicalForm : ArtForm
     {
         if (link)
         {
-            string title = "Musical Form";
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("Musical Form");
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "musicalform", Id, title, Name)
@@ -36,3 +41,5 @@ public class MusicalForm : ArtForm
         return Icon;
     }
 }
+
+

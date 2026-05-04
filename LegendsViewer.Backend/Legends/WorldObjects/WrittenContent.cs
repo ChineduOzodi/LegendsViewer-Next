@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Contracts;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -70,7 +72,7 @@ public class WrittenContent : WorldObject
         }
     }
 
-    public WrittenContent(List<Property> properties, World world)
+    public WrittenContent(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("bookshelf");
@@ -234,15 +236,17 @@ public class WrittenContent : WorldObject
     {
         if (link)
         {
-            string? type = null;
+            var sb = new StringBuilder();
+            sb.Append("Written Content");
             if (WrittenContentType != WrittenContentType.Unknown)
             {
-                type = WrittenContentType.GetDescription();
+                sb.Append(", ");
+                sb.Append(WrittenContentType.GetDescription());
             }
-            string title = "Written Content";
-            title += string.IsNullOrWhiteSpace(type) ? "" : ", " + type;
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "writtencontent", Id, title, Name)
@@ -256,3 +260,5 @@ public class WrittenContent : WorldObject
         return Icon;
     }
 }
+
+

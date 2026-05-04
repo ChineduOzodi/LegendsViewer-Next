@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -12,7 +14,7 @@ public class SiteDied : WorldEvent
 
     public bool Abandoned;
 
-    public SiteDied(List<Property> properties, World world)
+    public SiteDied(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -60,17 +62,23 @@ public class SiteDied : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + SiteEntity?.PrintEntity(link, pov);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(SiteEntity?.PrintEntity(link, pov));
         if (Abandoned)
         {
-            eventString += " abandoned the settlement of " + Site?.ToLink(link, pov, this);
+            sb.Append(" abandoned the settlement of ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
         else
         {
-            eventString += " settlement of " + Site?.ToLink(link, pov, this) + " withered";
+            sb.Append(" settlement of ");
+            sb.Append(Site?.ToLink(link, pov, this));
+            sb.Append(" withered");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -66,7 +67,7 @@ public class Structure : WorldObject, IHasCoordinates
     public List<Artifact> CopiedArtifacts { get; set; } = [];
     public List<string> CopiedArtifactLinks => CopiedArtifacts.ConvertAll(x => x.ToLink(true, this));
 
-    public Structure(List<Property> properties, World world, Site site)
+    public Structure(List<Property> properties, IWorld world, Site site)
         : base(properties, world)
     {
         Name = "Structure";
@@ -204,7 +205,7 @@ public class Structure : WorldObject, IHasCoordinates
         Subtype = StructureSubType != StructureSubType.Unknown ? StructureSubType.GetDescription() : "";
     }
 
-    public void Resolve(World world)
+    public void Resolve(IWorld world)
     {
         if (InhabitantIDs.Count > 0)
         {
@@ -252,21 +253,22 @@ public class Structure : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "";
+            var sb = new StringBuilder();
             if (StructureSubType != StructureSubType.Unknown)
             {
-                title += StructureSubType.GetDescription();
+                sb.Append(StructureSubType.GetDescription());
             }
             else
             {
-                title += TypeEnum.GetDescription();
+                sb.Append(TypeEnum.GetDescription());
             }
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
 
             string linkedString = pov != this
-                ? $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, title, Name)}"
-                : $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, title, HtmlStyleUtil.CurrentDwarfObject(Name))}";
+                ? $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, sb.ToString(), Name)}"
+                : $"{HtmlStyleUtil.GetAnchorString(Icon, "structure", Id, sb.ToString(), HtmlStyleUtil.CurrentDwarfObject(Name))}";
             return linkedString;
         }
         return Icon + Name;
@@ -279,3 +281,5 @@ public class Structure : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+
+

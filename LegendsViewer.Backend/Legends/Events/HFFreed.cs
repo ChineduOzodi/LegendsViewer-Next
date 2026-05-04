@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -13,7 +15,7 @@ public class HfFreed : WorldEvent
     public Entity? HoldingCiv { get; set; }
     public Site? Site { get; set; }
 
-    public HfFreed(List<Property> properties, World world)
+    public HfFreed(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -47,39 +49,43 @@ public class HfFreed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (FreeingHf != null)
         {
-            eventString += FreeingHf?.ToLink(link, pov, this) ?? "an unknown creature";
+            sb.Append(FreeingHf?.ToLink(link, pov, this) ?? "an unknown creature");
         }
         else
         {
-            eventString += "the forces of ";
-            eventString += FreeingCiv?.ToLink(link, pov, this) ?? "an unknown civilization";
+            sb.Append("the forces of ");
+            sb.Append(FreeingCiv?.ToLink(link, pov, this) ?? "an unknown civilization");
         }
-        eventString += " freed ";
+        sb.Append(" freed ");
         for (int i = 0; i < RescuedHistoricalFigures.Count; i++)
         {
             if (i > 0)
             {
-                eventString += " and ";
+                sb.Append(" and ");
             }
-            eventString += RescuedHistoricalFigures[i]?.ToLink(link, pov, this) ?? "an unknown creature";
+            sb.Append(RescuedHistoricalFigures[i]?.ToLink(link, pov, this) ?? "an unknown creature");
         }
         if (Site != null)
         {
-            eventString += " from " + Site.ToLink(link, pov, this);
+            sb.Append(" from ");
+            sb.Append(Site.ToLink(link, pov, this));
         }
         if (SiteCiv != null)
         {
-            eventString += " and " + SiteCiv.ToLink(link, pov, this);
+            sb.Append(" and ");
+            sb.Append(SiteCiv.ToLink(link, pov, this));
         }
         if (HoldingCiv != null)
         {
-            eventString += " of " + HoldingCiv.ToLink(link, pov, this);
+            sb.Append(" of ");
+            sb.Append(HoldingCiv.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

@@ -143,7 +143,7 @@ const closeSnackbar = () => {
 
                   <v-list density="compact" height="220" scrollable>
                     <v-list-subheader>Directories</v-list-subheader>
-                    <v-list-item v-if="fileSystemStore.filesAndSubdirectories.currentDirectory != '/'"
+                    <v-list-item
                       @click="fileSystemStore.loadDirectory(fileSystemStore.filesAndSubdirectories.parentDirectory ?? '/')"
                       color="primary" variant="plain">
                       <template v-slot:prepend>
@@ -199,7 +199,7 @@ const closeSnackbar = () => {
         </v-card-actions>
       </v-card>
     </v-col>
-    <template v-for="(bookmark, i) in bookmarkStore.bookmarks.slice().reverse()" :key="i">
+    <template v-for="(bookmark, i) in bookmarkStore.bookmarks.slice().reverse()" :key="bookmark.filePath ?? i">
       <v-col v-if="bookmark != null && bookmark.filePath" :for="i" cols="12" md="3">
         <v-card class="mx-auto" max-width="320">
           <v-container>

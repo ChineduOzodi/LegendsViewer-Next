@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 
 namespace LegendsViewer.Backend.Legends.Various;
 
@@ -7,7 +8,7 @@ public class Feature
     public string Type { get; set; } = string.Empty;
     public int Reference { get; set; } // legends_plus.xml
 
-    public Feature(List<Property> properties, World world)
+    public Feature(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -19,3 +20,5 @@ public class Feature
         }
     }
 }
+
+

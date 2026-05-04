@@ -1,7 +1,14 @@
-﻿namespace LegendsViewer.Backend.Legends.Bookmarks;
+namespace LegendsViewer.Backend.Legends.Bookmarks;
 
 public class Bookmark
 {
+    /// <summary>
+    /// Stable identifier (e.g., "TheWorld_region18") used as the primary key.
+    /// Format: WorldName_RegionName. Year and timestamp are NOT included,
+    /// making it stable across different saves of the same world.
+    /// </summary>
+    public string Id { get; set; } = "";
+
     public string FilePath { get; set; } = "";
     public string WorldName { get; set; } = "";
     public string WorldAlternativeName { get; set; } = "";

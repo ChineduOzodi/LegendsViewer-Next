@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -15,7 +17,7 @@ public class CreatureDevoured : WorldEvent
     public WorldRegion? Region { get; set; }
     public UndergroundRegion? UndergroundRegion { get; set; }
 
-    public CreatureDevoured(List<Property> properties, World world)
+    public CreatureDevoured(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -43,48 +45,51 @@ public class CreatureDevoured : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Eater != null)
         {
-            eventString += Eater.ToLink(link, pov, this);
+            sb.Append(Eater.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
+            sb.Append("UNKNOWN HISTORICAL FIGURE");
         }
-        eventString += " devoured ";
+        sb.Append(" devoured ");
         if (Victim != null)
         {
-            eventString += Victim.ToLink(link, pov, this);
+            sb.Append(Victim.ToLink(link, pov, this));
         }
         else if (!string.IsNullOrWhiteSpace(Race))
         {
-            eventString += " a ";
+            sb.Append(" a ");
             if (!string.IsNullOrWhiteSpace(Caste))
             {
-                eventString += Caste + " ";
+                sb.Append(Caste);
+                sb.Append(' ');
             }
-            eventString += Race;
+            sb.Append(Race);
         }
         else
         {
-            eventString += "UNKNOWN HISTORICAL FIGURE";
+            sb.Append("UNKNOWN HISTORICAL FIGURE");
         }
-        eventString += " in ";
+        sb.Append(" in ");
         if (Site != null)
         {
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += Region.ToLink(link, pov, this);
+            sb.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += UndergroundRegion.ToLink(link, pov, this);
+            sb.Append(UndergroundRegion.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

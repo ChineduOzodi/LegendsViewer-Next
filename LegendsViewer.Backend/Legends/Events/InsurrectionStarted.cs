@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -13,7 +15,7 @@ public class InsurrectionStarted : WorldEvent
     public bool ActualStart { get; set; }
     private readonly string? _unknownOutcome;
 
-    public InsurrectionStarted(List<Property> properties, World world) : base(properties, world)
+    public InsurrectionStarted(List<Property> properties, IWorld world) : base(properties, world)
     {
         ActualStart = false;
 
@@ -21,21 +23,13 @@ public class InsurrectionStarted : WorldEvent
         {
             switch (property.Name)
             {
-                case "target_civ_id":
-                    Civ = world.GetEntity(Convert.ToInt32(property.Value));
-                    break;
-                case "site_id":
-                    Site = world.GetSite(Convert.ToInt32(property.Value));
-                    break;
+                case "target_civ_id": Civ = world.GetEntity(Convert.ToInt32(property.Value)); break;
+                case "site_id": Site = world.GetSite(Convert.ToInt32(property.Value)); break;
                 case "outcome":
                     switch (property.Value)
                     {
-                        case "leadership overthrown":
-                            Outcome = InsurrectionOutcome.LeadershipOverthrown;
-                            break;
-                        case "population gone":
-                            Outcome = InsurrectionOutcome.PopulationGone;
-                            break;
+                        case "leadership overthrown": Outcome = InsurrectionOutcome.LeadershipOverthrown; break;
+                        case "population gone": Outcome = InsurrectionOutcome.PopulationGone; break;
                         default:
                             Outcome = InsurrectionOutcome.Unknown;
                             _unknownOutcome = property.Value;
@@ -52,29 +46,40 @@ public class InsurrectionStarted : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (ActualStart)
         {
-            eventString += "an insurrection against " + Civ?.ToLink(link, pov, this) + " began in " + Site?.ToLink(link, pov, this);
+            sb.Append("an insurrection against ");
+            sb.Append(Civ?.ToLink(link, pov, this));
+            sb.Append(" began in ");
+            sb.Append(Site?.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "the insurrection in " + Site?.ToLink(link, pov, this);
+            sb.Append("the insurrection in ");
+            sb.Append(Site?.ToLink(link, pov, this));
             switch (Outcome)
             {
                 case InsurrectionOutcome.LeadershipOverthrown:
-                    eventString += " concluded with " + Civ?.ToLink(link, pov, this) + " overthrown";
+                    sb.Append(" concluded with ");
+                    sb.Append(Civ?.ToLink(link, pov, this));
+                    sb.Append(" overthrown");
                     break;
                 case InsurrectionOutcome.PopulationGone:
-                    eventString += " ended with the disappearance of the rebelling population";
+                    sb.Append(" ended with the disappearance of the rebelling population");
                     break;
                 default:
-                    eventString += " against " + Civ?.ToLink(link, pov, this) + " concluded with (" + _unknownOutcome + ")";
+                    sb.Append(" against ");
+                    sb.Append(Civ?.ToLink(link, pov, this));
+                    sb.Append(" concluded with (");
+                    sb.Append(_unknownOutcome);
+                    sb.Append(")");
                     break;
             }
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }

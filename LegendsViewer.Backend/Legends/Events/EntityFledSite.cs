@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 
@@ -9,7 +11,7 @@ public class EntityFledSite : WorldEvent
     public Entity? FledCiv { get; set; }
     public Site? Site { get; set; }
 
-    public EntityFledSite(List<Property> properties, World world)
+    public EntityFledSite(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -27,12 +29,15 @@ public class EntityFledSite : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += FledCiv?.ToLink(true, pov) ?? "an unknown civilization";
-        eventString += " fled ";
-        eventString += Site?.ToLink(true, pov) ?? "an unknown site";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(FledCiv?.ToLink(true, pov) ?? "an unknown civilization");
+        sb.Append(" fled ");
+        sb.Append(Site?.ToLink(true, pov) ?? "an unknown site");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

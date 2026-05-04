@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
@@ -22,7 +24,7 @@ public class SiteConquered : EventCollection
     public List<HistoricalFigure> Deaths => GetSubEvents().OfType<HfDied>().Where(death => death.HistoricalFigure != null).Select(death => death.HistoricalFigure!).ToList();
     public int DeathCount => Deaths.Count;
 
-    public SiteConquered(List<Property> properties, World world)
+    public SiteConquered(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -88,42 +90,47 @@ public class SiteConquered : EventCollection
     {
         if (link)
         {
+            var sb = new StringBuilder();
             string title = GetTitle();
-
-            string linkedString = pov != this
+            sb.Append(pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "siteconquered", Id, title, Name)
-                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name));
+                : HtmlStyleUtil.GetAnchorCurrentString(Icon, title, HtmlStyleUtil.CurrentDwarfObject(Name)));
 
             if (Site != null && pov != Site)
             {
-                linkedString += $" in {Site.ToLink(true, this)}";
+                sb.Append(" in ");
+                sb.Append(Site.ToLink(true, this));
             }
             if (pov != this && pov != Battle)
             {
-                linkedString += " as a result of " + Battle?.ToLink();
+                sb.Append(" as a result of ");
+                sb.Append(Battle?.ToLink());
             }
-            return linkedString;
+            return sb.ToString();
         }
         return ToString();
     }
 
     private string GetTitle()
     {
-        string title = Type;
-        title += "&#13";
+        var sb = new StringBuilder();
+        sb.Append(Type);
+        sb.Append("&#13");
         if (Attacker != null)
         {
-            title += Attacker.PrintEntity(false) + " (Attacker)(V)";
-            title += "&#13";
+            sb.Append(Attacker.PrintEntity(false));
+            sb.Append(" (Attacker)(V)");
+            sb.Append("&#13");
         }
         if (Defender != null)
         {
-            title += Defender.PrintEntity(false) + " (Defender)";
+            sb.Append(Defender.PrintEntity(false));
+            sb.Append(" (Defender)");
         }
-        title += "&#13";
-        title += "Site: ";
-        title += Site != null ? Site.ToLink(false) : "UNKNOWN";
-        return title;
+        sb.Append("&#13");
+        sb.Append("Site: ");
+        sb.Append(Site != null ? Site.ToLink(false) : "UNKNOWN");
+        return sb.ToString();
     }
 
     public override string ToString()
@@ -136,3 +143,5 @@ public class SiteConquered : EventCollection
         return Icon;
     }
 }
+
+

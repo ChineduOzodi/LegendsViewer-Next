@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using System.Text;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Events;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Interfaces;
@@ -30,7 +31,7 @@ public class WorldConstruction : WorldObject, IHasCoordinates
     public WorldConstruction? MasterConstruction { get; set; } // legends_plus.xml
     public string? MasterConstructionToLink => MasterConstruction?.ToLink(true);
 
-    public WorldConstruction(List<Property> properties, World world)
+    public WorldConstruction(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         Icon = HtmlStyleUtil.GetIconString("sign-caution");
@@ -85,11 +86,17 @@ public class WorldConstruction : WorldObject, IHasCoordinates
     {
         if (link)
         {
-            string title = "";
-            title += "World Construction";
-            title += WorldConstructionType != WorldConstructionType.Unknown ? "" : ", " + WorldConstructionType;
-            title += "&#13";
-            title += "Events: " + Events.Count;
+            var sb = new StringBuilder();
+            sb.Append("World Construction");
+            if (WorldConstructionType != WorldConstructionType.Unknown)
+            {
+                sb.Append(", ");
+                sb.Append(WorldConstructionType);
+            }
+            sb.Append("&#13");
+            sb.Append("Events: ");
+            sb.Append(Events.Count);
+            string title = sb.ToString();
 
             return pov != this
                 ? HtmlStyleUtil.GetAnchorString(Icon, "construction", Id, title, Name)
@@ -103,3 +110,4 @@ public class WorldConstruction : WorldObject, IHasCoordinates
         return Icon;
     }
 }
+

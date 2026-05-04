@@ -1,3 +1,4 @@
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Contracts;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -5,6 +6,7 @@ using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
+using System.Text;
 
 namespace LegendsViewer.Backend.Legends.Events;
 
@@ -17,7 +19,7 @@ public class HfNewPet : WorldEvent
     public UndergroundRegion? UndergroundRegion { get; set; }
     public Location? Coordinates { get; set; }
 
-    public HfNewPet(List<Property> properties, World world)
+    public HfNewPet(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -70,32 +72,39 @@ public class HfNewPet : WorldEvent
     }
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime() + HistoricalFigure?.ToLink(link, pov, this) + " tamed the creatures named ";
+        StringBuilder eventString = new StringBuilder();
+        eventString.Append(GetYearTime());
+        eventString.Append(HistoricalFigure?.ToLink(link, pov, this));
+        eventString.Append(" tamed the creatures named ");
         if (!string.IsNullOrWhiteSpace(Pet))
         {
-            eventString += Pet;
+            eventString.Append(Pet);
         }
         else
         {
-            eventString += "UNKNOWN";
+            eventString.Append("UNKNOWN");
         }
         if (Site != null)
         {
-            eventString += " in " + Site.ToLink(link, pov, this);
+            eventString.Append(" in ");
+            eventString.Append(Site.ToLink(link, pov, this));
         }
         else if (Region != null)
         {
-            eventString += " in " + Region.ToLink(link, pov, this);
+            eventString.Append(" in ");
+            eventString.Append(Region.ToLink(link, pov, this));
         }
         else if (UndergroundRegion != null)
         {
-            eventString += " in " + UndergroundRegion.ToLink(link, pov, this);
+            eventString.Append(" in ");
+            eventString.Append(UndergroundRegion.ToLink(link, pov, this));
         }
         if (!(ParentCollection is Journey))
         {
-            eventString += PrintParentCollection(link, pov);
+            eventString.Append(PrintParentCollection(link, pov));
         }
-        eventString += ".";
-        return eventString;
+        eventString.Append('.');
+        return eventString.ToString();
     }
 }
+

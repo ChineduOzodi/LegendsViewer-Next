@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Parser;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Utilities;
 
 namespace LegendsViewer.Backend.Legends.Various;
@@ -13,7 +14,7 @@ public class EntityPosition
     public string? SpouseFemale { get; set; }
     public string? SpouseMale { get; set; }
 
-    public EntityPosition(List<Property> properties, World world)
+    public EntityPosition(List<Property> properties, IWorld world)
     {
         foreach (Property property in properties)
         {
@@ -71,3 +72,5 @@ public class EntityPosition
         return $"{Id} {Name}";
     }
 }
+
+

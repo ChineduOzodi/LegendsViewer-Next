@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -19,7 +21,7 @@ public class RegionpopIncorporatedIntoEntity : WorldEvent
     public WorldRegion? PopSourceRegion { get; set; }
     public string? PopFlId { get; set; }
 
-    public RegionpopIncorporatedIntoEntity(List<Property> properties, World world) : base(properties, world)
+    public RegionpopIncorporatedIntoEntity(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -53,27 +55,30 @@ public class RegionpopIncorporatedIntoEntity : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (PopNumberMoved > 200)
         {
-            eventString += " hundreds of ";
+            sb.Append(" hundreds of ");
         }
         else if (PopNumberMoved > 24)
         {
-            eventString += " dozens of ";
+            sb.Append(" dozens of ");
         }
         else
         {
-            eventString += " several ";
+            sb.Append(" several ");
         }
-        eventString += "UNKNOWN RACE";
-        eventString += " from ";
-        eventString += PopSourceRegion != null ? PopSourceRegion.ToLink(link, pov, this) : "UNKNOWN REGION";
-        eventString += " joined with ";
-        eventString += JoinEntity != null ? JoinEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " at ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += ".";
-        return eventString;
+        sb.Append("UNKNOWN RACE");
+        sb.Append(" from ");
+        sb.Append(PopSourceRegion != null ? PopSourceRegion.ToLink(link, pov, this) : "UNKNOWN REGION");
+        sb.Append(" joined with ");
+        sb.Append(JoinEntity != null ? JoinEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" at ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+
+

@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.Various;
@@ -15,7 +17,7 @@ public class CreatedStructure : WorldEvent
     public HistoricalFigure? Builder { get; set; }
     public bool Rebuilt { get; set; }
 
-    public CreatedStructure(List<Property> properties, World world) : base(properties, world)
+    public CreatedStructure(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -68,41 +70,43 @@ public class CreatedStructure : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Builder != null)
         {
-            eventString += Builder != null ? Builder.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-            eventString += ", thrust a spire of slade up from the underworld, naming it ";
-            eventString += Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-            eventString += ", and established a gateway between worlds in ";
-            eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
+            sb.Append(Builder != null ? Builder.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+            sb.Append(", thrust a spire of slade up from the underworld, naming it ");
+            sb.Append(Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+            sb.Append(", and established a gateway between worlds in ");
+            sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
         }
         else
         {
             if (SiteEntity != null)
             {
-                eventString += SiteEntity.ToLink(link, pov, this);
+                sb.Append(SiteEntity.ToLink(link, pov, this));
             }
 
             if (Civ != null)
             {
-                eventString += " of ";
-                eventString += Civ.ToLink(link, pov, this);
+                sb.Append(" of ");
+                sb.Append(Civ.ToLink(link, pov, this));
             }
             if (Rebuilt)
             {
-                eventString += " rebuilt ";
+                sb.Append(" rebuilt ");
             }
             else
             {
-                eventString += " constructed ";
+                sb.Append(" constructed ");
             }
-            eventString += Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE";
-            eventString += " in ";
-            eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
+            sb.Append(Structure != null ? Structure.ToLink(link, pov, this) : "UNKNOWN STRUCTURE");
+            sb.Append(" in ");
+            sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append('.');
+        return sb.ToString();
     }
 }
+

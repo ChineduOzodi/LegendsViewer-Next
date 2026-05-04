@@ -1,4 +1,5 @@
-﻿using LegendsViewer.Backend.Legends.Enums;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.Parser;
 
 namespace LegendsViewer.Backend.Legends.Various;
@@ -14,7 +15,7 @@ public class EntityOccasionSchedule
     public string? ItemType { get; set; }
     public string? ItemSubType { get; set; }
 
-    public EntityOccasionSchedule(List<Property> properties, World world)
+    public EntityOccasionSchedule(List<Property> properties, IWorld world)
     {
         Name = "Unknown Schedule";
         foreach (Property property in properties)
@@ -59,3 +60,5 @@ public class EntityOccasionSchedule
         }
     }
 }
+
+

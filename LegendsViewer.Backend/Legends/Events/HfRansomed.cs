@@ -1,4 +1,6 @@
-﻿using LegendsViewer.Backend.Legends.Extensions;
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
+using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
 using LegendsViewer.Backend.Utilities;
@@ -13,7 +15,7 @@ public class HfRansomed : WorldEvent
     public Entity? PayerEntity { get; set; }
     public Site? MovedToSite { get; set; }
 
-    public HfRansomed(List<Property> properties, World world) : base(properties, world)
+    public HfRansomed(List<Property> properties, IWorld world) : base(properties, world)
     {
         foreach (Property property in properties)
         {
@@ -36,33 +38,34 @@ public class HfRansomed : WorldEvent
 
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += RansomerHf?.ToLink(link, pov, this);
-        eventString += " ransomed ";
-        eventString += RansomedHf?.ToLink(link, pov, this);
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(RansomerHf?.ToLink(link, pov, this));
+        sb.Append(" ransomed ");
+        sb.Append(RansomedHf?.ToLink(link, pov, this));
         if (PayerHf != null)
         {
-            eventString += " to ";
-            eventString += PayerHf.ToLink(link, pov, this);
+            sb.Append(" to ");
+            sb.Append(PayerHf.ToLink(link, pov, this));
             if (PayerEntity != null)
             {
-                eventString += " of ";
-                eventString += PayerEntity.ToLink(link, pov, this);
+                sb.Append(" of ");
+                sb.Append(PayerEntity.ToLink(link, pov, this));
             }
         }
         else if (PayerEntity != null)
         {
-            eventString += " to ";
-            eventString += PayerEntity.ToLink(link, pov, this);
+            sb.Append(" to ");
+            sb.Append(PayerEntity.ToLink(link, pov, this));
         }
-        eventString += PrintParentCollection(link, pov);
-        eventString += ". ";
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(". ");
         if (MovedToSite != null)
         {
-            eventString += RansomedHf?.ToLink(link, pov, this).ToUpperFirstLetter();
-            eventString += " was sent to ";
-            eventString += MovedToSite.ToLink(link, pov, this);
+            sb.Append(RansomedHf?.ToLink(link, pov, this).ToUpperFirstLetter());
+            sb.Append(" was sent to ");
+            sb.Append(MovedToSite.ToLink(link, pov, this));
         }
-        return eventString;
+        return sb.ToString();
     }
 }

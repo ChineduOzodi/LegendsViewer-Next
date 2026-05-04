@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -8,10 +10,10 @@ public class MasterpieceLost : WorldEvent
 {
     public HistoricalFigure? HistoricalFigure { get; set; }
     public Site? Site { get; set; }
-    public string? Method { get; set; } // TODO destroy method
+    public string? Method { get; set; }
     public MasterpieceItem? CreationEvent { get; set; }
 
-    public MasterpieceLost(List<Property> properties, World world)
+    public MasterpieceLost(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -21,47 +23,47 @@ public class MasterpieceLost : WorldEvent
                 case "histfig": HistoricalFigure = world.GetHistoricalFigure(Convert.ToInt32(property.Value)); break;
                 case "site": Site = world.GetSite(Convert.ToInt32(property.Value)); break;
                 case "creation_event": CreationEvent = world.GetEvent(Convert.ToInt32(property.Value)) as MasterpieceItem; break;
-                case "method":
-                    Method = property.Value;
-                    break;
+                case "method": Method = property.Value; break;
             }
         }
         HistoricalFigure.AddEvent(this);
         Site.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += "the masterful ";
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append("the masterful ");
         if (CreationEvent != null)
         {
-            eventString += !string.IsNullOrWhiteSpace(CreationEvent.Material) ? CreationEvent.Material + " " : "";
+            sb.Append(!string.IsNullOrWhiteSpace(CreationEvent.Material) ? CreationEvent.Material + " " : "");
             if (!string.IsNullOrWhiteSpace(CreationEvent.ItemSubType) && CreationEvent.ItemSubType != "-1")
             {
-                eventString += CreationEvent.ItemSubType;
+                sb.Append(CreationEvent.ItemSubType);
             }
             else
             {
-                eventString += !string.IsNullOrWhiteSpace(CreationEvent.ItemType) ? CreationEvent.ItemType : "UNKNOWN ITEM";
+                sb.Append(!string.IsNullOrWhiteSpace(CreationEvent.ItemType) ? CreationEvent.ItemType : "UNKNOWN ITEM");
             }
-            eventString += " created by ";
-            eventString += CreationEvent.Maker != null ? CreationEvent.Maker.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE";
-            eventString += " for ";
-            eventString += CreationEvent.MakerEntity != null ? CreationEvent.MakerEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-            eventString += " at ";
-            eventString += CreationEvent.Site != null ? CreationEvent.Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-            eventString += " ";
-            eventString += CreationEvent.GetYearTime();
+            sb.Append(" created by ");
+            sb.Append(CreationEvent.Maker != null ? CreationEvent.Maker.ToLink(link, pov, this) : "UNKNOWN HISTORICAL FIGURE");
+            sb.Append(" for ");
+            sb.Append(CreationEvent.MakerEntity != null ? CreationEvent.MakerEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+            sb.Append(" at ");
+            sb.Append(CreationEvent.Site != null ? CreationEvent.Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+            sb.Append(" ");
+            sb.Append(CreationEvent.GetYearTime());
         }
         else
         {
-            eventString += "UNKNOWN ITEM";
+            sb.Append("UNKNOWN ITEM");
         }
-        eventString += " was destroyed by ";
-        eventString += HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "an unknown creature";
-        eventString += " in ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += ".";
-        return eventString;
+        sb.Append(" was destroyed by ");
+        sb.Append(HistoricalFigure != null ? HistoricalFigure.ToLink(link, pov, this) : "an unknown creature");
+        sb.Append(" in ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(".");
+        return sb.ToString();
     }
 }

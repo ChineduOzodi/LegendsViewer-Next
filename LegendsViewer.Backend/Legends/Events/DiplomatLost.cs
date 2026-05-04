@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Extensions;
 using LegendsViewer.Backend.Legends.Parser;
 using LegendsViewer.Backend.Legends.WorldObjects;
@@ -10,7 +12,7 @@ public class DiplomatLost : WorldEvent
     public Entity? InvolvedEntity { get; set; }
     public Site? Site { get; set; }
 
-    public DiplomatLost(List<Property> properties, World world)
+    public DiplomatLost(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -28,16 +30,19 @@ public class DiplomatLost : WorldEvent
         Entity?.AddEvent(this);
         InvolvedEntity?.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
-        eventString += Entity != null ? Entity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += " lost a diplomat at ";
-        eventString += Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE";
-        eventString += ". They suspected the involvement of ";
-        eventString += InvolvedEntity != null ? InvolvedEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY";
-        eventString += PrintParentCollection(link, pov);
-        eventString += ".";
-        return eventString;
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
+        sb.Append(Entity != null ? Entity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(" lost a diplomat at ");
+        sb.Append(Site != null ? Site.ToLink(link, pov, this) : "UNKNOWN SITE");
+        sb.Append(". They suspected the involvement of ");
+        sb.Append(InvolvedEntity != null ? InvolvedEntity.ToLink(link, pov, this) : "UNKNOWN ENTITY");
+        sb.Append(PrintParentCollection(link, pov));
+        sb.Append(".");
+        return sb.ToString();
     }
 }
+

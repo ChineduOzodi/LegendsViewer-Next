@@ -4,6 +4,9 @@ import { components } from '../generated/api-schema'; // Import from the OpenAPI
 
 export type Bookmark = components['schemas']['Bookmark'];
 
+// Track in-flight requests to handle race conditions
+let currentRequestId = 0;
+
 export const useBookmarkStore = defineStore('bookmark', {
   state: () => ({
     bookmarks: [] as Bookmark[],
@@ -21,9 +24,15 @@ export const useBookmarkStore = defineStore('bookmark', {
     isLoaded: (state) => {
       return state.bookmarks.some(bookmark => bookmark.state === 'Loaded');
     },
+    currentWorld: (state) => {
+      return state.bookmarks.find(bookmark => bookmark.state === 'Loaded');
+    },
   },
   actions: {
     async loadByFullPath(filePath: string, latestTimestamp: string) {
+      // Increment request ID for race condition handling
+      const requestId = ++currentRequestId;
+
       // Set the state of the bookmark to 'Loading' if it exists
       let existingBookmark = this.bookmarks.find(bookmark => bookmark.filePath === filePath);
       if (existingBookmark) {
@@ -36,6 +45,11 @@ export const useBookmarkStore = defineStore('bookmark', {
       const { data, error } = await client.POST("/api/Bookmark/loadByFullPath", {
         body: filePath.replace("{TIMESTAMP}", latestTimestamp), // Send the filePath as raw text
       });
+
+      // Check if this response is still the latest request (race condition fix)
+      if (requestId !== currentRequestId) {
+        return; // Stale response, ignore it
+      }
 
       if (error !== undefined) {
         console.error(error);
@@ -50,7 +64,7 @@ export const useBookmarkStore = defineStore('bookmark', {
         if (newBookmark.worldName == null || newBookmark.worldName.length == 0) {
           this.bookmarkWarning = 'The legends_plus.xml file was not found. Dwarf Fortress currently exports only a limited amount of legends data. To access more detailed information, including proper maps and other important features, please install DFHack, which will automatically export the additional data.'
         }
-        // Check if the bookmark already exists
+        // Check if the bookmark already exists (computed AFTER await)
         const index = this.bookmarks.findIndex(bookmark => bookmark.filePath === newBookmark.filePath);
         this.bookmarks.forEach(b => b.state = 'Default')
         if (index !== -1) {
@@ -62,9 +76,15 @@ export const useBookmarkStore = defineStore('bookmark', {
         }
 
         this.isLoadingNewWorld = false;
+      } else {
+        // Handle case where both error and data are undefined
+        this.isLoadingNewWorld = false;
       }
     },
     async deleteByFullPath(filePath: string, latestTimestamp: string) {
+      // Increment request ID for race condition handling
+      const requestId = ++currentRequestId;
+
       // Set the state of the bookmark to 'Loading' if it exists
       let existingBookmark = this.bookmarks.find(bookmark => bookmark.filePath === filePath);
       if (existingBookmark) {
@@ -74,13 +94,30 @@ export const useBookmarkStore = defineStore('bookmark', {
         this.isLoadingNewWorld = true;
       }
 
-      const { data, error } = await client.DELETE("/api/Bookmark/{filePath}", {
+      const { data, error, response } = await client.DELETE("/api/Bookmark/{encodedFilePath}", {
         params: {
           path: {
-            filePath: filePath.replace("{TIMESTAMP}", latestTimestamp)
+            encodedFilePath: filePath.replace("{TIMESTAMP}", latestTimestamp)
           }
-        }
+        },
       });
+
+      // Check if this response is still the latest request (race condition fix)
+      if (requestId !== currentRequestId) {
+        return; // Stale response, ignore it
+      }
+
+      // Check for X-File-Missing header — the file was deleted or moved
+      const fileMissing = response?.headers.get('X-File-Missing') === 'true';
+      if (fileMissing) {
+        this.bookmarkWarning = 'The file was not found. It may have been deleted or moved.';
+        let existingBookmark = this.bookmarks.find(bookmark => bookmark.filePath === filePath);
+        if (existingBookmark) {
+          existingBookmark.state = 'Default';
+        }
+        this.isLoadingNewWorld = false;
+        return;
+      }
 
       if (error !== undefined) {
         console.error(error);
@@ -89,24 +126,30 @@ export const useBookmarkStore = defineStore('bookmark', {
           existingBookmark.state = 'Default';
         }
         this.isLoadingNewWorld = false;
-        this.bookmarkError = error.title ?? error.type ?? ''
-      } else if (data) {
+        this.bookmarkError = error.title ?? error.type ?? 'Failed to delete bookmark';
+      } else if (data !== undefined) {
         const newBookmark = data as Bookmark | null | undefined;
 
+        // Find index AFTER the await to avoid stale reference
         const index = this.bookmarks.findIndex(bookmark => bookmark.filePath === filePath);
         if (newBookmark != null && index !== -1) {
           // Update the existing bookmark
           this.bookmarks[index] = newBookmark;
-        } else {
+        } else if (index !== -1) {
           // Remove the bookmark if newBookmark is null or undefined
           this.bookmarks.splice(index, 1);
-          this.bookmarks = this.bookmarks
         }
+        // If index === -1, bookmark was already removed, nothing to do
 
+        this.isLoadingNewWorld = false;
+      } else {
+        // Handle case where both error and data are undefined
         this.isLoadingNewWorld = false;
       }
     },
     async loadByFolderAndFile(folderPath: string, fileName: string) {
+      // Increment request ID for race condition handling
+      const requestId = ++currentRequestId;
 
       let fileNameWithoutTimestamp: string = '';
       let timestamp: string = '';
@@ -132,15 +175,27 @@ export const useBookmarkStore = defineStore('bookmark', {
           query: {
             fileName: fileName
           }
-        }
+        },
       });
+
+      // Check if this response is still the latest request (race condition fix)
+      if (requestId !== currentRequestId) {
+        return; // Stale response, ignore it
+      }
 
       if (error !== undefined) {
         console.error(error);
+        // Reset bookmark state on error
+        let existingBookmark = this.bookmarks.find(bookmark => bookmark.filePath?.startsWith(folderPath) && bookmark.filePath?.endsWith(fileNameWithoutTimestamp));
+        if (existingBookmark) {
+          existingBookmark.state = 'Default';
+        }
+        this.isLoadingNewWorld = false;
+        this.bookmarkError = error.title ?? error.type ?? 'Failed to load world';
       } else if (data) {
         const newBookmark = data as Bookmark;
 
-        // Check if the bookmark already exists
+        // Check if the bookmark already exists (computed AFTER await)
         const index = this.bookmarks.findIndex(bookmark => bookmark.filePath === newBookmark.filePath);
         this.bookmarks.forEach(b => b.state = 'Default')
 
@@ -152,6 +207,9 @@ export const useBookmarkStore = defineStore('bookmark', {
           this.bookmarks.push(newBookmark);
         }
 
+        this.isLoadingNewWorld = false;
+      } else {
+        // Handle case where both error and data are undefined
         this.isLoadingNewWorld = false;
       }
     },

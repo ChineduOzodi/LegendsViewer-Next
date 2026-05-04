@@ -18,7 +18,7 @@ public class AddHfEntityLink : WorldEvent, IFeatured
     public string? Position { get; set; }
     public int PositionId { get; set; }
 
-    public AddHfEntityLink(List<Property> properties, World world)
+    public AddHfEntityLink(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         LinkType = HfEntityLinkType.Unknown;
@@ -76,7 +76,7 @@ public class AddHfEntityLink : WorldEvent, IFeatured
         if (HistoricalFigure != null)
         {
             HistoricalFigure.AddEvent(this);
-            if (PositionId != -1)
+            if (LinkType == HfEntityLinkType.Position && PositionId != -1)
             {
                 HistoricalFigure.StartPositionAssignment(Entity, Year, PositionId, Position ?? string.Empty);
             }
@@ -135,12 +135,14 @@ public class AddHfEntityLink : WorldEvent, IFeatured
 
         if (AppointerHf != null)
         {
-            eventString.Append($", appointed by {AppointerHf.ToLink(link, pov, this)}");
+            eventString.Append(", appointed by ");
+            eventString.Append(AppointerHf.ToLink(link, pov, this));
         }
 
         if (PromiseToHf != null)
         {
-            eventString.Append($" as promised to {PromiseToHf.ToLink(link, pov, this)}");
+            eventString.Append(" as promised to ");
+            eventString.Append(PromiseToHf.ToLink(link, pov, this));
         }
 
         eventString.Append('.');

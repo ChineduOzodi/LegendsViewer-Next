@@ -1,3 +1,5 @@
+using System.Text;
+using LegendsViewer.Backend.Legends.Interfaces;
 using LegendsViewer.Backend.Legends.Enums;
 using LegendsViewer.Backend.Legends.EventCollections;
 using LegendsViewer.Backend.Legends.Extensions;
@@ -24,7 +26,7 @@ public class ItemStolen : WorldEvent
     public int CircumstanceId { get; set; }
     public string? TheftMethod { get; set; }
 
-    public ItemStolen(List<Property> properties, World world)
+    public ItemStolen(List<Property> properties, IWorld world)
         : base(properties, world)
     {
         foreach (Property property in properties)
@@ -34,63 +36,31 @@ public class ItemStolen : WorldEvent
                 case "histfig": Thief = world.GetHistoricalFigure(Convert.ToInt32(property.Value)); break;
                 case "site_id": Site = world.GetSite(Convert.ToInt32(property.Value)); break;
                 case "entity": Entity = world.GetEntity(Convert.ToInt32(property.Value)); break;
-                case "item":
-                    Artifact = world.GetArtifact(Convert.ToInt32(property.Value));
-                    break;
+                case "item": Artifact = world.GetArtifact(Convert.ToInt32(property.Value)); break;
                 case "item_type": ItemType = property.Value.Replace("_", " "); break;
                 case "item_subtype": ItemSubType = property.Value; break;
                 case "mat": Material = property.Value; break;
                 case "mattype": MaterialType = Convert.ToInt32(property.Value); break;
                 case "matindex": MaterialIndex = Convert.ToInt32(property.Value); break;
-                case "stash_site":
-                    ReturnSite = world.GetSite(Convert.ToInt32(property.Value));
-                    break;
+                case "stash_site": ReturnSite = world.GetSite(Convert.ToInt32(property.Value)); break;
                 case "site":
-                    if (Site == null)
-                    {
-                        Site = world.GetSite(Convert.ToInt32(property.Value));
-                    }
+                    if (Site == null) { Site = world.GetSite(Convert.ToInt32(property.Value)); } else { property.Known = true; }
                     break;
                 case "structure": StructureId = Convert.ToInt32(property.Value); break;
                 case "circumstance":
                     switch (property.Value)
                     {
-                        case "historical event collection":
-                            Circumstance = Circumstance.HistoricalEventCollection;
-                            break;
-                        case "defeated hf":
-                            Circumstance = Circumstance.DefeatedHf;
-                            break;
-                        case "murdered hf":
-                            Circumstance = Circumstance.MurderedHf;
-                            break;
-                        case "abducted hf":
-                            Circumstance = Circumstance.AbductedHf;
-                            break;
-                        default:
-                            if (property.Value != "-1")
-                            {
-                                property.Known = false;
-                            }
-                            break;
+                        case "historical event collection": Circumstance = Circumstance.HistoricalEventCollection; break;
+                        case "defeated hf": Circumstance = Circumstance.DefeatedHf; break;
+                        case "murdered hf": Circumstance = Circumstance.MurderedHf; break;
+                        case "abducted hf": Circumstance = Circumstance.AbductedHf; break;
+                        default: if (property.Value != "-1") { property.Known = false; } break;
                     }
                     break;
-                case "circumstance_id":
-                    CircumstanceId = Convert.ToInt32(property.Value);
-                    break;
+                case "circumstance_id": CircumstanceId = Convert.ToInt32(property.Value); break;
                 case "reason":
-                case "reason_id":
-                    if (property.Value != "-1")
-                    {
-                        property.Known = false;
-                    }
-                    break;
-                case "theft_method":
-                    if (property.Value != "theft")
-                    {
-                        TheftMethod = property.Value;
-                    }
-                    break;
+                case "reason_id": if (property.Value != "-1") { property.Known = false; } break;
+                case "theft_method": if (property.Value != "theft") { TheftMethod = property.Value; } break;
             }
         }
         if (Site != null)
@@ -104,70 +74,74 @@ public class ItemStolen : WorldEvent
         Artifact?.AddEvent(this);
         ReturnSite?.AddEvent(this);
     }
+
     public override string Print(bool link = true, DwarfObject? pov = null)
     {
-        string eventString = GetYearTime();
+        var sb = new StringBuilder();
+        sb.Append(GetYearTime());
         if (Artifact != null)
         {
-            eventString += Artifact.ToLink(link, pov, this);
+            sb.Append(Artifact.ToLink(link, pov, this));
         }
         else if (string.IsNullOrEmpty(ItemType))
         {
-            eventString += " an unknown item ";
+            sb.Append(" an unknown item ");
         }
         else
         {
-            eventString += " a ";
+            sb.Append(" a ");
             if (!string.IsNullOrWhiteSpace(Material))
             {
-                eventString += Material + " ";
+                sb.Append(Material);
+                sb.Append(" ");
             }
-            eventString += ItemType;
+            sb.Append(ItemType);
         }
-        eventString += " was ";
+        sb.Append(" was ");
         if (!string.IsNullOrWhiteSpace(TheftMethod))
         {
-            eventString += TheftMethod;
+            sb.Append(TheftMethod);
         }
         else
         {
-            eventString += "stolen";
+            sb.Append("stolen");
         }
-        eventString += " ";
+        sb.Append(" ");
         if (Structure != null)
         {
-            eventString += "from ";
-            eventString += Structure.ToLink(link, pov, this);
-            eventString += " ";
+            sb.Append("from ");
+            sb.Append(Structure.ToLink(link, pov, this));
+            sb.Append(" ");
         }
-        eventString += "in ";
+        sb.Append("in ");
         if (Site != null)
         {
-            eventString += Site.ToLink(link, pov, this);
+            sb.Append(Site.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "UNKNOWN SITE";
+            sb.Append("UNKNOWN SITE");
         }
-        eventString += " by ";
+        sb.Append(" by ");
         if (Thief != null)
         {
-            eventString += Thief.ToLink(link, pov, this);
+            sb.Append(Thief.ToLink(link, pov, this));
         }
         else
         {
-            eventString += "an unknown creature";
+            sb.Append("an unknown creature");
         }
 
         if (ReturnSite != null)
         {
-            eventString += " and brought to " + ReturnSite.ToLink();
+            sb.Append(" and brought to ");
+            sb.Append(ReturnSite.ToLink());
         }
         if (ParentCollection is not Theft)
         {
-            eventString += PrintParentCollection(link, pov);
+            sb.Append(PrintParentCollection(link, pov));
         }
-        eventString += ".";
-        return eventString;
+        sb.Append(".");
+        return sb.ToString();
     }
 }

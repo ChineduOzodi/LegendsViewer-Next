@@ -21,6 +21,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegendsViewer.Backend.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegendsViewer.Backend.Benchmarks", "LegendsViewer.Backend.Benchmarks\LegendsViewer.Backend.Benchmarks.csproj", "{E3082B85-D77F-F841-DAB4-3662CAD70C9E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{AA90F9E2-B5BA-4815-90C1-0D1757FD32C3}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
+		.github\workflows\publish-linux-x64.yml = .github\workflows\publish-linux-x64.yml
+		.github\workflows\publish-osx-arm64.yml = .github\workflows\publish-osx-arm64.yml
+		.github\workflows\publish-osx-x64.yml = .github\workflows\publish-osx-x64.yml
+		.github\workflows\publish-win-x64.yml = .github\workflows\publish-win-x64.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +91,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AA90F9E2-B5BA-4815-90C1-0D1757FD32C3} = {C001882B-B859-4E9F-B8F6-DFFA2759785F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B0B633E-EFFC-4F3E-A74B-D6240E4A974F}
